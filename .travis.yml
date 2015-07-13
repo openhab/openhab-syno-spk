@@ -1,2 +1,4 @@
+language: groovy
+
 before_deploy:
   - tar -cvf OpenHAB-$TRAVIS_TAG-syno-noarch-0.001.spk ./*

@@ -1,12 +1,16 @@
 language: bash
 
 script:
-  - tar -cvf OpenHAB-$TRAVIS_TAG-syno-noarch-0.001.spk ./*
+  - tar -cvf OpenHAB-$TRAVIS_BRANCH-syno-noarch-0.001.spk ./*
 
 deploy:
   provider: releases
   api_key: 8efc417b05645f6fa74920f47b3f1d4a89f5f7fe
-  file: OpenHAB-$TRAVIS_TAG-syno-noarch-0.001.spk
+  file: OpenHAB-$TRAVIS_BRANCH-syno-noarch-0.001.spk
   skip_cleanup: true
   on:
     tags: true
+
+notifications:
+  email:
+    - c-n-i@web.de

@@ -3,10 +3,10 @@
 #--------OpenHAB installer script
 #--------package based on work from pcloadletter.co.uk
 
-DOWNLOAD_FILE="distribution-1.6.1-runtime.zip"
-DOWNLOAD_PATH="https://github.com/openhab/openhab/releases/download/v1.6.1"
+DOWNLOAD_FILE="distribution-1.6.2-runtime.zip"
+DOWNLOAD_PATH="https://github.com/openhab/openhab/releases/download/v1.6.2"
 
-EXTRACTED_FOLDER="OpenHAB-runtime-1.6.1"
+EXTRACTED_FOLDER="OpenHAB-runtime-1.6.2"
 DOWNLOAD_URL="${DOWNLOAD_PATH}/${DOWNLOAD_FILE}"
 DAEMON_USER="`echo ${SYNOPKG_PKGNAME} | awk {'print tolower($_)'}`"
 DAEMON_PASS="`openssl rand 12 -base64 2>nul`"

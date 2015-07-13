@@ -1,4 +1,4 @@
 language: bash
 
-before_deploy:
+script:
   - tar -cvf OpenHAB-$TRAVIS_TAG-syno-noarch-0.001.spk ./*

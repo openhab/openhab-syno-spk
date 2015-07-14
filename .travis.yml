@@ -4,6 +4,7 @@ env:
   - FILE_NAME=OpenHAB-$TRAVIS_BRANCH-syno-noarch-0.001.spk
 
 script:
+  - echo ${FILE_NAME}
   - tar -cvf ${FILE_NAME} ./*
 
 deploy:

@@ -1,18 +1,18 @@
 language: bash
 
 env:
-  FILE_NAME=OpenHAB-$[TRAVIS_BRANCH}-syno-noarch-0.001.spk
+  FILE_NAME=OpenHAB-$TRAVIS_BRANCH-syno-noarch-0.001.spk
 
 script:
-  - tar -cvf ${FILE_NAME} ./*
+  - tar -cvf $FILE_NAME ./*
 
 deploy:
   skip_cleanup: true
   provider: releases
   api_key:
-    secure: ${GH_TOKEN}
+    secure: $GH_TOKEN
   file: 
-    - $[FILE_NAME}
+    - $FILE_NAME
   on:
     tags: true
 

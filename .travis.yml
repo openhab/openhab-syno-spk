@@ -1,9 +1,7 @@
 language: bash
 
-env:
-  - export FILE_NAME=OpenHAB-$TRAVIS_BRANCH-syno-noarch-0.001.spk
-
 script:
+  - export FILE_NAME=OpenHAB-$TRAVIS_BRANCH-syno-noarch-0.001.spk
   - echo $FILE_NAME
   - tar -cvf $FILE_NAME ./*
 

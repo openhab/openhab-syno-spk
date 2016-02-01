@@ -1,5 +1,5 @@
 package="OpenHAB"
-version="1.8.0-001"
+version="1.8.0-002"
 maintainer="OpenHAB.org"
 maintainer_url="http://openhab.org/"
 distributor="cniweb,tim,dieter,dominic"

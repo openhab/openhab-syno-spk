@@ -34,18 +34,8 @@ preinst ()
   fi
   
   #is the User Home service enabled?
-  UH_SERVICE=maybe
-  synouser --add userhometest Testing123 "User Home test user" 0 "" ""
-  UHT_HOMEDIR=`cat /etc/passwd | sed -r '/User Home test user/!d;s/^.*:User Home test user:(.*):.*$/\1/'`
-  if echo $UHT_HOMEDIR | grep '/var/services/homes/' > /dev/null; then
-    if [ ! -d $UHT_HOMEDIR ]; then
-      UH_SERVICE=false
-    fi
-  fi
-  synouser --del userhometest
-  #remove home directory (needed since DSM 4.1)
-  [ -e /var/services/homes/userhometest ] && rm -r /var/services/homes/userhometest
-  if [ ${UH_SERVICE} == "false" ]; then
+  UH_SERVICE=`synogetkeyvalue /etc/synoinfo.conf userHomeEnable`
+  if [ ${UH_SERVICE} == "no" ]; then
     echo "The User Home service is not enabled. Please enable this feature in the User control panel in DSM."
     exit 1
   fi
@@ -76,6 +66,7 @@ postinst ()
 {
   #create daemon user
   synouser --add ${DAEMON_USER} ${DAEMON_PASS} "${DAEMON_ID}" 0 "" ""
+  sleep 3
   
   #determine the daemon user homedir and save that variable in the user's profile
   #this is needed because new users seem to inherit a HOME value of /root which they have no permissions for
@@ -129,6 +120,7 @@ postuninst ()
 {
   #remove daemon user
   synouser --del ${DAEMON_USER}
+  sleep 3
   
   #remove daemon user's home directory (needed since DSM 4.1)
   [ -e /var/services/homes/${DAEMON_USER} ] && rm -r /var/services/homes/${DAEMON_USER}

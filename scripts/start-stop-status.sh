@@ -7,7 +7,7 @@ DAEMON_USER="`echo ${SYNOPKG_PKGNAME} | awk {'print tolower($_)'}`"
 DAEMON_ID="${SYNOPKG_PKGNAME} daemon user"
 ENGINE_SCRIPT="start_runtime.sh"
 DAEMON_USER_SHORT=`echo ${DAEMON_USER} | cut -c 1-8`
-
+PIDFILE="/var/services/homes/openhab/.daemon.pid"
 
 daemon_status ()
 {
@@ -47,12 +47,13 @@ case $1 in
   ;;
 
   status)
-    if daemon_status ; then
+    [ ! -f "$PIDFILE" ] && return 1
+    if ps -p $(cat "$PIDFILE") > /dev/null; then
       exit 0
     else
       exit 1
     fi
- 	;;
+        ;;
 
   log)
     echo "${SYNOPKG_PKGDEST}/logs/openhab.log"

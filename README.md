@@ -8,4 +8,6 @@ Comments, suggestions and contributions are welcome!
 
 Official [Forum](https://community.openhab.org/t/synology-diskstation/1446)
 
+Gitter [Chat](https://gitter.im/openhab/openhab-syno-spk)
+
 Travis Build Status: [![Build Status](https://travis-ci.org/openhab/openhab-syno-spk.svg?branch=master)](https://travis-ci.org/openhab/openhab-syno-spk)

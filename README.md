@@ -1,5 +1,7 @@
 # OpenHAB Synology DiskStation Install Package
 
+[![Join the chat at https://gitter.im/openhab/openhab-syno-spk](https://badges.gitter.im/openhab/openhab-syno-spk.svg)](https://gitter.im/openhab/openhab-syno-spk?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 This project build a Synology DiskStation SPK install package for [OpenHAB](http://openhab.org) (Home Automation Server).
 
 Download SPK package, see [Releases](https://github.com/openhab/openhab-syno-spk/releases) ([Stats](http://www.somsubhra.com/github-release-stats/?username=openhab&repository=openhab-syno-spk)).

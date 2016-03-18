@@ -24,6 +24,8 @@ Travis build state: [![Build state](https://travis-ci.org/openhab/openhab-syno-s
 
 [@cniweb](https://github.com/cniweb)
 
+[@gitter-badger](https://github.com/gitter-badger)
+
 ## Donation
 
 If you like openhab-syno-spk, consider making a donation to its core developer:

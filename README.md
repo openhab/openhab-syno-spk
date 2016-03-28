@@ -24,14 +24,8 @@ Travis build state: [![Build state](https://travis-ci.org/openhab/openhab-syno-s
 
 [@cniweb](https://github.com/cniweb)
 
-[@gitter-badger](https://github.com/gitter-badger)
-
-## Donation
-
-If you like openhab-syno-spk, consider making a donation to its core developer:
-
-cniweb: [![Donation](https://www.paypal.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=GBY9CMSM8HJXS&item_name=openhab-syno-spk)
+[Contribution guidelines](https://github.com/openhab/openhab-syno-spk/blob/master/CONTRIBUTING.md)
 
 ## License
 
-When not explicitly set, files are placed under [GPL-3.0](http://www.gnu.org/licenses/gpl-3.0-standalone.html) license.
+When not explicitly set, files are placed under [EPL](https://github.com/openhab/openhab-syno-spk/blob/master/LICENSE) license.

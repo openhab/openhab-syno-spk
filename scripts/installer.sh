@@ -3,10 +3,10 @@
 #--------OpenHAB installer script
 #--------package based on work from pcloadletter.co.uk
 
-DOWNLOAD_FILE="distribution-1.8.2-runtime.zip"
+DOWNLOAD_FILE="distribution-1.8.3-runtime.zip"
 DOWNLOAD_PATH="https://bintray.com/artifact/download/openhab/bin"
 
-EXTRACTED_FOLDER="OpenHAB-runtime-1.8.2"
+EXTRACTED_FOLDER="OpenHAB-runtime-1.8.3"
 DOWNLOAD_URL="${DOWNLOAD_PATH}/${DOWNLOAD_FILE}"
 DAEMON_USER="`echo ${SYNOPKG_PKGNAME} | awk {'print tolower($_)'}`"
 DAEMON_PASS="`openssl rand 12 -base64 2>nul`"

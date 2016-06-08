@@ -5,7 +5,7 @@
 
 DAEMON_USER="`echo ${SYNOPKG_PKGNAME} | awk {'print tolower($_)'}`"
 DAEMON_ID="${SYNOPKG_PKGNAME} daemon user"
-ENGINE_SCRIPT="start_runtime.sh"
+ENGINE_SCRIPT="start.sh"
 DAEMON_USER_SHORT=`echo ${DAEMON_USER} | cut -c 1-8`
 
 

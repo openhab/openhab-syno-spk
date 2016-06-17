@@ -7,7 +7,7 @@ DAEMON_USER="`echo ${SYNOPKG_PKGNAME} | awk {'print tolower($_)'}`"
 DAEMON_ID="${SYNOPKG_PKGNAME} daemon user"
 ENGINE_SCRIPT="start.sh"
 DAEMON_USER_SHORT=`echo ${DAEMON_USER} | cut -c 1-8`
-PIDFILE="/var/services/homes/openhab/.daemon.pid"
+PIDFILE="/var/services/homes/openhab2/.daemon.pid"
 
 daemon_status ()
 {

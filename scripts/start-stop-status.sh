@@ -40,13 +40,16 @@ case $1 in
 #    fi
   
     exit 0
-	;;
+  ;;
 
   stop)
-    su - ${DAEMON_USER} -s /bin/sh -c "${SYNOPKG_PKGDEST}/stop_runtime.sh"
+    if su - ${DAEMON_USER} -s ${SYNOPKG_PKGDEST}/runtime/karaf/bin/stop
+    then
+      rm -f $PIDFILE
+    fi
     
     #remove DSM icon symlinks
-    rm /usr/syno/synoman/webman/3rdparty/OpenHAB*
+#    rm /usr/syno/synoman/webman/3rdparty/OpenHAB*
     
     exit 0
   ;;

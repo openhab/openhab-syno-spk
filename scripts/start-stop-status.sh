@@ -43,7 +43,7 @@ case $1 in
   ;;
 
   stop)
-    if su - ${DAEMON_USER} -s ${SYNOPKG_PKGDEST}/runtime/karaf/bin/stop
+    if su - ${DAEMON_USER} -s /bin/sh -c "cd ${SYNOPKG_PKGDEST}/runtime/karaf/bin && ./stop &"
     then
       rm -f $PIDFILE
     fi

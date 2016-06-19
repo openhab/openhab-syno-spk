@@ -88,7 +88,7 @@ postinst ()
 
   #if configdir exists in public folder -> create a symbolic link
   if [ -d ${PUBLIC_CONF} ]; then
-    rm -r ${SYNOPKG_PKGDEST}/configurations
+    rm -r ${SYNOPKG_PKGDEST}/conf
     ln -s ${PUBLIC_CONF} ${SYNOPKG_PKGDEST}
   fi
 

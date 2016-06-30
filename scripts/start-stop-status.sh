@@ -64,7 +64,7 @@ case $1 in
         ;;
 
   log)
-    echo "${SYNOPKG_PKGDEST}/logs/openhab.log"
+    echo "${SYNOPKG_PKGDEST}/userdata/logs/openhab.log"
     exit 0
   ;;
 esac

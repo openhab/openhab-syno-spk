@@ -109,7 +109,7 @@ postinst ()
 preuninst ()
 {
   #make sure server is stopped
-  su - ${DAEMON_USER} -s /bin/sh -c "cd ${SYNOPKG_PKGDEST}/runtime/karaf/bin && ./stop &"
+  su - ${DAEMON_USER} -s /bin/sh -c "cd ${SYNOPKG_PKGDEST}/runtime/bin && ./stop &"
   sleep 10
   
   exit 0

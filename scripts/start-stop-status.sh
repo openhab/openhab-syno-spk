@@ -7,7 +7,7 @@ DAEMON_USER="`echo ${SYNOPKG_PKGNAME} | awk {'print tolower($_)'}`"
 DAEMON_ID="${SYNOPKG_PKGNAME} daemon user"
 ENGINE_SCRIPT="start.sh"
 DAEMON_USER_SHORT=`echo ${DAEMON_USER} | cut -c 1-8`
-
+PIDFILE="/var/services/homes/${DAEMON_USER}/.daemon.pid"
 
 daemon_status ()
 {
@@ -35,13 +35,16 @@ case $1 in
 #    fi
   
     exit 0
-	;;
+  ;;
 
   stop)
-    su - ${DAEMON_USER} -s /bin/sh -c "${SYNOPKG_PKGDEST}/stop_runtime.sh"
+    if su - ${DAEMON_USER} -s /bin/sh -c "cd ${SYNOPKG_PKGDEST}/runtime/karaf/bin && ./stop &"
+    then
+      rm -f $PIDFILE
+    fi
     
     #remove DSM icon symlinks
-    rm /usr/syno/synoman/webman/3rdparty/OpenHAB*
+#    rm /usr/syno/synoman/webman/3rdparty/OpenHAB*
     
     exit 0
   ;;

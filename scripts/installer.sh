@@ -11,7 +11,7 @@ DOWNLOAD_URL="${DOWNLOAD_PATH}/${DOWNLOAD_FILE}"
 DAEMON_USER="`echo ${SYNOPKG_PKGNAME} | awk {'print tolower($_)'}`"
 DAEMON_PASS="`openssl rand 12 -base64 2>nul`"
 DAEMON_ID="${SYNOPKG_PKGNAME} daemon user"
-ENGINE_SCRIPT="start_runtime.sh"
+ENGINE_SCRIPT="start.sh"
 INSTALL_FILES="${DOWNLOAD_URL}"
 source /etc/profile
 TEMP_FOLDER="`find / -maxdepth 2 -name '@tmp' | head -n 1`"

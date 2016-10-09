@@ -3,10 +3,10 @@
 #--------OpenHAB installer script
 #--------package based on work from pcloadletter.co.uk
 
-DOWNLOAD_FILE="openhab-offline-2.0.0.b3.zip"
-DOWNLOAD_PATH="https://bintray.com/artifact/download/openhab/mvn/org/openhab/distro/openhab-offline/2.0.0.b3"
+DOWNLOAD_FILE="openhab-offline-2.0.0-SNAPSHOT.zip"
+DOWNLOAD_PATH="https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-offline/target/"
 
-EXTRACTED_FOLDER="OpenHAB-runtime-2.0.0-beta3"
+EXTRACTED_FOLDER="OpenHAB-runtime-2.0.0-SNAPSHOT"
 DOWNLOAD_URL="${DOWNLOAD_PATH}/${DOWNLOAD_FILE}"
 DAEMON_USER="`echo ${SYNOPKG_PKGNAME} | awk {'print tolower($_)'}`"
 DAEMON_PASS="`openssl rand 12 -base64 2>nul`"

@@ -6,7 +6,7 @@
 DOWNLOAD_FILE="openhab-offline-2.0.0-SNAPSHOT.zip"
 DOWNLOAD_PATH="https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-offline/target/"
 
-EXTRACTED_FOLDER="OpenHAB-runtime-2.0.0-SNAPSHOT"
+EXTRACTED_FOLDER="openhab-offline-2.0.0-SNAPSHOT"
 DOWNLOAD_URL="${DOWNLOAD_PATH}/${DOWNLOAD_FILE}"
 DAEMON_USER="`echo ${SYNOPKG_PKGNAME} | awk {'print tolower($_)'}`"
 DAEMON_PASS="`openssl rand 12 -base64 2>nul`"
@@ -16,8 +16,8 @@ INSTALL_FILES="${DOWNLOAD_URL}"
 source /etc/profile
 TEMP_FOLDER="`find / -maxdepth 2 -name '@tmp' | head -n 1`"
 PRIMARY_VOLUME="/`echo $TEMP_FOLDER | cut -f2 -d'/'`"
-PUBLIC_CONF="/volume1/public/OpenHAB2/conf"
-PUBLIC_ADDONS="/volume1/public/OpenHAB2/addons"
+PUBLIC_CONF="/volume1/public/openHAB2/conf"
+PUBLIC_ADDONS="/volume1/public/openHAB2/addons"
 
 preinst ()
 {
@@ -109,7 +109,7 @@ postinst ()
 preuninst ()
 {
   #make sure server is stopped
-  su - ${DAEMON_USER} -s /bin/sh -c "${SYNOPKG_PKGDEST}/stop_runtime.sh"
+  su - ${DAEMON_USER} -s /bin/sh -c "cd ${SYNOPKG_PKGDEST}/runtime/karaf/bin && ./stop &"
   sleep 10
   
   exit 0

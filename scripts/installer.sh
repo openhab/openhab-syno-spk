@@ -98,6 +98,11 @@ postinst ()
     ln -s ${PUBLIC_ADDONS} ${SYNOPKG_PKGDEST}
   fi
 
+  #if Z-Wave dir exists -> change rights for binding
+  if [ -d /dev/ttyACM0 ]; then 
+    chmod 777 /dev/ttyACM0
+  fi
+
   #change owner of folder tree
   chown -R ${DAEMON_USER} ${SYNOPKG_PKGDEST}
   

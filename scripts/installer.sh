@@ -4,7 +4,7 @@
 #--------package based on work from pcloadletter.co.uk
 
 DOWNLOAD_FILE="openhab-offline-2.0.0-SNAPSHOT.zip"
-DOWNLOAD_PATH="https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-offline/target/"
+DOWNLOAD_PATH="https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-offline/target"
 
 EXTRACTED_FOLDER="OpenHAB-runtime-2.0.0-SNAPSHOT"
 DOWNLOAD_URL="${DOWNLOAD_PATH}/${DOWNLOAD_FILE}"
@@ -98,7 +98,6 @@ postinst ()
     ln -s ${PUBLIC_ADDONS} ${SYNOPKG_PKGDEST}
   fi
 
-
   #change owner of folder tree
   chown -R ${DAEMON_USER} ${SYNOPKG_PKGDEST}
   
@@ -109,7 +108,10 @@ postinst ()
 preuninst ()
 {
   #make sure server is stopped
-  su - ${DAEMON_USER} -s /bin/sh -c "${SYNOPKG_PKGDEST}/stop_runtime.sh"
+  if su - ${DAEMON_USER} -s /bin/sh -c "cd ${SYNOPKG_PKGDEST}/runtime/karaf/bin && ./stop &"
+  then
+    rm -f $PIDFILE
+  fi
   sleep 10
   
   exit 0

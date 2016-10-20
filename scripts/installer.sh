@@ -90,13 +90,21 @@ postinst ()
   if [ -d ${PUBLIC_CONF} ]; then
     rm -r ${SYNOPKG_PKGDEST}/conf
     ln -s ${PUBLIC_CONF} ${SYNOPKG_PKGDEST}
+  else
+    #if configdir not exists in public folder -> create it, copy content and create a symbolic link
+    mkdir ${PUBLIC_CONF}
+    cp -r ${SYNOPKG_PKGDEST}/conf ${PUBLIC_CONF}
+    chown -R ${DAEMON_USER} ${PUBLIC_CONF}
+    rm -r ${SYNOPKG_PKGDEST}/conf
+    ln -s ${PUBLIC_CONF} ${SYNOPKG_PKGDEST}
   fi
 
+  #With OH2 no longer required...
   #if public addons dir exists in public folder -> create a symbolic link
-  if [ -d ${PUBLIC_ADDONS} ]; then
-    rm -r ${SYNOPKG_PKGDEST}/addons
-    ln -s ${PUBLIC_ADDONS} ${SYNOPKG_PKGDEST}
-  fi
+#  if [ -d ${PUBLIC_ADDONS} ]; then
+#    rm -r ${SYNOPKG_PKGDEST}/addons
+#    ln -s ${PUBLIC_ADDONS} ${SYNOPKG_PKGDEST}
+#  fi
 
   #if Z-Wave dir exists -> change rights for binding
   if [ -d /dev/ttyACM0 ]; then 

@@ -3,7 +3,7 @@ language: bash
 script:
   - export FILE_NAME=OpenHAB-$TRAVIS_BRANCH-syno-noarch-0.001.spk
   - echo $FILE_NAME
-  - tar -cvf $FILE_NAME *
+  - tar cJf $FILE_NAME *
 
 deploy:
   skip_cleanup: true

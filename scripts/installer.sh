@@ -80,7 +80,10 @@ postinst ()
   mv ${TEMP_FOLDER}/${EXTRACTED_FOLDER}/* ${SYNOPKG_PKGDEST}
   rmdir ${TEMP_FOLDER}/${EXTRACTED_FOLDER}
   chmod +x ${SYNOPKG_PKGDEST}/${ENGINE_SCRIPT}
-  
+
+  #change owner of folder tree
+  chown -R ${DAEMON_USER} ${SYNOPKG_PKGDEST}
+
   #TCP port 8081 is in use on Synology so we need to move Catalina to another port - 18581
   #This regex was tricky, but possible thanks to http://austinmatzko.com/2008/04/26/sed-multi-line-search-and-replace/
   #sed -i -n '1h;1!H;${;g;s%\(<Connector executor="HTTP-ThreadPool".*port="\)8080\(".* />\)%\118581\2%;p;}' ${SYNOPKG_PKGDEST}/conf/server.xml
@@ -90,13 +93,13 @@ postinst ()
   if [ -d ${PUBLIC_CONF} ]; then
     rm -r ${SYNOPKG_PKGDEST}/conf
     ln -s ${PUBLIC_CONF} ${SYNOPKG_PKGDEST}
-  else
+#  else
     #if configdir not exists in public folder -> create it, copy content and create a symbolic link
-    mkdir ${PUBLIC_CONF}
-    cp -r ${SYNOPKG_PKGDEST}/conf ${PUBLIC_CONF}
-    chown -R ${DAEMON_USER} ${PUBLIC_CONF}
-    rm -r ${SYNOPKG_PKGDEST}/conf
-    ln -s ${PUBLIC_CONF} ${SYNOPKG_PKGDEST}
+#    mkdir -p ${PUBLIC_CONF}
+#    cp -r ${SYNOPKG_PKGDEST}/conf ${PUBLIC_CONF}
+#    chown -R ${DAEMON_USER} ${PUBLIC_CONF}
+#    rm -r ${SYNOPKG_PKGDEST}/conf
+#    ln -s ${PUBLIC_CONF} ${SYNOPKG_PKGDEST}
   fi
 
   #With OH2 no longer required...
@@ -111,9 +114,6 @@ postinst ()
     chmod 777 /dev/ttyACM0
   fi
 
-  #change owner of folder tree
-  chown -R ${DAEMON_USER} ${SYNOPKG_PKGDEST}
-  
   exit 0
 }
 

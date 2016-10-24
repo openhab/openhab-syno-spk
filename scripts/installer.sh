@@ -21,12 +21,14 @@ PUBLIC_ADDONS="/volume1/public/openhab2/addons"
 
 preinst ()
 {
+  #Is there JAVA_HOME?
   if [ -z ${JAVA_HOME} ]; then
     echo "Java is not installed or not properly configured. JAVA_HOME is not defined. "
     echo "Download and install the Java Synology package from http://wp.me/pVshC-z5"
     exit 1
   fi
   
+  #Is Java installed?
   if [ ! -f ${JAVA_HOME}/bin/java ]; then
     echo "Java is not installed or not properly configured. The Java binary could not be located. "
     echo "Download and install the Java Synology package from http://wp.me/pVshC-z5"
@@ -95,7 +97,6 @@ postinst ()
 #    ln -s ${PUBLIC_CONF} ${SYNOPKG_PKGDEST}
 #  fi
 
-  #With OH2 no longer required...
   #if public addons dir exists in public folder -> create a symbolic link
 #  if [ -d ${PUBLIC_ADDONS} ]; then
 #    rm -r ${SYNOPKG_PKGDEST}/addons

@@ -16,8 +16,8 @@ INSTALL_FILES="${DOWNLOAD_URL}"
 source /etc/profile
 TEMP_FOLDER="`find / -maxdepth 2 -name '@tmp' | head -n 1`"
 PRIMARY_VOLUME="/`echo $TEMP_FOLDER | cut -f2 -d'/'`"
-PUBLIC_CONF="/volume1/public/OpenHAB2/conf"
-PUBLIC_ADDONS="/volume1/public/OpenHAB2/addons"
+PUBLIC_CONF="/volume1/public/openhab2/conf"
+PUBLIC_ADDONS="/volume1/public/openhab2/addons"
 
 preinst ()
 {
@@ -90,17 +90,10 @@ postinst ()
   #sed -i "s/^webapp.port=.*$/webapp.port=18581/" ${SYNOPKG_PKGDEST}/webapps/controller/WEB-INF/classes/config.properties
 
   #if configdir exists in public folder -> create a symbolic link
-  if [ -d ${PUBLIC_CONF} ]; then
-    rm -r ${SYNOPKG_PKGDEST}/conf
-    ln -s ${PUBLIC_CONF} ${SYNOPKG_PKGDEST}
-#  else
-    #if configdir not exists in public folder -> create it, copy content and create a symbolic link
-#    mkdir -p ${PUBLIC_CONF}
-#    cp -r ${SYNOPKG_PKGDEST}/conf ${PUBLIC_CONF}
-#    chown -R ${DAEMON_USER} ${PUBLIC_CONF}
+#  if [ -d ${PUBLIC_CONF} ]; then
 #    rm -r ${SYNOPKG_PKGDEST}/conf
 #    ln -s ${PUBLIC_CONF} ${SYNOPKG_PKGDEST}
-  fi
+#  fi
 
   #With OH2 no longer required...
   #if public addons dir exists in public folder -> create a symbolic link
@@ -112,6 +105,9 @@ postinst ()
   #if Z-Wave dir exists -> change rights for binding
   if [ -d /dev/ttyACM0 ]; then 
     chmod 777 /dev/ttyACM0
+  fi
+  if [ -d /dev/ttyACM1 ]; then 
+    chmod 777 /dev/ttyACM1
   fi
 
   exit 0

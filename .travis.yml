@@ -3,8 +3,7 @@ language: bash
 script:
   - export FILE_NAME=OpenHAB-$TRAVIS_BRANCH-syno-noarch-0.001.spk
   - echo $FILE_NAME
-  - pwd
-  - tar cvf $FILE_NAME /home/travis/build/openhab/openhab-syno-spk --owner=0 --group=0 --exclude=*.md
+  - tar cvf $FILE_NAME * --owner=0 --group=0 --exclude=*.md --exclude=.travis.*
 
 deploy:
   skip_cleanup: true

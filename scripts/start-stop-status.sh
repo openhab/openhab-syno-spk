@@ -16,6 +16,12 @@ daemon_status ()
 
 case $1 in
   start)
+    #Are the port already used?
+    if netstat -tlpn | grep ${SYNOPKG_PKGPORT}; then
+      echo "Port ${SYNOPKG_PKGPORT} already in use."
+      exit 1
+    fi
+
     DAEMON_HOME="`cat /etc/passwd | grep "${DAEMON_ID}" | cut -f6 -d':'`"
     
     #set the current timezone for Java so that log timestamps are accurate

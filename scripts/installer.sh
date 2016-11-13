@@ -4,7 +4,7 @@
 #--------package based on work from pcloadletter.co.uk
 
 DOWNLOAD_FILE="openhab-offline-2.0.0-SNAPSHOT.zip"
-DOWNLOAD_PATH="https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-offline/target/"
+DOWNLOAD_PATH="https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-offline/target"
 
 EXTRACTED_FOLDER="openhab-offline-2.0.0-SNAPSHOT"
 DOWNLOAD_URL="${DOWNLOAD_PATH}/${DOWNLOAD_FILE}"

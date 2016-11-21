@@ -1,6 +1,6 @@
-# OpenHAB Synology DiskStation Install Package
+# openHAB Synology DiskStation Install Package
 
-This project build a Synology DiskStation SPK install package for [OpenHAB](http://openhab.org) (Home Automation Server).
+This project build a Synology DiskStation SPK install package for [openHAB](http://openhab.org) (Home Automation Server).
 
 Comments, suggestions and contributions are welcome!
 

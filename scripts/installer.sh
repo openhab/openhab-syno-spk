@@ -16,8 +16,8 @@ INSTALL_FILES="${DOWNLOAD_URL}"
 source /etc/profile
 TEMP_FOLDER="`find / -maxdepth 2 -name '@tmp' | head -n 1`"
 PRIMARY_VOLUME="/`echo $TEMP_FOLDER | cut -f2 -d'/'`"
-PUBLIC_CONF="/volume1/public/openhab2/conf"
-PUBLIC_ADDONS="/volume1/public/openhab2/addons"
+PUBLIC_CONF="/volume1/public/openHAB2/conf"
+PUBLIC_ADDONS="/volume1/public/openHAB2/addons"
 
 preinst ()
 {

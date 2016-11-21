@@ -34,8 +34,8 @@ case $1 in
     #Before DSM 5.1
     #SYNO_TZ=grep "^${SYNO_TZ}" /usr/share/zoneinfo/Timezone/tzlist | sed -e "s/^.*= //"
     grep "^export TZ" ${DAEMON_HOME}/.profile > /dev/null \
-    && sed -i "s%^export TZ=.*$%export TZ='${SYNO_TZ}'%" ${DAEMON_HOME}/.profile \
-    || echo export TZ=\'${SYNO_TZ}\' >> ${DAEMON_HOME}/.profile
+     && sed -i "s%^export TZ=.*$%export TZ='${SYNO_TZ}'%" ${DAEMON_HOME}/.profile \
+     || echo export TZ=\'${SYNO_TZ}\' >> ${DAEMON_HOME}/.profile
     
     #start OpenHAB runtime in background mode
     su - ${DAEMON_USER} -s /bin/sh -c "cd ${SYNOPKG_PKGDEST} && ./${ENGINE_SCRIPT} &"

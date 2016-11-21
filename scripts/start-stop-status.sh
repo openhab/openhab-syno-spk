@@ -67,7 +67,7 @@ case $1 in
     else
       exit 1
     fi
-        ;;
+  ;;
 
   log)
     echo "${SYNOPKG_PKGDEST}/userdata/logs/openhab.log"

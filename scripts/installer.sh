@@ -3,7 +3,7 @@
 #--------OpenHAB installer script
 #--------package based on work from pcloadletter.co.uk
 
-DOWNLOAD_FILE="openhab-offline-2.0.0-SNAPSHOT.zip"
+DOWNLOAD_FILE="openhab-2.0.0-SNAPSHOT.zip"
 DOWNLOAD_PATH="https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-offline/target"
 
 EXTRACTED_FOLDER="OpenHAB-runtime-2.0.0-SNAPSHOT"

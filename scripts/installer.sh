@@ -3,8 +3,11 @@
 #--------OpenHAB installer script
 #--------package based on work from pcloadletter.co.uk
 
-DOWNLOAD_FILE="openhab-offline-2.0.0-SNAPSHOT.zip"
-DOWNLOAD_PATH="https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-offline/target"
+DOWNLOAD_FILE="openhab-2.0.0-SNAPSHOT.zip"
+DOWNLOAD_PATH="https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab/target"
+PUBLIC_CONF="/volume1/public/OpenHAB2/conf"
+PUBLIC_ADDONS="/volume1/public/OpenHAB2/addons"
+SYNOPKG_PKGDEST="/volume1/@appstore/OpenHAB2"
 
 EXTRACTED_FOLDER="OpenHAB-runtime-2.0.0-SNAPSHOT"
 DOWNLOAD_URL="${DOWNLOAD_PATH}/${DOWNLOAD_FILE}"
@@ -16,8 +19,6 @@ INSTALL_FILES="${DOWNLOAD_URL}"
 source /etc/profile
 TEMP_FOLDER="`find / -maxdepth 2 -name '@tmp' | head -n 1`"
 PRIMARY_VOLUME="/`echo $TEMP_FOLDER | cut -f2 -d'/'`"
-PUBLIC_CONF="/volume1/public/openhab2/conf"
-PUBLIC_ADDONS="/volume1/public/openhab2/addons"
 
 preinst ()
 {
@@ -138,4 +139,61 @@ postuninst ()
   [ -e /var/services/homes/${DAEMON_USER} ] && rm -r /var/services/homes/${DAEMON_USER}
   
   exit 0
+}
+
+preupgrade ()
+{
+  # Remove tmp, logs & cache dirs
+  if [ -d ${SYNOPKG_PKGDEST}/userdata/tmp ]; then
+  	echo "Remove tmp"
+  	rm -rf ${SYNOPKG_PKGDEST}/userdata/tmp
+  fi
+
+  if [ -d ${SYNOPKG_PKGDEST}/userdata/cache ]; then
+  	echo "Remove cache"
+  	rm -rf ${SYNOPKG_PKGDEST}/userdata/cache
+  fi
+
+  if [ -d ${SYNOPKG_PKGDEST}/userdata/log ]; then
+  	echo "Remove log"
+  	rm -rf ${SYNOPKG_PKGDEST}/userdata/log
+  fi
+
+  if [ -d ${SYNOPKG_PKGDEST}/userdata/logs ]; then
+  	echo "Remove logs"
+  	rm -rf ${SYNOPKG_PKGDEST}/userdata/logs
+  fi
+
+  # backup current installation with settings
+  echo "Backup"
+  TIMESTAMP=`date +%Y%m%d_%H%M%S`;
+  sudo mv ${SYNOPKG_PKGDEST} /${SYNOPKG_PKGDEST}-backup-$TIMESTAMP
+
+  exit 0
+}
+
+postupgrade ()
+{
+# restore configuration and userdata
+echo "Restore UserData"
+sudo cp -arv ${SYNOPKG_PKGDEST}-backup-$TIMESTAMP/userdata ${SYNOPKG_PKGDEST}/
+
+echo "create conf/addon links"
+  #if configdir exists in public folder -> create a symbolic link
+  if [ -d ${PUBLIC_CONF} ]; then
+    rm -r ${SYNOPKG_PKGDEST}/conf
+    ln -s ${PUBLIC_CONF} ${SYNOPKG_PKGDEST}
+  fi
+
+  #if public addons dir exists in public folder -> create a symbolic link
+  if [ -d ${PUBLIC_ADDONS} ]; then
+    rm -r ${SYNOPKG_PKGDEST}/addons
+    ln -s ${PUBLIC_ADDONS} ${SYNOPKG_PKGDEST}
+  fi
+
+# fix permissions
+echo "fix permssion"
+sudo chown -hR openhab2:users ${SYNOPKG_PKGDEST}
+
+exit 0
 }

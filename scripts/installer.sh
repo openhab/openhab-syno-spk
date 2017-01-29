@@ -21,7 +21,8 @@ source /etc/profile
 TEMP_FOLDER="$(find / -maxdepth 2 -name '@tmp' | head -n 1)"
 PRIMARY_VOLUME="$(echo ${TEMP_FOLDER} | grep -oP '^/[^/]+')"
 PUBLIC_FOLDER="$(synoshare --get public | grep -oP 'Path.+\[\K[^]]+')"
-
+PUBLIC_CONF="${PUBLIC_FOLDER}/openHAB/configurations"
+PUBLIC_ADDONS="${PUBLIC_FOLDER}/openHAB/addons"
 
 preinst ()
 {
@@ -133,3 +134,61 @@ postuninst ()
   exit 0
 }
 
+
+preupgrade ()
+{
+  # Remove tmp, logs & cache dirs
+  if [ -d ${SYNOPKG_PKGDEST}/userdata/tmp ]; then
+  	echo "Remove tmp"
+  	rm -rf ${SYNOPKG_PKGDEST}/userdata/tmp
+  fi
+
+  if [ -d ${SYNOPKG_PKGDEST}/userdata/cache ]; then
+  	echo "Remove cache"
+  	rm -rf ${SYNOPKG_PKGDEST}/userdata/cache
+  fi
+
+  if [ -d ${SYNOPKG_PKGDEST}/userdata/log ]; then
+  	echo "Remove log"
+  	rm -rf ${SYNOPKG_PKGDEST}/userdata/log
+  fi
+
+  if [ -d ${SYNOPKG_PKGDEST}/userdata/logs ]; then
+  	echo "Remove logs"
+  	rm -rf ${SYNOPKG_PKGDEST}/userdata/logs
+  fi
+
+  # backup current installation with settings
+  echo "Backup"
+  TIMESTAMP=`date +%Y%m%d_%H%M%S`;
+  sudo mv ${SYNOPKG_PKGDEST} /${SYNOPKG_PKGDEST}-backup-$TIMESTAMP
+
+  exit 0
+}
+
+
+postupgrade ()
+{
+# restore configuration and userdata
+echo "Restore UserData"
+sudo cp -arv ${SYNOPKG_PKGDEST}-backup-$TIMESTAMP/userdata ${SYNOPKG_PKGDEST}/
+
+echo "create conf/addon links"
+  #if configdir exists in public folder -> create a symbolic link
+  if [ -d ${PUBLIC_CONF} ]; then
+    rm -r ${SYNOPKG_PKGDEST}/conf
+    ln -s ${PUBLIC_CONF} ${SYNOPKG_PKGDEST}
+  fi
+
+  #if public addons dir exists in public folder -> create a symbolic link
+  if [ -d ${PUBLIC_ADDONS} ]; then
+    rm -r ${SYNOPKG_PKGDEST}/addons
+    ln -s ${PUBLIC_ADDONS} ${SYNOPKG_PKGDEST}
+  fi
+
+# fix permissions
+echo "fix permssion"
+sudo chown -hR openhab2:users ${SYNOPKG_PKGDEST}
+
+exit 0
+}

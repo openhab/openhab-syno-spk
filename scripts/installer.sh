@@ -21,7 +21,7 @@ source /etc/profile
 TEMP_FOLDER="$(find / -maxdepth 2 -name '@tmp' | head -n 1)"
 PRIMARY_VOLUME="$(echo ${TEMP_FOLDER} | grep -oP '^/[^/]+')"
 PUBLIC_FOLDER="$(synoshare --get public | grep -oP 'Path.+\[\K[^]]+')"
-PUBLIC_CONF="${PUBLIC_FOLDER}/openHAB/configurations"
+PUBLIC_CONF="${PUBLIC_FOLDER}/openHAB/conf"
 PUBLIC_ADDONS="${PUBLIC_FOLDER}/openHAB/addons"
 TIMESTAMP=`date +%Y%m%d_%H%M%S`;
 
@@ -76,6 +76,10 @@ postinst ()
   synouser --add ${DAEMON_USER} ${DAEMON_PASS} "${DAEMON_ID}" 0 "" ""
   sleep 3
 
+  #add openhab user & handle possible device groups
+  adduser ${DAEMON_USER} dialout
+  adduser ${DAEMON_USER} uucp
+
   #determine the daemon user homedir and save that variable in the user's profile
   #this is needed because new users seem to inherit a HOME value of /root which they have no permissions for
   DAEMON_HOME="$(synouser --get ${DAEMON_USER} | grep -oP 'User Dir.+\[\K[^]]+')"
@@ -89,6 +93,18 @@ postinst ()
   rmdir ${TEMP_FOLDER}/${EXTRACTED_FOLDER}
   chmod +x ${SYNOPKG_PKGDEST}/${ENGINE_SCRIPT}
 
+  #if configdir exists in public folder -> create a symbolic link
+  if [ -d ${PUBLIC_CONF} ]; then
+    rm -r ${SYNOPKG_PKGDEST}/conf
+    ln -s ${PUBLIC_CONF} ${SYNOPKG_PKGDEST}
+  fi
+
+  #if public addons dir exists in public folder -> create a symbolic link
+  if [ -d ${PUBLIC_ADDONS} ]; then
+    rm -r ${SYNOPKG_PKGDEST}/addons
+    ln -s ${PUBLIC_ADDONS} ${SYNOPKG_PKGDEST}
+  fi
+  
   #change owner of folder tree
   chown -R ${DAEMON_USER} ${SYNOPKG_PKGDEST}
 

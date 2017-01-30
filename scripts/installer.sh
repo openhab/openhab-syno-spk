@@ -1,6 +1,6 @@
 #!/bin/sh
 
-#--------OpenHAB installer script
+#--------openHAB2 installer script
 #--------package based on work from pcloadletter.co.uk
 
 DOWNLOAD_PATH="https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab/target"
@@ -9,7 +9,7 @@ DOWNLOAD_FILE1="openhab-2.1.0-SNAPSHOT.zip"
 # Add more files by separating them using spaces
 INSTALL_FILES="${DOWNLOAD_PATH}/${DOWNLOAD_FILE1}"
 
-EXTRACTED_FOLDER="OpenHAB-runtime-2.1.0-SNAPSHOT"
+EXTRACTED_FOLDER="openHAB-2.1.0-SNAPSHOT"
 
 DAEMON_USER="$(echo ${SYNOPKG_PKGNAME} | awk {'print tolower($_)'})"
 DAEMON_PASS="$(openssl rand 12 -base64 2>nul)"
@@ -21,8 +21,8 @@ source /etc/profile
 TEMP_FOLDER="$(find / -maxdepth 2 -name '@tmp' | head -n 1)"
 PRIMARY_VOLUME="$(echo ${TEMP_FOLDER} | grep -oP '^/[^/]+')"
 PUBLIC_FOLDER="$(synoshare --get public | grep -oP 'Path.+\[\K[^]]+')"
-PUBLIC_CONF="${PUBLIC_FOLDER}/openHAB/conf"
-PUBLIC_ADDONS="${PUBLIC_FOLDER}/openHAB/addons"
+PUBLIC_CONF="${PUBLIC_FOLDER}/openHAB2/conf"
+PUBLIC_ADDONS="${PUBLIC_FOLDER}/openHAB2/addons"
 TIMESTAMP=`date +%Y%m%d_%H%M%S`;
 
 preinst ()
@@ -77,8 +77,8 @@ postinst ()
   sleep 3
 
   #add openhab user & handle possible device groups
-  adduser ${DAEMON_USER} dialout
-  adduser ${DAEMON_USER} uucp
+  addgroup ${DAEMON_USER} dialout
+  addgroup ${DAEMON_USER} uucp
 
   #determine the daemon user homedir and save that variable in the user's profile
   #this is needed because new users seem to inherit a HOME value of /root which they have no permissions for
@@ -104,10 +104,15 @@ postinst ()
     rm -r ${SYNOPKG_PKGDEST}/addons
     ln -s ${PUBLIC_ADDONS} ${SYNOPKG_PKGDEST}
   fi
+
+  #add log file
+  mkdir -p ${SYNOPKG_PKGDEST}/userdata/logs
+  touch ${SYNOPKG_PKGDEST}/userdata/logs/openhab.log
   
   #change owner of folder tree
-  chown -R ${DAEMON_USER} ${SYNOPKG_PKGDEST}
-
+  chown -hR ${DAEMON_USER} ${SYNOPKG_PKGDEST}
+  chmod -R u+w ${SYNOPKG_PKGDEST}/userdata
+  
   #if Z-Wave dir exists -> change rights for binding
   if [ -d /dev/ttyACM0 ]; then
     chmod 777 /dev/ttyACM0
@@ -190,17 +195,17 @@ postupgrade ()
   cp -arv ${SYNOPKG_PKGDEST}-backup-$TIMESTAMP/userdata ${SYNOPKG_PKGDEST}/
 
   echo "create conf/addon links"
-    #if configdir exists in public folder -> create a symbolic link
-    if [ -d ${PUBLIC_CONF} ]; then
-      rm -r ${SYNOPKG_PKGDEST}/conf
-      ln -s ${PUBLIC_CONF} ${SYNOPKG_PKGDEST}
-    fi
+  #if configdir exists in public folder -> create a symbolic link
+  if [ -d ${PUBLIC_CONF} ]; then
+    rm -r ${SYNOPKG_PKGDEST}/conf
+    ln -s ${PUBLIC_CONF} ${SYNOPKG_PKGDEST}
+  fi
 
-    #if public addons dir exists in public folder -> create a symbolic link
-    if [ -d ${PUBLIC_ADDONS} ]; then
-      rm -r ${SYNOPKG_PKGDEST}/addons
-      ln -s ${PUBLIC_ADDONS} ${SYNOPKG_PKGDEST}
-    fi
+  #if public addons dir exists in public folder -> create a symbolic link
+  if [ -d ${PUBLIC_ADDONS} ]; then
+    rm -r ${SYNOPKG_PKGDEST}/addons
+    ln -s ${PUBLIC_ADDONS} ${SYNOPKG_PKGDEST}
+  fi
 
   # fix permissions
   echo "fix permssion"

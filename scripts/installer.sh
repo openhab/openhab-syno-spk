@@ -3,61 +3,69 @@
 #--------OpenHAB installer script
 #--------package based on work from pcloadletter.co.uk
 
-DOWNLOAD_FILE="distribution-1.8.3-runtime.zip"
-DOWNLOAD_PATH="https://bintray.com/artifact/download/openhab/bin"
+DOWNLOAD_PATH="https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab/target"
+DOWNLOAD_FILE1="openhab-2.1.0-SNAPSHOT.zip"
 
-EXTRACTED_FOLDER="OpenHAB-runtime-1.8.3"
-DOWNLOAD_URL="${DOWNLOAD_PATH}/${DOWNLOAD_FILE}"
-DAEMON_USER="`echo ${SYNOPKG_PKGNAME} | awk {'print tolower($_)'}`"
-DAEMON_PASS="`openssl rand 12 -base64 2>nul`"
+# Add more files by separating them using spaces
+INSTALL_FILES="${DOWNLOAD_PATH}/${DOWNLOAD_FILE1}"
+
+EXTRACTED_FOLDER="OpenHAB-runtime-2.1.0-SNAPSHOT"
+
+DAEMON_USER="$(echo ${SYNOPKG_PKGNAME} | awk {'print tolower($_)'})"
+DAEMON_PASS="$(openssl rand 12 -base64 2>nul)"
 DAEMON_ID="${SYNOPKG_PKGNAME} daemon user"
-ENGINE_SCRIPT="start_runtime.sh"
-INSTALL_FILES="${DOWNLOAD_URL}"
+ENGINE_SCRIPT="start.sh"
+
 source /etc/profile
-TEMP_FOLDER="`find / -maxdepth 2 -name '@tmp' | head -n 1`"
-PRIMARY_VOLUME="/`echo $TEMP_FOLDER | cut -f2 -d'/'`"
-PUBLIC_CONF="/volume1/public/OpenHAB/configurations"
-PUBLIC_ADDONS="/volume1/public/OpenHAB/addons"
+
+TEMP_FOLDER="$(find / -maxdepth 2 -name '@tmp' | head -n 1)"
+PRIMARY_VOLUME="$(echo ${TEMP_FOLDER} | grep -oP '^/[^/]+')"
+PUBLIC_FOLDER="$(synoshare --get public | grep -oP 'Path.+\[\K[^]]+')"
+PUBLIC_CONF="${PUBLIC_FOLDER}/openHAB/configurations"
+PUBLIC_ADDONS="${PUBLIC_FOLDER}/openHAB/addons"
+TIMESTAMP=`date +%Y%m%d_%H%M%S`;
 
 preinst ()
 {
-  if [ -z ${JAVA_HOME} ]; then
-    echo "Java is not installed or not properly configured. JAVA_HOME is not defined. "
-    echo "Download and install the Java Synology package from http://wp.me/pVshC-z5"
+  # Is Java properly installed?
+  if [[ -z "${JAVA_HOME}" || ! -f "${JAVA_HOME}/bin/java" ]]; then
+    echo "Java is not installed or not properly configured."
+    echo "Download and install as described on http://wp.me/pVshC-z5"
+    echo "The Synology provided Java may not work with OpenHAB."
     exit 1
   fi
-  
-  if [ ! -f ${JAVA_HOME}/bin/java ]; then
-    echo "Java is not installed or not properly configured. The Java binary could not be located. "
-    echo "Download and install the Java Synology package from http://wp.me/pVshC-z5"
-    exit 1
-  fi
-  
-  #is the User Home service enabled?
-  UH_SERVICE=`synogetkeyvalue /etc/synoinfo.conf userHomeEnable`
-  if [ ${UH_SERVICE} == "no" ]; then
+
+  # Is the User Home service enabled?
+  UH_SERVICE=$(synogetkeyvalue /etc/synoinfo.conf userHomeEnable)
+  if [ "${UH_SERVICE}" == "no" ]; then
     echo "The User Home service is not enabled. Please enable this feature in the User control panel in DSM."
     exit 1
   fi
 
   cd ${TEMP_FOLDER}
-  for WGET_URL in ${INSTALL_FILES}
-  do
-    WGET_FILENAME="`echo ${WGET_URL} | sed -r "s%^.*/(.*)%\1%"`"
-    [ -f ${TEMP_FOLDER}/${WGET_FILENAME} ] && rm ${TEMP_FOLDER}/${WGET_FILENAME}
-    wget --no-check-certificate --output-document=${WGET_FILENAME} ${WGET_URL}
-    if [[ $? != 0 ]]; then
-      if [ -d ${PUBLIC_FOLDER} ] && [ -f ${PUBLIC_FOLDER}/${DOWNLOAD_FILE} ]; then
-        cp ${PUBLIC_FOLDER}/${DOWNLOAD_FILE} ${TEMP_FOLDER}
-      else     
-        echo "There was a problem downloading ${WGET_FILENAME} from the official download link, "
-        echo "which was \"${WGET_URL}\" "
-        echo "Alternatively, you may download this file manually and place it in the 'public' shared folder. "
-        exit 1
+  # go through list of files
+  for WGET_URL in ${INSTALL_FILES}; do
+    WGET_FILENAME="$(echo ${WGET_URL} | sed -r "s%^.*/(.*)%\1%")"
+    echo "Processing ${WGET_FILENAME}"
+    [ -f "${TEMP_FOLDER}/${WGET_FILENAME}" ] && rm ${TEMP_FOLDER}/${WGET_FILENAME}
+    # use local file first
+    if [ -f "${PUBLIC_FOLDER}/${WGET_FILENAME}" ]; then
+      echo "Found file locally - copying"
+      cp ${PUBLIC_FOLDER}/${WGET_FILENAME} ${TEMP_FOLDER}
+    else
+      wget -nv --no-check-certificate --output-document=${WGET_FILENAME} ${WGET_URL}
+      if [[ $? != 0 ]]; then
+          echo "There was a problem downloading ${WGET_FILENAME} from the download link:"
+          echo "'${WGET_URL}'"
+          echo "Alternatively, download this file manually and place it in the 'public' shared folder and start installation again."
+          if [ -z "${PUBLIC_FOLDER}" ];then
+            echo "Note: You must create a 'public' shared folder first on your primary volume"
+          fi
+          exit 1
       fi
     fi
   done
-  
+
   exit 0
 }
 
@@ -67,41 +75,31 @@ postinst ()
   #create daemon user
   synouser --add ${DAEMON_USER} ${DAEMON_PASS} "${DAEMON_ID}" 0 "" ""
   sleep 3
-  
+
   #determine the daemon user homedir and save that variable in the user's profile
   #this is needed because new users seem to inherit a HOME value of /root which they have no permissions for
-  DAEMON_HOME="`cat /etc/passwd | grep "${DAEMON_ID}" | cut -f6 -d':'`"
+  DAEMON_HOME="$(synouser --get ${DAEMON_USER} | grep -oP 'User Dir.+\[\K[^]]+')"
   su - ${DAEMON_USER} -s /bin/sh -c "echo export HOME=\'${DAEMON_HOME}\' >> .profile"
   su - ${DAEMON_USER} -s /bin/sh -c "echo export OPENHAB_PID=~/.daemon.pid >> .profile"
-  
+
   #extract main archive
   cd ${TEMP_FOLDER}
-  unzip ${TEMP_FOLDER}/${DOWNLOAD_FILE} -d ${EXTRACTED_FOLDER} && rm ${TEMP_FOLDER}/${DOWNLOAD_FILE}
+  7z x ${TEMP_FOLDER}/${DOWNLOAD_FILE1} -o${EXTRACTED_FOLDER} && rm ${TEMP_FOLDER}/${DOWNLOAD_FILE1}
   mv ${TEMP_FOLDER}/${EXTRACTED_FOLDER}/* ${SYNOPKG_PKGDEST}
   rmdir ${TEMP_FOLDER}/${EXTRACTED_FOLDER}
   chmod +x ${SYNOPKG_PKGDEST}/${ENGINE_SCRIPT}
-  
-  #TCP port 8081 is in use on Synology so we need to move Catalina to another port - 18581
-  #This regex was tricky, but possible thanks to http://austinmatzko.com/2008/04/26/sed-multi-line-search-and-replace/
-  #sed -i -n '1h;1!H;${;g;s%\(<Connector executor="HTTP-ThreadPool".*port="\)8080\(".* />\)%\118581\2%;p;}' ${SYNOPKG_PKGDEST}/conf/server.xml
-  #sed -i "s/^webapp.port=.*$/webapp.port=18581/" ${SYNOPKG_PKGDEST}/webapps/controller/WEB-INF/classes/config.properties
-
-  #if configdir exists in public folder -> create a symbolic link
-  if [ -d ${PUBLIC_CONF} ]; then
-    rm -r ${SYNOPKG_PKGDEST}/configurations
-    ln -s ${PUBLIC_CONF} ${SYNOPKG_PKGDEST}
-  fi
-
-  #if public addons dir exists in public folder -> create a symbolic link
-  if [ -d ${PUBLIC_ADDONS} ]; then
-    rm -r ${SYNOPKG_PKGDEST}/addons
-    ln -s ${PUBLIC_ADDONS} ${SYNOPKG_PKGDEST}
-  fi
-
 
   #change owner of folder tree
   chown -R ${DAEMON_USER} ${SYNOPKG_PKGDEST}
-  
+
+  #if Z-Wave dir exists -> change rights for binding
+  if [ -d /dev/ttyACM0 ]; then
+    chmod 777 /dev/ttyACM0
+  fi
+  if [ -d /dev/ttyACM1 ]; then
+    chmod 777 /dev/ttyACM1
+  fi
+
   exit 0
 }
 
@@ -109,21 +107,88 @@ postinst ()
 preuninst ()
 {
   #make sure server is stopped
-  su - ${DAEMON_USER} -s /bin/sh -c "${SYNOPKG_PKGDEST}/stop_runtime.sh"
+  if su - ${DAEMON_USER} -s /bin/sh -c "cd ${SYNOPKG_PKGDEST}/runtime/karaf/bin && ./stop &"; then
+    rm -f $PIDFILE
+  fi
   sleep 10
-  
+
   exit 0
 }
 
 
 postuninst ()
 {
-  #remove daemon user
+  # Determine folder before deleting daemon
+  DAEMON_HOME="$(synouser --get ${DAEMON_USER} | grep -oP 'User Dir.+\[\K[^]]+')"
+
+  # Remove daemon user
   synouser --del ${DAEMON_USER}
   sleep 3
-  
-  #remove daemon user's home directory (needed since DSM 4.1)
-  [ -e /var/services/homes/${DAEMON_USER} ] && rm -r /var/services/homes/${DAEMON_USER}
-  
+
+  # Sanity check daemon had valid folder
+  if [ -e "${DAEMON_HOME}" ]; then
+    rm -r "${DAEMON_HOME}"
+  else
+    echo "Daemon user folder '${DAEMON_HOME}' not found - nothing deleted"
+  fi
+
+  exit 0
+}
+
+
+preupgrade ()
+{
+  # Remove tmp, logs & cache dirs
+  if [ -d ${SYNOPKG_PKGDEST}/userdata/tmp ]; then
+  	echo "Remove tmp"
+  	rm -rf ${SYNOPKG_PKGDEST}/userdata/tmp
+  fi
+
+  if [ -d ${SYNOPKG_PKGDEST}/userdata/cache ]; then
+  	echo "Remove cache"
+  	rm -rf ${SYNOPKG_PKGDEST}/userdata/cache
+  fi
+
+  if [ -d ${SYNOPKG_PKGDEST}/userdata/log ]; then
+  	echo "Remove log"
+  	rm -rf ${SYNOPKG_PKGDEST}/userdata/log
+  fi
+
+  if [ -d ${SYNOPKG_PKGDEST}/userdata/logs ]; then
+  	echo "Remove logs"
+  	rm -rf ${SYNOPKG_PKGDEST}/userdata/logs
+  fi
+
+  # backup current installation with settings
+  echo "Backup"
+  mv ${SYNOPKG_PKGDEST} /${SYNOPKG_PKGDEST}-backup-$TIMESTAMP
+
+  exit 0
+}
+
+
+postupgrade ()
+{
+  # restore configuration and userdata
+  echo "Restore UserData"
+  cp -arv ${SYNOPKG_PKGDEST}-backup-$TIMESTAMP/userdata ${SYNOPKG_PKGDEST}/
+
+  echo "create conf/addon links"
+    #if configdir exists in public folder -> create a symbolic link
+    if [ -d ${PUBLIC_CONF} ]; then
+      rm -r ${SYNOPKG_PKGDEST}/conf
+      ln -s ${PUBLIC_CONF} ${SYNOPKG_PKGDEST}
+    fi
+
+    #if public addons dir exists in public folder -> create a symbolic link
+    if [ -d ${PUBLIC_ADDONS} ]; then
+      rm -r ${SYNOPKG_PKGDEST}/addons
+      ln -s ${PUBLIC_ADDONS} ${SYNOPKG_PKGDEST}
+    fi
+
+  # fix permissions
+  echo "fix permssion"
+  chown -hR ${DAEMON_USER} ${SYNOPKG_PKGDEST}
+
   exit 0
 }

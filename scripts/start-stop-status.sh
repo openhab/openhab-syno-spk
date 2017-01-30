@@ -5,9 +5,9 @@
 
 DAEMON_USER="`echo ${SYNOPKG_PKGNAME} | awk {'print tolower($_)'}`"
 DAEMON_ID="${SYNOPKG_PKGNAME} daemon user"
-ENGINE_SCRIPT="start_runtime.sh"
+ENGINE_SCRIPT="start.sh"
 DAEMON_USER_SHORT=`echo ${DAEMON_USER} | cut -c 1-8`
-
+PIDFILE="/var/services/homes/${DAEMON_USER}/.daemon.pid"
 
 daemon_status ()
 {
@@ -16,12 +16,23 @@ daemon_status ()
 
 case $1 in
   start)
+    #Are the port already used?
+    if netstat -tlpn | grep ${SYNOPKG_PKGPORT}; then
+      echo "Port ${SYNOPKG_PKGPORT} already in use."
+      exit 1
+    fi
+
     DAEMON_HOME="`cat /etc/passwd | grep "${DAEMON_ID}" | cut -f6 -d':'`"
     
     #set the current timezone for Java so that log timestamps are accurate
     #we need to use the modern timezone names so that Java can figure out DST
     SYNO_TZ=`cat /etc/synoinfo.conf | grep timezone | cut -f2 -d'"'`
-    SYNO_TZ=`grep "^${SYNO_TZ}" /usr/share/zoneinfo/Timezone/tzlist | sed -e "s/^.*= //"`
+    #fix for DST time in DSM 5.2 thanks to MinimServer Syno package author
+    [ -e /usr/share/zoneinfo/Timezone/synotztable.json ] \
+    && SYNO_TZ=`jq ".${SYNO_TZ} | .nameInTZDB" /usr/share/zoneinfo/Timezone/synotztable.json | sed -e "s/\"//g"` \
+    || SYNO_TZ=`grep "^${SYNO_TZ}" /usr/share/zoneinfo/Timezone/tzname | sed -e "s/^.*= //"`
+    #Before DSM 5.1
+    #SYNO_TZ=grep "^${SYNO_TZ}" /usr/share/zoneinfo/Timezone/tzlist | sed -e "s/^.*= //"
     grep "^export TZ" ${DAEMON_HOME}/.profile > /dev/null \
      && sed -i "s%^export TZ=.*$%export TZ='${SYNO_TZ}'%" ${DAEMON_HOME}/.profile \
      || echo export TZ=\'${SYNO_TZ}\' >> ${DAEMON_HOME}/.profile
@@ -35,27 +46,31 @@ case $1 in
 #    fi
   
     exit 0
-	;;
+  ;;
 
   stop)
-    su - ${DAEMON_USER} -s /bin/sh -c "${SYNOPKG_PKGDEST}/stop_runtime.sh"
+    if su - ${DAEMON_USER} -s /bin/sh -c "cd ${SYNOPKG_PKGDEST}/runtime/bin && ./stop &"
+    then
+      rm -f $PIDFILE
+    fi
     
     #remove DSM icon symlinks
-    rm /usr/syno/synoman/webman/3rdparty/OpenHAB*
+#    rm /usr/syno/synoman/webman/3rdparty/OpenHAB*
     
     exit 0
   ;;
 
   status)
-    if daemon_status ; then
+    [ ! -f "$PIDFILE" ] && return 1
+    if ps -p $(cat "$PIDFILE") > /dev/null; then
       exit 0
     else
       exit 1
     fi
- 	;;
+  ;;
 
   log)
-    echo "${SYNOPKG_PKGDEST}/logs/openhab.log"
+    echo "${SYNOPKG_PKGDEST}/userdata/logs/openhab.log"
     exit 0
   ;;
 esac

@@ -15,6 +15,7 @@ DAEMON_USER="$(echo ${SYNOPKG_PKGNAME} | awk {'print tolower($_)'})"
 DAEMON_PASS="$(openssl rand 12 -base64 2>nul)"
 DAEMON_ID="${SYNOPKG_PKGNAME} daemon user"
 ENGINE_SCRIPT="start.sh"
+PIDFILE="/var/services/homes/${DAEMON_USER}/.daemon.pid"
 
 source /etc/profile
 

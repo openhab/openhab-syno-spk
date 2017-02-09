@@ -184,6 +184,31 @@ preupgrade ()
   # backup current installation with settings
   echo "Backup"
   mv ${SYNOPKG_PKGDEST} /${SYNOPKG_PKGDEST}-backup-$TIMESTAMP
+  
+  echo "Get new version"
+  cd ${TEMP_FOLDER}
+  # go through list of files
+  for WGET_URL in ${INSTALL_FILES}; do
+    WGET_FILENAME="$(echo ${WGET_URL} | sed -r "s%^.*/(.*)%\1%")"
+    echo "Processing ${WGET_FILENAME}"
+    [ -f "${TEMP_FOLDER}/${WGET_FILENAME}" ] && rm ${TEMP_FOLDER}/${WGET_FILENAME}
+    # use local file first
+    if [ -f "${PUBLIC_FOLDER}/${WGET_FILENAME}" ]; then
+      echo "Found file locally - copying"
+      cp ${PUBLIC_FOLDER}/${WGET_FILENAME} ${TEMP_FOLDER}
+    else
+      wget -nv --no-check-certificate --output-document=${WGET_FILENAME} ${WGET_URL}
+      if [[ $? != 0 ]]; then
+          echo "There was a problem downloading ${WGET_FILENAME} from the download link:"
+          echo "'${WGET_URL}'"
+          echo "Alternatively, download this file manually and place it in the 'public' shared folder and start installation again."
+          if [ -z "${PUBLIC_FOLDER}" ];then
+            echo "Note: You must create a 'public' shared folder first on your primary volume"
+          fi
+          exit 1
+      fi
+    fi
+  done
 
   exit 0
 }
@@ -191,6 +216,14 @@ preupgrade ()
 
 postupgrade ()
 {
+  #extract main archive
+  echo "Install new version"
+  cd ${TEMP_FOLDER}
+  7z x ${TEMP_FOLDER}/${DOWNLOAD_FILE1} -o${EXTRACTED_FOLDER} && rm ${TEMP_FOLDER}/${DOWNLOAD_FILE1}
+  mv ${TEMP_FOLDER}/${EXTRACTED_FOLDER}/* ${SYNOPKG_PKGDEST}
+  rmdir ${TEMP_FOLDER}/${EXTRACTED_FOLDER}
+  chmod +x ${SYNOPKG_PKGDEST}/${ENGINE_SCRIPT}
+
   # restore configuration and userdata
   echo "Restore UserData"
   cp -arv ${SYNOPKG_PKGDEST}-backup-$TIMESTAMP/userdata ${SYNOPKG_PKGDEST}/
@@ -208,9 +241,14 @@ postupgrade ()
     ln -s ${PUBLIC_ADDONS} ${SYNOPKG_PKGDEST}
   fi
 
+  #add log file
+  mkdir -p ${SYNOPKG_PKGDEST}/userdata/logs
+  touch ${SYNOPKG_PKGDEST}/userdata/logs/openhab.log
+
   # fix permissions
   echo "fix permssion"
   chown -hR ${DAEMON_USER} ${SYNOPKG_PKGDEST}
+  chmod -R u+w ${SYNOPKG_PKGDEST}/userdata
 
   exit 0
 }

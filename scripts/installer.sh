@@ -226,7 +226,7 @@ postupgrade ()
 
   # restore configuration and userdata
   echo "Restore UserData"
-  cp -arv ${SYNOPKG_PKGDEST}-backup-$TIMESTAMP/userdata ${SYNOPKG_PKGDEST}/
+  cp -ar ${SYNOPKG_PKGDEST}-backup-$TIMESTAMP/userdata ${SYNOPKG_PKGDEST}/
 
   echo "create conf/addon links"
   #if configdir exists in public folder -> create a symbolic link

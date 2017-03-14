@@ -1,15 +1,15 @@
 #!/bin/sh
 
-#--------OpenHAB installer script
+#--------openHAB2 installer script
 #--------package based on work from pcloadletter.co.uk
 
-DOWNLOAD_PATH="https://bintray.com/openhab/mvn/download_file?file_path=org/openhab/distro/openhab/2.0.0"
-DOWNLOAD_FILE1="openhab-2.0.0.zip"
+DOWNLOAD_PATH="https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-offline/target"
+DOWNLOAD_FILE1="openhab-offline-2.0.0-SNAPSHOT.zip"
 
 # Add more files by separating them using spaces
 INSTALL_FILES="${DOWNLOAD_PATH}/${DOWNLOAD_FILE1}"
 
-EXTRACTED_FOLDER="OpenHAB-runtime-2.0.0"
+EXTRACTED_FOLDER="openHAB-2.0.0-SNAPSHOT"
 
 DAEMON_USER="$(echo ${SYNOPKG_PKGNAME} | awk {'print tolower($_)'})"
 DAEMON_PASS="$(openssl rand 12 -base64 2>nul)"
@@ -21,7 +21,9 @@ source /etc/profile
 TEMP_FOLDER="$(find / -maxdepth 2 -name '@tmp' | head -n 1)"
 PRIMARY_VOLUME="$(echo ${TEMP_FOLDER} | grep -oP '^/[^/]+')"
 PUBLIC_FOLDER="$(synoshare --get public | grep -oP 'Path.+\[\K[^]]+')"
-
+PUBLIC_CONF="${PUBLIC_FOLDER}/openHAB2/conf"
+PUBLIC_ADDONS="${PUBLIC_FOLDER}/openHAB2/addons"
+TIMESTAMP=`date +%Y%m%d_%H%M%S`;
 
 preinst ()
 {
@@ -74,6 +76,10 @@ postinst ()
   synouser --add ${DAEMON_USER} ${DAEMON_PASS} "${DAEMON_ID}" 0 "" ""
   sleep 3
 
+  #add openhab user & handle possible device groups
+  addgroup ${DAEMON_USER} dialout
+  addgroup ${DAEMON_USER} uucp
+
   #determine the daemon user homedir and save that variable in the user's profile
   #this is needed because new users seem to inherit a HOME value of /root which they have no permissions for
   DAEMON_HOME="$(synouser --get ${DAEMON_USER} | grep -oP 'User Dir.+\[\K[^]]+')"
@@ -87,9 +93,26 @@ postinst ()
   rmdir ${TEMP_FOLDER}/${EXTRACTED_FOLDER}
   chmod +x ${SYNOPKG_PKGDEST}/${ENGINE_SCRIPT}
 
-  #change owner of folder tree
-  chown -R ${DAEMON_USER} ${SYNOPKG_PKGDEST}
+  #if configdir exists in public folder -> create a symbolic link
+  if [ -d ${PUBLIC_CONF} ]; then
+    rm -r ${SYNOPKG_PKGDEST}/conf
+    ln -s ${PUBLIC_CONF} ${SYNOPKG_PKGDEST}
+  fi
 
+  #if public addons dir exists in public folder -> create a symbolic link
+  if [ -d ${PUBLIC_ADDONS} ]; then
+    rm -r ${SYNOPKG_PKGDEST}/addons
+    ln -s ${PUBLIC_ADDONS} ${SYNOPKG_PKGDEST}
+  fi
+
+  #add log file
+  mkdir -p ${SYNOPKG_PKGDEST}/userdata/logs
+  touch ${SYNOPKG_PKGDEST}/userdata/logs/openhab.log
+  
+  #change owner of folder tree
+  chown -hR ${DAEMON_USER} ${SYNOPKG_PKGDEST}
+  chmod -R u+w ${SYNOPKG_PKGDEST}/userdata
+  
   #if Z-Wave dir exists -> change rights for binding
   if [ -d /dev/ttyACM0 ]; then
     chmod 777 /dev/ttyACM0
@@ -133,3 +156,60 @@ postuninst ()
   exit 0
 }
 
+
+preupgrade ()
+{
+  # Remove tmp, logs & cache dirs
+  if [ -d ${SYNOPKG_PKGDEST}/userdata/tmp ]; then
+  	echo "Remove tmp"
+  	rm -rf ${SYNOPKG_PKGDEST}/userdata/tmp
+  fi
+
+  if [ -d ${SYNOPKG_PKGDEST}/userdata/cache ]; then
+  	echo "Remove cache"
+  	rm -rf ${SYNOPKG_PKGDEST}/userdata/cache
+  fi
+
+  if [ -d ${SYNOPKG_PKGDEST}/userdata/log ]; then
+  	echo "Remove log"
+  	rm -rf ${SYNOPKG_PKGDEST}/userdata/log
+  fi
+
+  if [ -d ${SYNOPKG_PKGDEST}/userdata/logs ]; then
+  	echo "Remove logs"
+  	rm -rf ${SYNOPKG_PKGDEST}/userdata/logs
+  fi
+
+  # backup current installation with settings
+  echo "Backup"
+  mv ${SYNOPKG_PKGDEST} /${SYNOPKG_PKGDEST}-backup-$TIMESTAMP
+
+  exit 0
+}
+
+
+postupgrade ()
+{
+  # restore configuration and userdata
+  echo "Restore UserData"
+  cp -arv ${SYNOPKG_PKGDEST}-backup-$TIMESTAMP/userdata ${SYNOPKG_PKGDEST}/
+
+  echo "create conf/addon links"
+  #if configdir exists in public folder -> create a symbolic link
+  if [ -d ${PUBLIC_CONF} ]; then
+    rm -r ${SYNOPKG_PKGDEST}/conf
+    ln -s ${PUBLIC_CONF} ${SYNOPKG_PKGDEST}
+  fi
+
+  #if public addons dir exists in public folder -> create a symbolic link
+  if [ -d ${PUBLIC_ADDONS} ]; then
+    rm -r ${SYNOPKG_PKGDEST}/addons
+    ln -s ${PUBLIC_ADDONS} ${SYNOPKG_PKGDEST}
+  fi
+
+  # fix permissions
+  echo "fix permssion"
+  chown -hR ${DAEMON_USER} ${SYNOPKG_PKGDEST}
+
+  exit 0
+}

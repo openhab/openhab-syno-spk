@@ -7,7 +7,7 @@ DAEMON_USER="`echo ${SYNOPKG_PKGNAME} | awk {'print tolower($_)'}`"
 DAEMON_ID="${SYNOPKG_PKGNAME} daemon user"
 ENGINE_SCRIPT="start.sh"
 DAEMON_USER_SHORT=`echo ${DAEMON_USER} | cut -c 1-8`
-
+PIDFILE="/var/services/homes/${DAEMON_USER}/.daemon.pid"
 
 daemon_status ()
 {
@@ -44,7 +44,10 @@ case $1 in
   ;;
 
   stop)
-    su - ${DAEMON_USER} -s /bin/sh -c "cd ${SYNOPKG_PKGDEST}/runtime/bin && ./stop &"
+    if su - ${DAEMON_USER} -s /bin/sh -c "cd ${SYNOPKG_PKGDEST}/runtime/bin && ./stop &"
+    then
+      rm -f $PIDFILE
+    fi
     
     #remove DSM icon symlinks
 #    rm /usr/syno/synoman/webman/3rdparty/OpenHAB*
@@ -53,12 +56,13 @@ case $1 in
   ;;
 
   status)
-    if daemon_status ; then
+    [ ! -f "$PIDFILE" ] && return 1
+    if ps -p $(cat "$PIDFILE") > /dev/null; then
       exit 0
     else
       exit 1
     fi
- 	;;
+  ;;
 
   log)
     echo "${SYNOPKG_PKGDEST}/userdata/logs/openhab.log"

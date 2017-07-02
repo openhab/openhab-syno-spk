@@ -3,13 +3,13 @@
 #--------openHAB2 installer script
 #--------package based on work from pcloadletter.co.uk
 
-DOWNLOAD_PATH="https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab/target"
-DOWNLOAD_FILE1="openhab-2.1.0-SNAPSHOT.zip"
+DOWNLOAD_PATH="https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab%2F2.1.0%2F"
+DOWNLOAD_FILE1="openhab-2.1.0.zip"
 
 # Add more files by separating them using spaces
 INSTALL_FILES="${DOWNLOAD_PATH}/${DOWNLOAD_FILE1}"
 
-EXTRACTED_FOLDER="openHAB-2.1.0-SNAPSHOT"
+EXTRACTED_FOLDER="openHAB-2.1.0"
 
 DAEMON_USER="$(echo ${SYNOPKG_PKGNAME} | awk {'print tolower($_)'})"
 DAEMON_PASS="$(openssl rand 12 -base64 2>nul)"
@@ -115,12 +115,12 @@ postinst ()
   #add log file
   mkdir -p ${SYNOPKG_PKGDEST}/userdata/logs
   touch ${SYNOPKG_PKGDEST}/userdata/logs/openhab.log
-  
+
   #change owner of folder tree
   echo "Fix permssion"
   chown -hR ${DAEMON_USER} ${SYNOPKG_PKGDEST}
   chmod -R u+w ${SYNOPKG_PKGDEST}/userdata
-  
+
   #if Z-Wave dir exists -> change rights for binding
   if [ -d /dev/ttyACM0 ]; then
     chmod 777 /dev/ttyACM0
@@ -198,7 +198,7 @@ preupgrade ()
   # backup current installation with settings
   echo "Backup"
   mv ${SYNOPKG_PKGDEST} /${SYNOPKG_PKGDEST}-backup-$TIMESTAMP
-  
+
   echo "Get new version"
   cd ${TEMP_FOLDER}
   # go through list of files

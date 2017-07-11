@@ -3,7 +3,7 @@
 #--------openHAB2 installer script
 #--------package based on work from pcloadletter.co.uk
 
-DOWNLOAD_PATH="https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab%2F2.1.0%2F"
+DOWNLOAD_PATH="https://bintray.com/openhab/mvn/download_file?file_path=org/openhab/distro/openhab/2.1.0/"
 DOWNLOAD_FILE1="openhab-2.1.0.zip"
 
 # Add more files by separating them using spaces
@@ -22,6 +22,7 @@ source /etc/profile
 TEMP_FOLDER="$(find / -maxdepth 2 -name '@tmp' | head -n 1)"
 PRIMARY_VOLUME="$(echo ${TEMP_FOLDER} | grep -oP '^/[^/]+')"
 PUBLIC_FOLDER="$(synoshare --get public | grep -oP 'Path.+\[\K[^]]+')"
+
 PUBLIC_CONF="${PUBLIC_FOLDER}/openHAB2/conf"
 PUBLIC_ADDONS="${PUBLIC_FOLDER}/openHAB2/addons"
 TIMESTAMP=`date +%Y%m%d_%H%M%S`;
@@ -42,6 +43,12 @@ preinst ()
     echo "The User Home service is not enabled. Please enable this feature in the User control panel in DSM."
     exit 1
   fi
+
+  synoshare -get public > /dev/null || (
+    echo "A shared folder called 'public' could not be found - note this name is case-sensitive. "
+    echo "Please create this using the Shared Folder DSM Control Panel and try again."
+    exit 1
+  )
 
   echo "Get new version"
   cd ${TEMP_FOLDER}

@@ -3,7 +3,7 @@
 #--------openHAB2 installer script
 #--------package based on work from pcloadletter.co.uk
 
-DOWNLOAD_PATH="https://bintray.com/openhab/mvn/download_file?file_path=org/openhab/distro/openhab/2.1.0/"
+DOWNLOAD_PATH="https://bintray.com/openhab/mvn/download_file?file_path=org/openhab/distro/openhab/2.1.0"
 DOWNLOAD_FILE1="openhab-2.1.0.zip"
 
 # Add more files by separating them using spaces
@@ -87,8 +87,8 @@ postinst ()
   sleep 3
 
   #add openhab user & handle possible device groups
-  addgroup ${DAEMON_USER} dialout
-  addgroup ${DAEMON_USER} uucp
+  synogroup --member dialout ${DAEMON_USER}
+  synogroup --member uucp ${DAEMON_USER}
 
   #determine the daemon user homedir and save that variable in the user's profile
   #this is needed because new users seem to inherit a HOME value of /root which they have no permissions for

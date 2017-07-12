@@ -22,6 +22,7 @@ source /etc/profile
 TEMP_FOLDER="$(find / -maxdepth 2 -name '@tmp' | head -n 1)"
 PRIMARY_VOLUME="$(echo ${TEMP_FOLDER} | grep -oP '^/[^/]+')"
 PUBLIC_FOLDER="$(synoshare --get public | grep -oP 'Path.+\[\K[^]]+')"
+
 PUBLIC_CONF="${PUBLIC_FOLDER}/openHAB2/conf"
 PUBLIC_ADDONS="${PUBLIC_FOLDER}/openHAB2/addons"
 TIMESTAMP=`date +%Y%m%d_%H%M%S`;
@@ -42,6 +43,12 @@ preinst ()
     echo "The User Home service is not enabled. Please enable this feature in the User control panel in DSM."
     exit 1
   fi
+
+  synoshare -get public > /dev/null || (
+    echo "A shared folder called 'public' could not be found - note this name is case-sensitive. "
+    echo "Please create this using the Shared Folder DSM Control Panel and try again."
+    exit 1
+  )
 
   echo "Get new version"
   cd ${TEMP_FOLDER}
@@ -80,8 +87,8 @@ postinst ()
   sleep 3
 
   #add openhab user & handle possible device groups
-  addgroup ${DAEMON_USER} dialout
-  addgroup ${DAEMON_USER} uucp
+  synogroup --member dialout ${DAEMON_USER}
+  synogroup --member uucp ${DAEMON_USER}
 
   #determine the daemon user homedir and save that variable in the user's profile
   #this is needed because new users seem to inherit a HOME value of /root which they have no permissions for
@@ -118,6 +125,8 @@ postinst ()
 
   #change owner of folder tree
   echo "Fix permssion"
+  chown -hR ${DAEMON_USER} ${PUBLIC_CONF}
+  chown -hR ${DAEMON_USER} ${PUBLIC_ADDONS}
   chown -hR ${DAEMON_USER} ${SYNOPKG_PKGDEST}
   chmod -R u+w ${SYNOPKG_PKGDEST}/userdata
 

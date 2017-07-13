@@ -1,3 +1,5 @@
+#!/bin/sh
+
 DOWNLOAD_PATH="https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab/target"
 DOWNLOAD_FILE1="openhab-2.2.0-SNAPSHOT.zip"
 

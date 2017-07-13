@@ -87,8 +87,12 @@ postinst ()
   sleep 3
 
   #add openhab user & handle possible device groups
-  synogroup --member dialout ${DAEMON_USER}
-  synogroup --member uucp ${DAEMON_USER}
+  if ! synogroup --get dialout | grep -q "Name:" ; then 
+    synogroup --member dialout ${DAEMON_USER}
+  fi
+  if ! synogroup --get uccd | grep -q "Name:" ; then 
+    synogroup --member uucp ${DAEMON_USER}
+  fi
 
   #determine the daemon user homedir and save that variable in the user's profile
   #this is needed because new users seem to inherit a HOME value of /root which they have no permissions for

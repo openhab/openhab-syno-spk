@@ -19,12 +19,12 @@ PIDFILE="/var/services/homes/${DAEMON_USER}/.daemon.pid"
 
 source /etc/profile
 
-TEMP_FOLDER="$(find / -maxdepth 2 -name '@tmp' | head -n 1)"
+TEMP_FOLDER="/volume1/@tmp"
 PRIMARY_VOLUME="$(echo ${TEMP_FOLDER} | grep -oP '^/[^/]+')"
-PUBLIC_FOLDER="$(synoshare --get public | grep -oP 'Path.+\[\K[^]]+')"
+PUBLIC_FOLDER="/volume1/public"
 
-PUBLIC_CONF="${PUBLIC_FOLDER}/openHAB2/conf"
-PUBLIC_ADDONS="${PUBLIC_FOLDER}/openHAB2/addons"
+PUBLIC_CONF="/volume1/public/openHAB2/conf"
+PUBLIC_ADDONS="/volume1/public/openHAB2/addons"
 TIMESTAMP=`date +%Y%m%d_%H%M%S`;
 
 preinst ()
@@ -43,12 +43,12 @@ preinst ()
     echo "The User Home service is not enabled. Please enable this feature in the User control panel in DSM."
     exit 1
   fi
-
-  synoshare -get public > /dev/null || (
-    echo "A shared folder called 'public' could not be found - note this name is case-sensitive. "
-    echo "Please create this using the Shared Folder DSM Control Panel and try again."
-    exit 1
-  )
+  
+  #synoshare -get public > /dev/null || (
+  #  echo "A shared folder called 'public' could not be found - note this name is case-sensitive. "
+  #  echo "Please create this using the Shared Folder DSM Control Panel and try again."
+  #  exit 1
+  #)
 
   echo "Get new version"
   cd ${TEMP_FOLDER}
@@ -87,12 +87,14 @@ postinst ()
   sleep 3
 
   #add openhab user & handle possible device groups
-  if ! synogroup --get dialout | grep -q "Name:" ; then 
-    synogroup --member dialout ${DAEMON_USER}
-  fi
-  if ! synogroup --get uccd | grep -q "Name:" ; then 
-    synogroup --member uucp ${DAEMON_USER}
-  fi
+  #synogroup --member dialout ${DAEMON_USER}
+  #synogroup --member uucp ${DAEMON_USER}
+  
+  #change owner of folder tree
+  echo "Fix permssion"
+  chown -hR ${DAEMON_USER} ${PUBLIC_CONF}
+  chown -hR ${DAEMON_USER} ${PUBLIC_ADDONS}
+  chown -hR ${DAEMON_USER} ${SYNOPKG_PKGDEST}
 
   #determine the daemon user homedir and save that variable in the user's profile
   #this is needed because new users seem to inherit a HOME value of /root which they have no permissions for
@@ -103,7 +105,7 @@ postinst ()
   #extract main archive
   echo "Install new version"
   cd ${TEMP_FOLDER}
-  7z x ${TEMP_FOLDER}/${DOWNLOAD_FILE1} -o${EXTRACTED_FOLDER} && rm ${TEMP_FOLDER}/${DOWNLOAD_FILE1}
+  7z x ${TEMP_FOLDER}/${DOWNLOAD_FILE1} -o ${EXTRACTED_FOLDER} && rm ${TEMP_FOLDER}/${DOWNLOAD_FILE1}
   mv ${TEMP_FOLDER}/${EXTRACTED_FOLDER}/* ${SYNOPKG_PKGDEST}
   rmdir ${TEMP_FOLDER}/${EXTRACTED_FOLDER}
   chmod +x ${SYNOPKG_PKGDEST}/${ENGINE_SCRIPT}
@@ -122,16 +124,10 @@ postinst ()
     ln -s ${PUBLIC_ADDONS} ${SYNOPKG_PKGDEST}
     chmod -R u+w ${PUBLIC_ADDONS}
   fi
-
+  
   #add log file
   mkdir -p ${SYNOPKG_PKGDEST}/userdata/logs
   touch ${SYNOPKG_PKGDEST}/userdata/logs/openhab.log
-
-  #change owner of folder tree
-  echo "Fix permssion"
-  chown -hR ${DAEMON_USER} ${PUBLIC_CONF}
-  chown -hR ${DAEMON_USER} ${PUBLIC_ADDONS}
-  chown -hR ${DAEMON_USER} ${SYNOPKG_PKGDEST}
   chmod -R u+w ${SYNOPKG_PKGDEST}/userdata
 
   #if Z-Wave dir exists -> change rights for binding

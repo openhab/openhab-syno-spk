@@ -89,11 +89,10 @@ postinst ()
   #extract main archive
   echo "Install new version" >> $SYNOPKG_TEMP_LOGFILE
   cd ${TEMP_FOLDER}
-  mkdir ${EXTRACTED_FOLDER}
-  cd ${EXTRACTED_FOLDER}
-  tar xvzf ${TEMP_FOLDER}/${DOWNLOAD_FILE1} && rm ${TEMP_FOLDER}/${DOWNLOAD_FILE1}
+  mkdir -p ${EXTRACTED_FOLDER}
+  tar -xf ${DOWNLOAD_FILE1} -C  ${EXTRACTED_FOLDER}
+  rm ${TEMP_FOLDER}/${DOWNLOAD_FILE1}
   mv ${TEMP_FOLDER}/${EXTRACTED_FOLDER}/* ${SYNOPKG_PKGDEST}
-  cd ${SYNOPKG_PKGDEST}
   rmdir ${TEMP_FOLDER}/${EXTRACTED_FOLDER}
   chmod +x ${SYNOPKG_PKGDEST}/${ENGINE_SCRIPT}
 

@@ -124,10 +124,10 @@ postinst ()
   touch ${SYNOPKG_PKGDEST}/userdata/logs/openhab.log
 
   #change owner of folder tree
-  echo "Fix permssion" > $SYNOPKG_TEMP_LOGFILE
-  chown -hR ${DAEMON_USER}:users ${PUBLIC_CONF}
-  chown -hR ${DAEMON_USER}:users ${PUBLIC_ADDONS}
-  chown -hR ${DAEMON_USER}:users ${SYNOPKG_PKGDEST}
+  echo "Fix permissions" > $SYNOPKG_TEMP_LOGFILE
+  chown -hR ${DAEMON_USER} ${PUBLIC_CONF}
+  chown -hR ${DAEMON_USER} ${PUBLIC_ADDONS}
+  chown -hR ${DAEMON_USER} ${SYNOPKG_PKGDEST}
   chmod -R u+w ${SYNOPKG_PKGDEST}/userdata
 
   #if Z-Wave dir exists -> change rights for binding

@@ -4,7 +4,7 @@
 #--------package based on work from pcloadletter.co.uk
 
 DOWNLOAD_PATH="https://bintray.com/openhab/mvn/download_file?file_path=org/openhab/distro/openhab/2.1.0"
-DOWNLOAD_FILE1="openhab-2.1.0.zip"
+DOWNLOAD_FILE1="openhab-2.1.0.tar.gz"
 
 # Add more files by separating them using spaces
 INSTALL_FILES="${DOWNLOAD_PATH}/${DOWNLOAD_FILE1}"
@@ -89,14 +89,17 @@ postinst ()
   #extract main archive
   echo "Install new version" >> $SYNOPKG_TEMP_LOGFILE
   cd ${TEMP_FOLDER}
-  7z x ${TEMP_FOLDER}/${DOWNLOAD_FILE1} -o ${EXTRACTED_FOLDER} && rm ${TEMP_FOLDER}/${DOWNLOAD_FILE1}
+  mkdir ${EXTRACTED_FOLDER}
+  cd ${EXTRACTED_FOLDER}
+  tar xvzf ${TEMP_FOLDER}/${DOWNLOAD_FILE1} && rm ${TEMP_FOLDER}/${DOWNLOAD_FILE1}
   mv ${TEMP_FOLDER}/${EXTRACTED_FOLDER}/* ${SYNOPKG_PKGDEST}
+  cd ${SYNOPKG_PKGDEST}
   rmdir ${TEMP_FOLDER}/${EXTRACTED_FOLDER}
   chmod +x ${SYNOPKG_PKGDEST}/${ENGINE_SCRIPT}
 
   #change owner of folder tree
   echo "Fix permssion" >> $SYNOPKG_TEMP_LOGFILE
-  chown -R ${DAEMON_USER} ${SYNOPKG_PKGDEST}
+  chown -R ${DAEMON_USER}:users ${SYNOPKG_PKGDEST}
 
   #if Z-Wave dir exists -> change rights for binding
   if [ -d /dev/ttyACM0 ]; then

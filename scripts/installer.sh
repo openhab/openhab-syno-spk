@@ -1,10 +1,10 @@
 #!/bin/sh
 
-#--------openHAB installer script
+#--------OpenHAB installer script
 #--------package based on work from pcloadletter.co.uk
 
 DOWNLOAD_PATH="https://bintray.com/openhab/mvn/download_file?file_path=org/openhab/distro/openhab/2.1.0"
-DOWNLOAD_FILE1="openhab-2.1.0.tar.gz"
+DOWNLOAD_FILE1="openhab-2.1.0.zip"
 
 # Add more files by separating them using spaces
 INSTALL_FILES="${DOWNLOAD_PATH}/${DOWNLOAD_FILE1}"
@@ -40,16 +40,15 @@ preinst ()
     exit 1
   fi
 
-  echo "Get new version" > $SYNOPKG_TEMP_LOGFILE
   cd ${TEMP_FOLDER}
   # go through list of files
   for WGET_URL in ${INSTALL_FILES}; do
     WGET_FILENAME="$(echo ${WGET_URL} | sed -r "s%^.*/(.*)%\1%")"
-    echo "Processing ${WGET_FILENAME}" > $SYNOPKG_TEMP_LOGFILE
+    echo "Processing ${WGET_FILENAME}"
     [ -f "${TEMP_FOLDER}/${WGET_FILENAME}" ] && rm ${TEMP_FOLDER}/${WGET_FILENAME}
     # use local file first
     if [ -f "${PUBLIC_FOLDER}/${WGET_FILENAME}" ]; then
-      echo "Found file locally - copying" > $SYNOPKG_TEMP_LOGFILE
+      echo "Found file locally - copying"
       cp ${PUBLIC_FOLDER}/${WGET_FILENAME} ${TEMP_FOLDER}
     else
       wget -nv --no-check-certificate --output-document=${WGET_FILENAME} ${WGET_URL}
@@ -72,13 +71,8 @@ preinst ()
 postinst ()
 {
   #create daemon user
-  echo "Create '${DAEMON_USER}' daemon user" > $SYNOPKG_TEMP_LOGFILE
   synouser --add ${DAEMON_USER} ${DAEMON_PASS} "${DAEMON_ID}" 0 "" ""
   sleep 3
-
-  #add openhab user & handle possible device groups
-  synogroup --member dialout ${DAEMON_USER}
-  synogroup --member uucp ${DAEMON_USER}
 
   #determine the daemon user homedir and save that variable in the user's profile
   #this is needed because new users seem to inherit a HOME value of /root which they have no permissions for
@@ -87,18 +81,14 @@ postinst ()
   su - ${DAEMON_USER} -s /bin/sh -c "echo export OPENHAB_PID=~/.daemon.pid >> .profile"
 
   #extract main archive
-  echo "Install new version" > $SYNOPKG_TEMP_LOGFILE
   cd ${TEMP_FOLDER}
-  mkdir -p ${EXTRACTED_FOLDER}
-  tar -xf ${DOWNLOAD_FILE1} -C  ${EXTRACTED_FOLDER}
-  rm ${TEMP_FOLDER}/${DOWNLOAD_FILE1}
+  7z x ${TEMP_FOLDER}/${DOWNLOAD_FILE1} -o${EXTRACTED_FOLDER} && rm ${TEMP_FOLDER}/${DOWNLOAD_FILE1}
   mv ${TEMP_FOLDER}/${EXTRACTED_FOLDER}/* ${SYNOPKG_PKGDEST}
   rmdir ${TEMP_FOLDER}/${EXTRACTED_FOLDER}
   chmod +x ${SYNOPKG_PKGDEST}/${ENGINE_SCRIPT}
 
   #change owner of folder tree
-  echo "Fix permssion" > $SYNOPKG_TEMP_LOGFILE
-  chown -R ${DAEMON_USER}:users ${SYNOPKG_PKGDEST}
+  chown -R ${DAEMON_USER} ${SYNOPKG_PKGDEST}
 
   #if Z-Wave dir exists -> change rights for binding
   if [ -d /dev/ttyACM0 ]; then
@@ -137,7 +127,7 @@ postuninst ()
   if [ -e "${DAEMON_HOME}" ]; then
     rm -r "${DAEMON_HOME}"
   else
-    echo "Daemon user folder '${DAEMON_HOME}' not found - nothing deleted" >> $SYNOPKG_TEMP_LOGFILE
+    echo "Daemon user folder '${DAEMON_HOME}' not found - nothing deleted"
   fi
 
   exit 0

@@ -1,7 +1,7 @@
 language: bash
 
 script:
-  - export FILE_NAME=OpenHAB-$TRAVIS_BRANCH-syno-noarch-0.001.spk
+  - export FILE_NAME=openHAB-$TRAVIS_BRANCH-syno-noarch-0.001.spk
   - echo $FILE_NAME
   - tar cvf $FILE_NAME * --owner=0 --group=0 --exclude=*.md --exclude=.travis.*
 
@@ -10,7 +10,7 @@ deploy:
   provider: releases
   api_key:
     secure: $GH_TOKEN
-  file: 
+  file:
     - $FILE_NAME
   on:
     tags: true
@@ -24,7 +24,7 @@ notifications:
     on_success: change  # options: [always|never|change] default: always
     on_failure: always  # options: [always|never|change] default: always
     on_start: never     # options: [always|never|change] default: always
-    
+
 env:
   global:
     secure: Y+YeEYwigSr5pbHDcg5FGOQLFyra1XINk7+uZc1T7LvFeHrX4uT1h9Dg+8zy8WKh4nThEekgOP9RBDL717tbO1QoAyiA5/whEj7IOvBB3h6DdbmTi9vwHfbP2yE1mHKHPApfldgE2SjGuSb1+rzPpNgZ4wVSnDhViR+mnXSGH4e+6KUg8I0/MnBUb3JYUSlE5v7CcbZxyG8J0GUTOCBL0iOCsDtguCOvcpZw1Kkjp4X4amvrbpBFwRW8t/CnDPTO64ArKe068Gv2CmWbpcYV32awBF7qzTeBrvU/WjOFu4UfJ3I1maYSycReffUdihragqpajQjAf+LIj4+fbAk3Pr/8Sv4EeKz/MgPBzA76fGMNlTiSeikL75gpAKC8ExIaR+Oas10+W28dfSq9tiyodE3ULYxhhhIXRQJaNpGTS2CkOSQ8MSmn8gOb6Uv8DPJbSp3gkKB9mPW86hub8kGJ0yAVX6vlv4jov5vojtJ20Xc+UqcnE+Wke3hwM02A39W2+RUMMtENJfexpWvlVQ3XTDXimeX1qP8vZ1ib6uTb4WrBJWzbJLiTTpgp+Ao039pNj+U4JIdj9s9nPJrKN4tfWMiz3E6sFLnXvkr3WXu8o31OQk8iBRFIforyDqir2t2C8ht7hN9S1HgDCiIOdUrwZgNnyBma+pn/b3627cPb8M0=

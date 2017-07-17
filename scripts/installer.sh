@@ -40,16 +40,16 @@ preinst ()
     exit 1
   fi
 
-  echo "Get new version" >> $SYNOPKG_TEMP_LOGFILE
+  echo "Get new version" > $SYNOPKG_TEMP_LOGFILE
   cd ${TEMP_FOLDER}
   # go through list of files
   for WGET_URL in ${INSTALL_FILES}; do
     WGET_FILENAME="$(echo ${WGET_URL} | sed -r "s%^.*/(.*)%\1%")"
-    echo "Processing ${WGET_FILENAME}" >> $SYNOPKG_TEMP_LOGFILE
+    echo "Processing ${WGET_FILENAME}" > $SYNOPKG_TEMP_LOGFILE
     [ -f "${TEMP_FOLDER}/${WGET_FILENAME}" ] && rm ${TEMP_FOLDER}/${WGET_FILENAME}
     # use local file first
     if [ -f "${PUBLIC_FOLDER}/${WGET_FILENAME}" ]; then
-      echo "Found file locally - copying" >> $SYNOPKG_TEMP_LOGFILE
+      echo "Found file locally - copying" > $SYNOPKG_TEMP_LOGFILE
       cp ${PUBLIC_FOLDER}/${WGET_FILENAME} ${TEMP_FOLDER}
     else
       wget -nv --no-check-certificate --output-document=${WGET_FILENAME} ${WGET_URL}
@@ -57,7 +57,7 @@ preinst ()
           echo "There was a problem downloading ${WGET_FILENAME} from the download link:"
           echo "'${WGET_URL}'"
           echo "Alternatively, download this file manually and place it in the 'public' shared folder and start installation again."
-          if [ -z "${PUBLIC_FOLDER}" ];then
+          if [ -z "${PUBLIC_FOLDER}" ]; then
             echo "Note: You must create a 'public' shared folder first on your primary volume"
           fi
           exit 1
@@ -72,7 +72,7 @@ preinst ()
 postinst ()
 {
   #create daemon user
-  echo "Create '${DAEMON_USER}' daemon user" >> $SYNOPKG_TEMP_LOGFILE
+  echo "Create '${DAEMON_USER}' daemon user" > $SYNOPKG_TEMP_LOGFILE
   synouser --add ${DAEMON_USER} ${DAEMON_PASS} "${DAEMON_ID}" 0 "" ""
   sleep 3
 
@@ -87,7 +87,7 @@ postinst ()
   su - ${DAEMON_USER} -s /bin/sh -c "echo export OPENHAB_PID=~/.daemon.pid >> .profile"
 
   #extract main archive
-  echo "Install new version" >> $SYNOPKG_TEMP_LOGFILE
+  echo "Install new version" > $SYNOPKG_TEMP_LOGFILE
   cd ${TEMP_FOLDER}
   mkdir -p ${EXTRACTED_FOLDER}
   tar -xf ${DOWNLOAD_FILE1} -C  ${EXTRACTED_FOLDER}
@@ -97,7 +97,7 @@ postinst ()
   chmod +x ${SYNOPKG_PKGDEST}/${ENGINE_SCRIPT}
 
   #change owner of folder tree
-  echo "Fix permssion" >> $SYNOPKG_TEMP_LOGFILE
+  echo "Fix permssion" > $SYNOPKG_TEMP_LOGFILE
   chown -R ${DAEMON_USER}:users ${SYNOPKG_PKGDEST}
 
   #if Z-Wave dir exists -> change rights for binding

@@ -3,10 +3,10 @@
 #--------OpenHAB installer script
 #--------package based on work from pcloadletter.co.uk
 
-DOWNLOAD_FILE="openhab-offline-2.0.0-SNAPSHOT.zip"
-DOWNLOAD_PATH="https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-offline/target"
+DOWNLOAD_FILE="openhab-2.0.0.zip"
+DOWNLOAD_PATH="https://bintray.com/openhab/mvn/download_file?file_path=org/openhab/distro/openhab/2.0.0"
 
-EXTRACTED_FOLDER="OpenHAB-runtime-2.0.0-SNAPSHOT"
+EXTRACTED_FOLDER="openHAB-2.0.0"
 DOWNLOAD_URL="${DOWNLOAD_PATH}/${DOWNLOAD_FILE}"
 DAEMON_USER="`echo ${SYNOPKG_PKGNAME} | awk {'print tolower($_)'}`"
 DAEMON_PASS="`openssl rand 12 -base64 2>nul`"
@@ -15,9 +15,9 @@ ENGINE_SCRIPT="start.sh"
 INSTALL_FILES="${DOWNLOAD_URL}"
 source /etc/profile
 TEMP_FOLDER="`find / -maxdepth 2 -name '@tmp' | head -n 1`"
-PRIMARY_VOLUME="/`echo $TEMP_FOLDER | cut -f2 -d'/'`"
-PUBLIC_CONF="/volume1/public/openHAB2/conf"
-PUBLIC_ADDONS="/volume1/public/openHAB2/addons"
+#PRIMARY_VOLUME="/`echo $TEMP_FOLDER | cut -f2 -d'/'`"
+#PUBLIC_CONF="/volume1/public/openHAB2/conf"
+#PUBLIC_ADDONS="/volume1/public/openHAB2/addons"
 
 preinst ()
 {
@@ -27,14 +27,14 @@ preinst ()
     echo "Download and install the Java Synology package from http://wp.me/pVshC-z5"
     exit 1
   fi
-  
+
   #Is Java installed?
   if [ ! -f ${JAVA_HOME}/bin/java ]; then
     echo "Java is not installed or not properly configured. The Java binary could not be located. "
     echo "Download and install the Java Synology package from http://wp.me/pVshC-z5"
     exit 1
   fi
-  
+
   #is the User Home service enabled?
   UH_SERVICE=`synogetkeyvalue /etc/synoinfo.conf userHomeEnable`
   if [ ${UH_SERVICE} == "no" ]; then
@@ -51,7 +51,7 @@ preinst ()
     if [[ $? != 0 ]]; then
       if [ -d ${PUBLIC_FOLDER} ] && [ -f ${PUBLIC_FOLDER}/${DOWNLOAD_FILE} ]; then
         cp ${PUBLIC_FOLDER}/${DOWNLOAD_FILE} ${TEMP_FOLDER}
-      else     
+      else
         echo "There was a problem downloading ${WGET_FILENAME} from the official download link, "
         echo "which was \"${WGET_URL}\" "
         echo "Alternatively, you may download this file manually and place it in the 'public' shared folder. "
@@ -59,7 +59,7 @@ preinst ()
       fi
     fi
   done
-  
+
   exit 0
 }
 
@@ -69,13 +69,13 @@ postinst ()
   #create daemon user
   synouser --add ${DAEMON_USER} ${DAEMON_PASS} "${DAEMON_ID}" 0 "" ""
   sleep 3
-  
+
   #determine the daemon user homedir and save that variable in the user's profile
   #this is needed because new users seem to inherit a HOME value of /root which they have no permissions for
   DAEMON_HOME="`cat /etc/passwd | grep "${DAEMON_ID}" | cut -f6 -d':'`"
   su - ${DAEMON_USER} -s /bin/sh -c "echo export HOME=\'${DAEMON_HOME}\' >> .profile"
   su - ${DAEMON_USER} -s /bin/sh -c "echo export OPENHAB_PID=~/.daemon.pid >> .profile"
-  
+
   #extract main archive
   cd ${TEMP_FOLDER}
   unzip ${TEMP_FOLDER}/${DOWNLOAD_FILE} -d ${EXTRACTED_FOLDER} && rm ${TEMP_FOLDER}/${DOWNLOAD_FILE}
@@ -104,10 +104,10 @@ postinst ()
 #  fi
 
   #if Z-Wave dir exists -> change rights for binding
-  if [ -d /dev/ttyACM0 ]; then 
+  if [ -d /dev/ttyACM0 ]; then
     chmod 777 /dev/ttyACM0
   fi
-  if [ -d /dev/ttyACM1 ]; then 
+  if [ -d /dev/ttyACM1 ]; then
     chmod 777 /dev/ttyACM1
   fi
 
@@ -120,7 +120,7 @@ preuninst ()
   #make sure server is stopped
   su - ${DAEMON_USER} -s /bin/sh -c "cd ${SYNOPKG_PKGDEST}/runtime/bin && ./stop &"
   sleep 10
-  
+
   exit 0
 }
 
@@ -130,9 +130,9 @@ postuninst ()
   #remove daemon user
   synouser --del ${DAEMON_USER}
   sleep 3
-  
+
   #remove daemon user's home directory (needed since DSM 4.1)
   [ -e /var/services/homes/${DAEMON_USER} ] && rm -r /var/services/homes/${DAEMON_USER}
-  
+
   exit 0
 }

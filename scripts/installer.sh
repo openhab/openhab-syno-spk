@@ -44,7 +44,7 @@ preinst ()
     exit 1
   fi
 
-  synoshare -get public > /dev/null || (
+  synoshare --get public > /dev/null || (
     echo "A shared folder called 'public' could not be found - note this name is case-sensitive. "
     echo "Please create this using the Shared Folder DSM Control Panel and try again."
     exit 1
@@ -99,14 +99,15 @@ postinst ()
   #extract main archive
   echo "Install new version"
   cd ${TEMP_FOLDER}
-  7z x ${TEMP_FOLDER}/${DOWNLOAD_FILE1} -o ${EXTRACTED_FOLDER} && rm ${TEMP_FOLDER}/${DOWNLOAD_FILE1}
+  7z x ${TEMP_FOLDER}/${DOWNLOAD_FILE1} -o${EXTRACTED_FOLDER} && rm ${TEMP_FOLDER}/${DOWNLOAD_FILE1}
   mv ${TEMP_FOLDER}/${EXTRACTED_FOLDER}/* ${SYNOPKG_PKGDEST}
   rmdir ${TEMP_FOLDER}/${EXTRACTED_FOLDER}
   chmod +x ${SYNOPKG_PKGDEST}/${ENGINE_SCRIPT}
 
-  echo "create conf/addon links"
+  echo "Create conf/addon links"
   #if configdir exists in public folder -> create a symbolic link
   if [ -d ${PUBLIC_CONF} ]; then
+    mv ${SYNOPKG_PKGDEST}/conf/* ${PUBLIC_CONF}
     rm -r ${SYNOPKG_PKGDEST}/conf
     ln -s ${PUBLIC_CONF} ${SYNOPKG_PKGDEST}
     chmod -R u+w ${PUBLIC_CONF}
@@ -114,6 +115,7 @@ postinst ()
 
   #if public addons dir exists in public folder -> create a symbolic link
   if [ -d ${PUBLIC_ADDONS} ]; then
+    mv ${SYNOPKG_PKGDEST}/addons/* ${PUBLIC_ADDONS}
     rm -r ${SYNOPKG_PKGDEST}/addons
     ln -s ${PUBLIC_ADDONS} ${SYNOPKG_PKGDEST}
     chmod -R u+w ${PUBLIC_ADDONS}
@@ -124,7 +126,7 @@ postinst ()
   touch ${SYNOPKG_PKGDEST}/userdata/logs/openhab.log
 
   #change owner of folder tree
-  echo "Fix permssion"
+  echo "Fix permissions"
   chown -hR ${DAEMON_USER} ${PUBLIC_CONF}
   chown -hR ${DAEMON_USER} ${PUBLIC_ADDONS}
   chown -hR ${DAEMON_USER} ${SYNOPKG_PKGDEST}
@@ -254,6 +256,7 @@ postupgrade ()
   echo "Create conf/addon links"
   #if configdir exists in public folder -> create a symbolic link
   if [ -d ${PUBLIC_CONF} ]; then
+    mv ${SYNOPKG_PKGDEST}/conf/* ${PUBLIC_CONF}
     rm -r ${SYNOPKG_PKGDEST}/conf
     ln -s ${PUBLIC_CONF} ${SYNOPKG_PKGDEST}
     chmod -R u+w ${PUBLIC_CONF}
@@ -261,6 +264,7 @@ postupgrade ()
 
   #if public addons dir exists in public folder -> create a symbolic link
   if [ -d ${PUBLIC_ADDONS} ]; then
+    mv ${SYNOPKG_PKGDEST}/addons/* ${PUBLIC_ADDONS}
     rm -r ${SYNOPKG_PKGDEST}/addons
     ln -s ${PUBLIC_ADDONS} ${SYNOPKG_PKGDEST}
     chmod -R u+w ${PUBLIC_ADDONS}
@@ -271,7 +275,9 @@ postupgrade ()
   touch ${SYNOPKG_PKGDEST}/userdata/logs/openhab.log
 
   # fix permissions
-  echo "Fix permssion"
+  echo "Fix permissions"
+  chown -hR ${DAEMON_USER} ${PUBLIC_CONF}
+  chown -hR ${DAEMON_USER} ${PUBLIC_ADDONS}
   chown -hR ${DAEMON_USER} ${SYNOPKG_PKGDEST}
   chmod -R u+w ${SYNOPKG_PKGDEST}/userdata
 

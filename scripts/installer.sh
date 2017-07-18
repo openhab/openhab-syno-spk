@@ -3,13 +3,13 @@
 #--------openHAB2 installer script
 #--------package based on work from pcloadletter.co.uk
 
-DOWNLOAD_PATH="https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab/target"
-DOWNLOAD_FILE1="openhab-2.2.0-SNAPSHOT.zip"
+DOWNLOAD_PATH="https://bintray.com/openhab/mvn/download_file?file_path=org/openhab/distro/openhab/2.1.0"
+DOWNLOAD_FILE1="openhab-2.1.0.zip"
 
 # Add more files by separating them using spaces
 INSTALL_FILES="${DOWNLOAD_PATH}/${DOWNLOAD_FILE1}"
 
-EXTRACTED_FOLDER="openHAB-2.2.0-SNAPSHOT"
+EXTRACTED_FOLDER="openHAB-2.1.0"
 
 DAEMON_USER="$(echo ${SYNOPKG_PKGNAME} | awk {'print tolower($_)'})"
 DAEMON_PASS="$(openssl rand 12 -base64 2>nul)"
@@ -22,6 +22,7 @@ source /etc/profile
 TEMP_FOLDER="$(find / -maxdepth 2 -name '@tmp' | head -n 1)"
 PRIMARY_VOLUME="$(echo ${TEMP_FOLDER} | grep -oP '^/[^/]+')"
 PUBLIC_FOLDER="$(synoshare --get public | grep -oP 'Path.+\[\K[^]]+')"
+
 PUBLIC_CONF="${PUBLIC_FOLDER}/openHAB2/conf"
 PUBLIC_ADDONS="${PUBLIC_FOLDER}/openHAB2/addons"
 TIMESTAMP=`date +%Y%m%d_%H%M%S`;
@@ -43,6 +44,12 @@ preinst ()
     exit 1
   fi
 
+  synoshare -get public > /dev/null || (
+    echo "A shared folder called 'public' could not be found - note this name is case-sensitive. "
+    echo "Please create this using the Shared Folder DSM Control Panel and try again."
+    exit 1
+  )
+
   echo "Get new version"
   cd ${TEMP_FOLDER}
   # go through list of files
@@ -60,7 +67,7 @@ preinst ()
           echo "There was a problem downloading ${WGET_FILENAME} from the download link:"
           echo "'${WGET_URL}'"
           echo "Alternatively, download this file manually and place it in the 'public' shared folder and start installation again."
-          if [ -z "${PUBLIC_FOLDER}" ];then
+          if [ -z "${PUBLIC_FOLDER}" ]; then
             echo "Note: You must create a 'public' shared folder first on your primary volume"
           fi
           exit 1
@@ -80,8 +87,8 @@ postinst ()
   sleep 3
 
   #add openhab user & handle possible device groups
-  addgroup ${DAEMON_USER} dialout
-  addgroup ${DAEMON_USER} uucp
+  synogroup --member dialout ${DAEMON_USER}
+  synogroup --member uucp ${DAEMON_USER}
 
   #determine the daemon user homedir and save that variable in the user's profile
   #this is needed because new users seem to inherit a HOME value of /root which they have no permissions for
@@ -118,6 +125,8 @@ postinst ()
 
   #change owner of folder tree
   echo "Fix permssion"
+  chown -hR ${DAEMON_USER} ${PUBLIC_CONF}
+  chown -hR ${DAEMON_USER} ${PUBLIC_ADDONS}
   chown -hR ${DAEMON_USER} ${SYNOPKG_PKGDEST}
   chmod -R u+w ${SYNOPKG_PKGDEST}/userdata
 

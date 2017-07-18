@@ -107,6 +107,7 @@ postinst ()
   echo "Create conf/addon links"
   #if configdir exists in public folder -> create a symbolic link
   if [ -d ${PUBLIC_CONF} ]; then
+    mv ${SYNOPKG_PKGDEST}/conf/* ${PUBLIC_CONF}
     rm -r ${SYNOPKG_PKGDEST}/conf
     ln -s ${PUBLIC_CONF} ${SYNOPKG_PKGDEST}
     chmod -R u+w ${PUBLIC_CONF}

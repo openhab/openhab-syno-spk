@@ -44,7 +44,7 @@ preinst ()
     exit 1
   fi
 
-  synoshare -get public > /dev/null || (
+  synoshare --get public > /dev/null || (
     echo "A shared folder called 'public' could not be found - note this name is case-sensitive. "
     echo "Please create this using the Shared Folder DSM Control Panel and try again."
     exit 1
@@ -67,7 +67,7 @@ preinst ()
           echo "There was a problem downloading ${WGET_FILENAME} from the download link:"
           echo "'${WGET_URL}'"
           echo "Alternatively, download this file manually and place it in the 'public' shared folder and start installation again."
-          if [ -z "${PUBLIC_FOLDER}" ];then
+          if [ -z "${PUBLIC_FOLDER}" ]; then
             echo "Note: You must create a 'public' shared folder first on your primary volume"
           fi
           exit 1

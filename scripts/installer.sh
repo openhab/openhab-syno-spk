@@ -44,22 +44,22 @@ preinst ()
     exit 1
   fi
 
-  synoshare -get public > /dev/null || (
+  synoshare --get public > /dev/null || (
     echo "A shared folder called 'public' could not be found - note this name is case-sensitive. "
     echo "Please create this using the Shared Folder DSM Control Panel and try again."
     exit 1
   )
 
-  echo "Get new version" > $SYNOPKG_TEMP_LOGFILE
+  echo "Get new version"
   cd ${TEMP_FOLDER}
   # go through list of files
   for WGET_URL in ${INSTALL_FILES}; do
     WGET_FILENAME="$(echo ${WGET_URL} | sed -r "s%^.*/(.*)%\1%")"
-    echo "Processing ${WGET_FILENAME}" > $SYNOPKG_TEMP_LOGFILE
+    echo "Processing ${WGET_FILENAME}"
     [ -f "${TEMP_FOLDER}/${WGET_FILENAME}" ] && rm ${TEMP_FOLDER}/${WGET_FILENAME}
     # use local file first
     if [ -f "${PUBLIC_FOLDER}/${WGET_FILENAME}" ]; then
-      echo "Found file locally - copying" > $SYNOPKG_TEMP_LOGFILE
+      echo "Found file locally - copying"
       cp ${PUBLIC_FOLDER}/${WGET_FILENAME} ${TEMP_FOLDER}
     else
       wget -nv --no-check-certificate --output-document=${WGET_FILENAME} ${WGET_URL}
@@ -82,7 +82,7 @@ preinst ()
 postinst ()
 {
   #create daemon user
-  echo "Create '${DAEMON_USER}' daemon user" > $SYNOPKG_TEMP_LOGFILE
+  echo "Create '${DAEMON_USER}' daemon user"
   synouser --add ${DAEMON_USER} ${DAEMON_PASS} "${DAEMON_ID}" 0 "" ""
   sleep 3
 
@@ -97,16 +97,17 @@ postinst ()
   su - ${DAEMON_USER} -s /bin/sh -c "echo export OPENHAB_PID=~/.daemon.pid >> .profile"
 
   #extract main archive
-  echo "Install new version" > $SYNOPKG_TEMP_LOGFILE
+  echo "Install new version"
   cd ${TEMP_FOLDER}
   unzip ${TEMP_FOLDER}/${DOWNLOAD_FILE1} -d ${EXTRACTED_FOLDER} && rm ${TEMP_FOLDER}/${DOWNLOAD_FILE1}
   mv ${TEMP_FOLDER}/${EXTRACTED_FOLDER}/* ${SYNOPKG_PKGDEST}
   rmdir ${TEMP_FOLDER}/${EXTRACTED_FOLDER}
   chmod +x ${SYNOPKG_PKGDEST}/${ENGINE_SCRIPT}
 
-  echo "create conf/addon links" > $SYNOPKG_TEMP_LOGFILE
+  echo "Create conf/addon links"
   #if configdir exists in public folder -> create a symbolic link
   if [ -d ${PUBLIC_CONF} ]; then
+    mv ${SYNOPKG_PKGDEST}/conf/* ${PUBLIC_CONF}
     rm -r ${SYNOPKG_PKGDEST}/conf
     ln -s ${PUBLIC_CONF} ${SYNOPKG_PKGDEST}
     chmod -R u+w ${PUBLIC_CONF}
@@ -114,6 +115,7 @@ postinst ()
 
   #if public addons dir exists in public folder -> create a symbolic link
   if [ -d ${PUBLIC_ADDONS} ]; then
+    mv ${SYNOPKG_PKGDEST}/addons/* ${PUBLIC_ADDONS}
     rm -r ${SYNOPKG_PKGDEST}/addons
     ln -s ${PUBLIC_ADDONS} ${SYNOPKG_PKGDEST}
     chmod -R u+w ${PUBLIC_ADDONS}
@@ -124,7 +126,7 @@ postinst ()
   touch ${SYNOPKG_PKGDEST}/userdata/logs/openhab.log
 
   #change owner of folder tree
-  echo "Fix permissions" > $SYNOPKG_TEMP_LOGFILE
+  echo "Fix permissions"
   chown -hR ${DAEMON_USER} ${PUBLIC_CONF}
   chown -hR ${DAEMON_USER} ${PUBLIC_ADDONS}
   chown -hR ${DAEMON_USER} ${SYNOPKG_PKGDEST}
@@ -167,7 +169,7 @@ postuninst ()
   if [ -e "${DAEMON_HOME}" ]; then
     rm -r "${DAEMON_HOME}"
   else
-    echo "Daemon user folder '${DAEMON_HOME}' not found - nothing deleted" > $SYNOPKG_TEMP_LOGFILE
+    echo "Daemon user folder '${DAEMON_HOME}' not found - nothing deleted"
   fi
 
   exit 0
@@ -185,39 +187,39 @@ preupgrade ()
 
   # Remove tmp, logs & cache dirs
   if [ -d ${SYNOPKG_PKGDEST}/userdata/tmp ]; then
-  	echo "Remove tmp" > $SYNOPKG_TEMP_LOGFILE
+  	echo "Remove tmp"
   	rm -rf ${SYNOPKG_PKGDEST}/userdata/tmp
   fi
 
   if [ -d ${SYNOPKG_PKGDEST}/userdata/cache ]; then
-  	echo "Remove cache" > $SYNOPKG_TEMP_LOGFILE
+  	echo "Remove cache"
   	rm -rf ${SYNOPKG_PKGDEST}/userdata/cache
   fi
 
   if [ -d ${SYNOPKG_PKGDEST}/userdata/log ]; then
-  	echo "Remove log" > $SYNOPKG_TEMP_LOGFILE
+  	echo "Remove log"
   	rm -rf ${SYNOPKG_PKGDEST}/userdata/log
   fi
 
   if [ -d ${SYNOPKG_PKGDEST}/userdata/logs ]; then
-  	echo "Remove logs" > $SYNOPKG_TEMP_LOGFILE
+  	echo "Remove logs"
   	rm -rf ${SYNOPKG_PKGDEST}/userdata/logs
   fi
 
   # backup current installation with settings
-  echo "Backup" > $SYNOPKG_TEMP_LOGFILE
+  echo "Backup"
   mv ${SYNOPKG_PKGDEST} /${SYNOPKG_PKGDEST}-backup-$TIMESTAMP
 
-  echo "Get new version" > $SYNOPKG_TEMP_LOGFILE
+  echo "Get new version"
   cd ${TEMP_FOLDER}
   # go through list of files
   for WGET_URL in ${INSTALL_FILES}; do
     WGET_FILENAME="$(echo ${WGET_URL} | sed -r "s%^.*/(.*)%\1%")"
-    echo "Processing ${WGET_FILENAME}" > $SYNOPKG_TEMP_LOGFILE
+    echo "Processing ${WGET_FILENAME}"
     [ -f "${TEMP_FOLDER}/${WGET_FILENAME}" ] && rm ${TEMP_FOLDER}/${WGET_FILENAME}
     # use local file first
     if [ -f "${PUBLIC_FOLDER}/${WGET_FILENAME}" ]; then
-      echo "Found file locally - copying" > $SYNOPKG_TEMP_LOGFILE
+      echo "Found file locally - copying"
       cp ${PUBLIC_FOLDER}/${WGET_FILENAME} ${TEMP_FOLDER}
     else
       wget -nv --no-check-certificate --output-document=${WGET_FILENAME} ${WGET_URL}
@@ -240,20 +242,21 @@ preupgrade ()
 postupgrade ()
 {
   #extract main archive
-  echo "Install new version" > $SYNOPKG_TEMP_LOGFILE
+  echo "Install new version"
   cd ${TEMP_FOLDER}
-  unip ${TEMP_FOLDER}/${DOWNLOAD_FILE1} -d ${EXTRACTED_FOLDER} && rm ${TEMP_FOLDER}/${DOWNLOAD_FILE1}
+  unzip ${TEMP_FOLDER}/${DOWNLOAD_FILE1} -d ${EXTRACTED_FOLDER} && rm ${TEMP_FOLDER}/${DOWNLOAD_FILE1}
   mv ${TEMP_FOLDER}/${EXTRACTED_FOLDER}/* ${SYNOPKG_PKGDEST}
   rmdir ${TEMP_FOLDER}/${EXTRACTED_FOLDER}
   chmod +x ${SYNOPKG_PKGDEST}/${ENGINE_SCRIPT}
 
   # restore configuration and userdata
-  echo "Restore UserData" > $SYNOPKG_TEMP_LOGFILE
+  echo "Restore UserData"
   cp -ar ${SYNOPKG_PKGDEST}-backup-$TIMESTAMP/userdata ${SYNOPKG_PKGDEST}/
 
-  echo "Create conf/addon links" > $SYNOPKG_TEMP_LOGFILE
+  echo "Create conf/addon links"
   #if configdir exists in public folder -> create a symbolic link
   if [ -d ${PUBLIC_CONF} ]; then
+    mv ${SYNOPKG_PKGDEST}/conf/* ${PUBLIC_CONF}
     rm -r ${SYNOPKG_PKGDEST}/conf
     ln -s ${PUBLIC_CONF} ${SYNOPKG_PKGDEST}
     chmod -R u+w ${PUBLIC_CONF}
@@ -261,6 +264,7 @@ postupgrade ()
 
   #if public addons dir exists in public folder -> create a symbolic link
   if [ -d ${PUBLIC_ADDONS} ]; then
+    mv ${SYNOPKG_PKGDEST}/addons/* ${PUBLIC_ADDONS}
     rm -r ${SYNOPKG_PKGDEST}/addons
     ln -s ${PUBLIC_ADDONS} ${SYNOPKG_PKGDEST}
     chmod -R u+w ${PUBLIC_ADDONS}
@@ -271,8 +275,10 @@ postupgrade ()
   touch ${SYNOPKG_PKGDEST}/userdata/logs/openhab.log
 
   # fix permissions
-  echo "Fix permssion" > $SYNOPKG_TEMP_LOGFILE
-  chown -hR ${DAEMON_USER}:users ${SYNOPKG_PKGDEST}
+  echo "Fix permissions"
+  chown -hR ${DAEMON_USER} ${PUBLIC_CONF}
+  chown -hR ${DAEMON_USER} ${PUBLIC_ADDONS}
+  chown -hR ${DAEMON_USER} ${SYNOPKG_PKGDEST}
   chmod -R u+w ${SYNOPKG_PKGDEST}/userdata
 
   exit 0

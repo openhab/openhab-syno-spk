@@ -107,6 +107,7 @@ postinst ()
   echo "create conf/addon links"
   #if configdir exists in public folder -> create a symbolic link
   if [ -d ${PUBLIC_CONF} ]; then
+    mv ${SYNOPKG_PKGDEST}/conf/* ${PUBLIC_CONF}
     rm -r ${SYNOPKG_PKGDEST}/conf
     ln -s ${PUBLIC_CONF} ${SYNOPKG_PKGDEST}
     chmod -R u+w ${PUBLIC_CONF}
@@ -114,6 +115,7 @@ postinst ()
 
   #if public addons dir exists in public folder -> create a symbolic link
   if [ -d ${PUBLIC_ADDONS} ]; then
+    mv ${SYNOPKG_PKGDEST}/addons/* ${PUBLIC_ADDONS}
     rm -r ${SYNOPKG_PKGDEST}/addons
     ln -s ${PUBLIC_ADDONS} ${SYNOPKG_PKGDEST}
     chmod -R u+w ${PUBLIC_ADDONS}

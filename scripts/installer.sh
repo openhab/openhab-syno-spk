@@ -115,7 +115,7 @@ postinst ()
     mv -u ${SYNOPKG_PKGDEST}/conf/* ${PUBLIC_CONF}
     rm -r ${SYNOPKG_PKGDEST}/conf
     ln -s ${PUBLIC_CONF} ${SYNOPKG_PKGDEST}
-    synoacltool -get ${PUBLIC_CONF} | grep -F ${DAEMON_ACL} > /dev/null && synoacltool -add ${PUBLIC_CONF} ${DAEMON_ACL}
+    synoacltool -get ${PUBLIC_CONF} | grep -F ${DAEMON_ACL} > /dev/null || synoacltool -add ${PUBLIC_CONF} ${DAEMON_ACL}
   fi
 
   #if public addons dir exists in public folder -> create a symbolic link
@@ -124,7 +124,7 @@ postinst ()
     mv -u ${SYNOPKG_PKGDEST}/addons/* ${PUBLIC_ADDONS}
     rm -r ${SYNOPKG_PKGDEST}/addons
     ln -s ${PUBLIC_ADDONS} ${SYNOPKG_PKGDEST}
-    synoacltool -get ${PUBLIC_ADDONS} | grep -F ${DAEMON_ACL} > /dev/null && synoacltool -add ${PUBLIC_ADDONS} ${DAEMON_ACL}
+    synoacltool -get ${PUBLIC_ADDONS} | grep -F ${DAEMON_ACL} > /dev/null || synoacltool -add ${PUBLIC_ADDONS} ${DAEMON_ACL}
   fi
 
   #add log file

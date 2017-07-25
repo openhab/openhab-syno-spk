@@ -26,8 +26,8 @@ PUBLIC_FOLDER="$(synoshare --get public | grep -oP 'Path.+\[\K[^]]+')"
 PUBLIC_OH_FOLDERS_EXISTS=no
 PUBLIC_CONF="${PUBLIC_FOLDER}/openHAB2/conf"
 PUBLIC_ADDONS="${PUBLIC_FOLDER}/openHAB2/addons"
-TIMESTAMP="$(date +%Y%m%d)"
-BACKUP_FOLDER="${SYNOPKG_PKGDEST}-BACKUP-$TIMESTAMP"
+TIMESTAMP="$(date +%Y%m)"
+BACKUP_FOLDER="${SYNOPKG_PKGDEST}-backup-$TIMESTAMP"
 
 preinst ()
 {
@@ -245,8 +245,8 @@ preupgrade ()
 
 postupgrade ()
 {
-  # Remove backup after installation
-  rm -rf ${BACKUP_FOLDER}
+  # Remove all backups after installation
+  rm -rf ${SYNOPKG_PKGDEST}-backup*
   
   echo "Update done." > $SYNOPKG_TEMP_LOGFILE
   

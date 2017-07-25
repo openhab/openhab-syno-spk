@@ -4,7 +4,7 @@
 #--------package based on work from pcloadletter.co.uk
 
 DOWNLOAD_PATH="https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab/target"
-DOWNLOAD_FILE1="openhab-2.2.0-SNAPSHOT.zip"
+DOWNLOAD_FILE1="openhab-2.2.0-SNAPSHOT.tar.gz"
 
 # Add more files by separating them using spaces
 INSTALL_FILES="${DOWNLOAD_PATH}/${DOWNLOAD_FILE1}"
@@ -23,9 +23,11 @@ TEMP_FOLDER="$(find / -maxdepth 2 -name '@tmp' | head -n 1)"
 PRIMARY_VOLUME="$(echo ${TEMP_FOLDER} | grep -oP '^/[^/]+')"
 PUBLIC_FOLDER="$(synoshare --get public | grep -oP 'Path.+\[\K[^]]+')"
 
+PUBLIC_OH_FOLDERS_EXISTS=no
 PUBLIC_CONF="${PUBLIC_FOLDER}/openHAB2/conf"
 PUBLIC_ADDONS="${PUBLIC_FOLDER}/openHAB2/addons"
-TIMESTAMP=`date +%Y%m%d_%H%M%S`;
+TIMESTAMP=`date +%Y%m%d`;
+BACKUP_FOLDER="${SYNOPKG_PKGDEST}-BACKUP-$TIMESTAMP"
 
 preinst ()
 {
@@ -99,7 +101,8 @@ postinst ()
   #extract main archive
   echo "Install new version"
   cd ${TEMP_FOLDER}
-  7z x ${TEMP_FOLDER}/${DOWNLOAD_FILE1} -o${EXTRACTED_FOLDER} && rm ${TEMP_FOLDER}/${DOWNLOAD_FILE1}
+  mkdir ${EXTRACTED_FOLDER}
+  tar -xf ${TEMP_FOLDER}/${DOWNLOAD_FILE1} -C ${EXTRACTED_FOLDER} && rm ${TEMP_FOLDER}/${DOWNLOAD_FILE1}
   mv ${TEMP_FOLDER}/${EXTRACTED_FOLDER}/* ${SYNOPKG_PKGDEST}
   rmdir ${TEMP_FOLDER}/${EXTRACTED_FOLDER}
   chmod +x ${SYNOPKG_PKGDEST}/${ENGINE_SCRIPT}
@@ -107,7 +110,8 @@ postinst ()
   echo "Create conf/addon links"
   #if configdir exists in public folder -> create a symbolic link
   if [ -d ${PUBLIC_CONF} ]; then
-    mv ${SYNOPKG_PKGDEST}/conf/* ${PUBLIC_CONF}
+    PUBLIC_OH_FOLDERS_EXISTS=yes
+    mv -u ${SYNOPKG_PKGDEST}/conf/* ${PUBLIC_CONF}
     rm -r ${SYNOPKG_PKGDEST}/conf
     ln -s ${PUBLIC_CONF} ${SYNOPKG_PKGDEST}
     chmod -R u+w ${PUBLIC_CONF}
@@ -115,7 +119,8 @@ postinst ()
 
   #if public addons dir exists in public folder -> create a symbolic link
   if [ -d ${PUBLIC_ADDONS} ]; then
-    mv ${SYNOPKG_PKGDEST}/addons/* ${PUBLIC_ADDONS}
+    PUBLIC_OH_FOLDERS_EXISTS=yes
+    mv -u ${SYNOPKG_PKGDEST}/addons/* ${PUBLIC_ADDONS}
     rm -r ${SYNOPKG_PKGDEST}/addons
     ln -s ${PUBLIC_ADDONS} ${SYNOPKG_PKGDEST}
     chmod -R u+w ${PUBLIC_ADDONS}
@@ -124,11 +129,19 @@ postinst ()
   #add log file
   mkdir -p ${SYNOPKG_PKGDEST}/userdata/logs
   touch ${SYNOPKG_PKGDEST}/userdata/logs/openhab.log
-
+  
+  # Restore UserData if exists
+  if [ -d ${BACKUP_FOLDER} ]; then
+    cp -arf ${BACKUP_FOLDER}/userdata ${SYNOPKG_PKGDEST}/
+  fi
+  
   #change owner of folder tree
   echo "Fix permissions"
-  chown -hR ${DAEMON_USER} ${PUBLIC_CONF}
-  chown -hR ${DAEMON_USER} ${PUBLIC_ADDONS}
+  if [ $PUBLIC_OH_FOLDERS_EXISTS == yes ]; then
+    synoshare --setuser public RO + ${DAEMON_USER}
+    chown -hR ${DAEMON_USER} ${PUBLIC_CONF}
+    chown -hR ${DAEMON_USER} ${PUBLIC_ADDONS}
+  fi
   chown -hR ${DAEMON_USER} ${SYNOPKG_PKGDEST}
   chmod -R u+w ${SYNOPKG_PKGDEST}/userdata
 
@@ -139,6 +152,8 @@ postinst ()
   if [ -d /dev/ttyACM1 ]; then
     chmod 777 /dev/ttyACM1
   fi
+  
+  echo "Installation done." > $SYNOPKG_TEMP_LOGFILE;
 
   exit 0
 }
@@ -171,7 +186,7 @@ postuninst ()
   else
     echo "Daemon user folder '${DAEMON_HOME}' not found - nothing deleted"
   fi
-
+  
   exit 0
 }
 
@@ -184,56 +199,45 @@ preupgrade ()
     rm -f $PIDFILE
   fi
   sleep 10
-
-  # Remove tmp, logs & cache dirs
+  
+  # Remove tmp, logs, cache and runtime dirs
   if [ -d ${SYNOPKG_PKGDEST}/userdata/tmp ]; then
-  	echo "Remove tmp"
   	rm -rf ${SYNOPKG_PKGDEST}/userdata/tmp
   fi
 
   if [ -d ${SYNOPKG_PKGDEST}/userdata/cache ]; then
-  	echo "Remove cache"
   	rm -rf ${SYNOPKG_PKGDEST}/userdata/cache
   fi
 
   if [ -d ${SYNOPKG_PKGDEST}/userdata/log ]; then
-  	echo "Remove log"
   	rm -rf ${SYNOPKG_PKGDEST}/userdata/log
   fi
 
   if [ -d ${SYNOPKG_PKGDEST}/userdata/logs ]; then
-  	echo "Remove logs"
   	rm -rf ${SYNOPKG_PKGDEST}/userdata/logs
   fi
-
-  # backup current installation with settings
-  echo "Backup"
-  mv ${SYNOPKG_PKGDEST} /${SYNOPKG_PKGDEST}-backup-$TIMESTAMP
-
-  echo "Get new version"
-  cd ${TEMP_FOLDER}
-  # go through list of files
-  for WGET_URL in ${INSTALL_FILES}; do
-    WGET_FILENAME="$(echo ${WGET_URL} | sed -r "s%^.*/(.*)%\1%")"
-    echo "Processing ${WGET_FILENAME}"
-    [ -f "${TEMP_FOLDER}/${WGET_FILENAME}" ] && rm ${TEMP_FOLDER}/${WGET_FILENAME}
-    # use local file first
-    if [ -f "${PUBLIC_FOLDER}/${WGET_FILENAME}" ]; then
-      echo "Found file locally - copying"
-      cp ${PUBLIC_FOLDER}/${WGET_FILENAME} ${TEMP_FOLDER}
-    else
-      wget -nv --no-check-certificate --output-document=${WGET_FILENAME} ${WGET_URL}
-      if [[ $? != 0 ]]; then
-          echo "There was a problem downloading ${WGET_FILENAME} from the download link:"
-          echo "'${WGET_URL}'"
-          echo "Alternatively, download this file manually and place it in the 'public' shared folder and start installation again."
-          if [ -z "${PUBLIC_FOLDER}" ];then
-            echo "Note: You must create a 'public' shared folder first on your primary volume"
-          fi
-          exit 1
-      fi
-    fi
-  done
+  
+  if [ -d ${SYNOPKG_PKGDEST}/runtime ]; then
+    rm -rf ${SYNOPKG_PKGDEST}/runtime
+  fi
+  
+  # Remove openHAB system files...
+  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/all.policy
+  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/branding.properties
+  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/branding-ssh.properties
+  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/config.properties
+  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/custom.properties
+  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/version.properties
+  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/distribution.info
+  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/jre.properties
+  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/profile.cfg
+  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/startup.properties
+  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/org.apache.karaf*
+  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/org.ops4j.pax.url.mvn.cfg
+  
+  # Create backup
+  mkdir -p ${BACKUP_FOLDER}/userdata
+  mv ${SYNOPKG_PKGDEST}/userdata/* ${BACKUP_FOLDER}/userdata
 
   exit 0
 }
@@ -241,45 +245,10 @@ preupgrade ()
 
 postupgrade ()
 {
-  #extract main archive
-  echo "Install new version"
-  cd ${TEMP_FOLDER}
-  7z x ${TEMP_FOLDER}/${DOWNLOAD_FILE1} -o${EXTRACTED_FOLDER} && rm ${TEMP_FOLDER}/${DOWNLOAD_FILE1}
-  mv ${TEMP_FOLDER}/${EXTRACTED_FOLDER}/* ${SYNOPKG_PKGDEST}
-  rmdir ${TEMP_FOLDER}/${EXTRACTED_FOLDER}
-  chmod +x ${SYNOPKG_PKGDEST}/${ENGINE_SCRIPT}
-
-  # restore configuration and userdata
-  echo "Restore UserData"
-  cp -ar ${SYNOPKG_PKGDEST}-backup-$TIMESTAMP/userdata ${SYNOPKG_PKGDEST}/
-
-  echo "Create conf/addon links"
-  #if configdir exists in public folder -> create a symbolic link
-  if [ -d ${PUBLIC_CONF} ]; then
-    mv ${SYNOPKG_PKGDEST}/conf/* ${PUBLIC_CONF}
-    rm -r ${SYNOPKG_PKGDEST}/conf
-    ln -s ${PUBLIC_CONF} ${SYNOPKG_PKGDEST}
-    chmod -R u+w ${PUBLIC_CONF}
-  fi
-
-  #if public addons dir exists in public folder -> create a symbolic link
-  if [ -d ${PUBLIC_ADDONS} ]; then
-    mv ${SYNOPKG_PKGDEST}/addons/* ${PUBLIC_ADDONS}
-    rm -r ${SYNOPKG_PKGDEST}/addons
-    ln -s ${PUBLIC_ADDONS} ${SYNOPKG_PKGDEST}
-    chmod -R u+w ${PUBLIC_ADDONS}
-  fi
-
-  #add log file
-  mkdir -p ${SYNOPKG_PKGDEST}/userdata/logs
-  touch ${SYNOPKG_PKGDEST}/userdata/logs/openhab.log
-
-  # fix permissions
-  echo "Fix permissions"
-  chown -hR ${DAEMON_USER} ${PUBLIC_CONF}
-  chown -hR ${DAEMON_USER} ${PUBLIC_ADDONS}
-  chown -hR ${DAEMON_USER} ${SYNOPKG_PKGDEST}
-  chmod -R u+w ${SYNOPKG_PKGDEST}/userdata
-
+  # Remove backup after installation
+  rm -rf ${BACKUP_FOLDER}
+  
+  echo "Update done." > $SYNOPKG_TEMP_LOGFILE
+  
   exit 0
 }

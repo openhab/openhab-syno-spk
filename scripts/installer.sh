@@ -26,7 +26,7 @@ PUBLIC_FOLDER="$(synoshare --get public | grep -oP 'Path.+\[\K[^]]+')"
 PUBLIC_OH_FOLDERS_EXISTS=no
 PUBLIC_CONF="${PUBLIC_FOLDER}/openHAB2/conf"
 PUBLIC_ADDONS="${PUBLIC_FOLDER}/openHAB2/addons"
-TIMESTAMP=`date +%Y%m%d`;
+TIMESTAMP="$(date +%Y%m%d)"
 BACKUP_FOLDER="${SYNOPKG_PKGDEST}-BACKUP-$TIMESTAMP"
 
 preinst ()

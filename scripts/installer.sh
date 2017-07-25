@@ -124,7 +124,7 @@ postinst ()
     mv -u ${SYNOPKG_PKGDEST}/addons/* ${PUBLIC_ADDONS}
     rm -r ${SYNOPKG_PKGDEST}/addons
     ln -s ${PUBLIC_ADDONS} ${SYNOPKG_PKGDEST}
-	synoacltool -get ${PUBLIC_ADDONS} | grep -F ${DAEMON_ACL} > /dev/null && synoacltool -add ${PUBLIC_ADDONS} ${DAEMON_ACL}
+    synoacltool -get ${PUBLIC_ADDONS} | grep -F ${DAEMON_ACL} > /dev/null && synoacltool -add ${PUBLIC_ADDONS} ${DAEMON_ACL}
   fi
 
   #add log file

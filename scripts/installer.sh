@@ -14,6 +14,7 @@ EXTRACTED_FOLDER="openHAB-2.2.0-SNAPSHOT"
 DAEMON_USER="$(echo ${SYNOPKG_PKGNAME} | awk {'print tolower($_)'})"
 DAEMON_PASS="$(openssl rand 12 -base64 2>nul)"
 DAEMON_ID="${SYNOPKG_PKGNAME} daemon user"
+DAEMON_ACL="user:${DAEMON_USER}:allow:rwxpdDaARWc--:fd--"
 ENGINE_SCRIPT="start.sh"
 PIDFILE="/var/services/homes/${DAEMON_USER}/.daemon.pid"
 
@@ -114,7 +115,7 @@ postinst ()
     mv -u ${SYNOPKG_PKGDEST}/conf/* ${PUBLIC_CONF}
     rm -r ${SYNOPKG_PKGDEST}/conf
     ln -s ${PUBLIC_CONF} ${SYNOPKG_PKGDEST}
-    chmod -R u+w ${PUBLIC_CONF}
+    synoacltool -get ${PUBLIC_CONF} | grep -F ${DAEMON_ACL} > /dev/null && synoacltool -add ${PUBLIC_CONF} ${DAEMON_ACL}
   fi
 
   #if public addons dir exists in public folder -> create a symbolic link
@@ -123,7 +124,7 @@ postinst ()
     mv -u ${SYNOPKG_PKGDEST}/addons/* ${PUBLIC_ADDONS}
     rm -r ${SYNOPKG_PKGDEST}/addons
     ln -s ${PUBLIC_ADDONS} ${SYNOPKG_PKGDEST}
-    chmod -R u+w ${PUBLIC_ADDONS}
+	synoacltool -get ${PUBLIC_ADDONS} | grep -F ${DAEMON_ACL} > /dev/null && synoacltool -add ${PUBLIC_ADDONS} ${DAEMON_ACL}
   fi
 
   #add log file

@@ -26,12 +26,13 @@ case $1 in
     
     #set the current timezone for Java so that log timestamps are accurate
     #we need to use the modern timezone names so that Java can figure out DST
+    SYNO_TZ=$(cat /etc/synoinfo.conf | grep timezone | cut -f2 -d'"')
     if [ -n "$SYNOPKG_DSM_VERSION_MAJOR" -a $SYNOPKG_DSM_VERSION_MAJOR -ge 6 ]; then
-      SYNO_TZ=$(cat /etc/synoinfo.conf | grep timezone | cut -f2 -d'"')
+      SYNO_TZ=$(jq ".${SYNO_TZ} | .nameInTZDB" /usr/share/zoneinfo/Timezone/synotztable.json | sed -e "s/\"//g")
+    elif [ -n "$SYNOPKG_DSM_VERSION_MAJOR" -a $SYNOPKG_DSM_VERSION_MAJOR -ge 5 -a $SYNOPKG_DSM_VERSION_MINOR -ge 2 ]; then
+      SYNO_TZ=$(grep "^${SYNO_TZ}" /usr/share/zoneinfo/Timezone/tzname | sed -e "s/^.*= //")
     else
-      [ -e /usr/share/zoneinfo/Timezone/synotztable.json ] \
-      && SYNO_TZ=$(jq ".${SYNO_TZ} | .nameInTZDB" /usr/share/zoneinfo/Timezone/synotztable.json | sed -e "s/\"//g") \
-      || SYNO_TZ=$(grep "^${SYNO_TZ}" /usr/share/zoneinfo/Timezone/tzname | sed -e "s/^.*= //")
+      SYNO_TZ=$(grep "^${SYNO_TZ}" /usr/share/zoneinfo/Timezone/tzlist | sed -e "s/^.*= //")
     fi  
     grep "^export TZ" ${DAEMON_HOME}/.profile > /dev/null \
      && sed -i "s%^export TZ=.*$%export TZ='${SYNO_TZ}'%" ${DAEMON_HOME}/.profile \

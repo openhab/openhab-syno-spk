@@ -10,7 +10,7 @@ Download SPK package from [![Github Releases](https://img.shields.io/badge/downl
 
 ## Documentation
 
-Installation und Prerequisite Install Java Documentation: [!Official openHAB2 Usage Manual](http://docs.openhab.org/installation/synology.html)
+Installation und Prerequisite Install Java Documentation: [Official openHAB2 Usage Manual](http://docs.openhab.org/installation/synology.html)
 
 ## Forum
 

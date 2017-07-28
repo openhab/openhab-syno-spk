@@ -8,6 +8,10 @@ Comments, suggestions and contributions are welcome!
 
 Download SPK package from [![Github Releases](https://img.shields.io/badge/download-releases-blue.svg)](https://github.com/openhab/openhab-syno-spk/releases) [![Github All Releases](https://img.shields.io/github/downloads/openhab/openhab-syno-spk/total.svg?maxAge=2592000)](http://www.somsubhra.com/github-release-stats/?username=openhab&repository=openhab-syno-spk)
 
+## Documentation
+
+Installation und Prerequisite Install Java Documentation: [!Official openHAB2 Usage Manual](http://docs.openhab.org/installation/synology.html)
+
 ## Forum
 
 Official community: [![Github Releases](https://img.shields.io/badge/openhab-forum-orange.svg)](https://community.openhab.org/t/synology-diskstation/1446)

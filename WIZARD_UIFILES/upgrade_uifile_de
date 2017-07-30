@@ -1,8 +1,8 @@
 [{
-    "step_title": "Configuration files",
+    "step_title": "Konfigurationsdateien",
     "items": [{
         "type": "singleselect",
-        "desc": "Choose your destination directory for configuration file:",
+        "desc": "Wähle den Zielort für die Konfigurationsdateien:",
         "subitems": [{
             "key": "pkgwizard_public_std",
             "desc": "/public/openHAB2/",

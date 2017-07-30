@@ -294,10 +294,12 @@ preupgrade ()
   mkdir -p ${BACKUP_FOLDER}/userdata
   mv ${SYNOPKG_PKGDEST}/userdata/* ${BACKUP_FOLDER}/userdata
   
-  # save home dir content if exists
-  if [ "${pkgwizard_home_dir}" == "true" ]; then
+  # save home dir content if exists or save current content for the new location
+  LINK_FOLDER="$(readlink ${SYNOPKG_PKGDEST}/conf)"
+  if [[ "${pkgwizard_home_dir}" == "true" || ${LINK_FOLDER} != ${OH_CONF} ]]; then
+    LINK_FOLDER="$(dirname ${LINK_FOLDER})"
     mkdir -p ${BACKUP_FOLDER}/userdir
-    mv ${OH_FOLDER}/* ${BACKUP_FOLDER}/userdir
+    mv ${LINK_FOLDER}/* ${BACKUP_FOLDER}/userdir
   fi
 
   echo "done" >>$LOG

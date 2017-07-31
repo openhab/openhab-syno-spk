@@ -3,7 +3,9 @@
 #--------openHAB2 installer script
 #--------package based on work from pcloadletter.co.uk
 
-LOG="/var/packages/${SYNOPKG_PKGNAME}/install.log"
+LOG="/var/log/${SYNOPKG_PKGNAME}-install.log"
+# Delete Log if older than 1 day
+find ${LOG} -mtime +1 -type f -delete
 echo "#### S T A R T  -  o p e n H A B  S P K ####" >>$LOG
 echo "$(date +%Y-%m-%d:%H:%M:%S)" >>$LOG
 echo "" >>$LOG
@@ -137,14 +139,16 @@ postinst ()
   rmdir ${TEMP_FOLDER}/${EXTRACTED_FOLDER}
   chmod +x ${SYNOPKG_PKGDEST}/${ENGINE_SCRIPT}
 
-  echo "  Create conf/addon links" >>$LOG
   # if selected create folders for home dir 
   if [ "${pkgwizard_home_dir}" == "true" ]; then
+    echo "  Create conf/addon folders for home dir" >>$LOG
     mkdir -p ${OH_CONF}
     mkdir -p ${OH_ADDONS}
   fi
+  echo "  Create conf/addon links" >>$LOG
   #if configdir exists in public folder -> create a symbolic link
   if [ -d ${OH_CONF} ]; then
+    echo "    Move conf to ${OH_CONF}" >>$LOG
     OH_FOLDERS_EXISTS=yes
     mv -u ${SYNOPKG_PKGDEST}/conf/* ${OH_CONF}
     rm -r ${SYNOPKG_PKGDEST}/conf
@@ -154,6 +158,7 @@ postinst ()
 
   #if public addons dir exists in public folder -> create a symbolic link
   if [ -d ${OH_ADDONS} ]; then
+    echo "    Move addons to ${OH_ADDONS}" >>$LOG
     OH_FOLDERS_EXISTS=yes
     mv -u ${SYNOPKG_PKGDEST}/addons/* ${OH_ADDONS}
     rm -r ${SYNOPKG_PKGDEST}/addons
@@ -167,16 +172,22 @@ postinst ()
   
   # Restore UserData if exists
   if [ -d ${BACKUP_FOLDER} ]; then
+    echo "  Restore userdata to ${SYNOPKG_PKGDEST}" >>$LOG
     cp -arf ${BACKUP_FOLDER}/userdata ${SYNOPKG_PKGDEST}/
     if [ -d ${BACKUP_FOLDER}/userdir ]; then
-      mv -f ${BACKUP_FOLDER}/userdir/* ${OH_FOLDER}
+      echo "  Restore configuration files to ${OH_FOLDER}" >>$LOG
+      cp -arf ${BACKUP_FOLDER}/userdir/* ${OH_FOLDER}
     fi 
   fi
   
   #change owner of folder tree
   echo "  Fix permissions" >>$LOG
   if [ $OH_FOLDERS_EXISTS == yes ]; then
-    synoshare --setuser public RO + ${DAEMON_USER}
+    if [ "${pkgwizard_public_std}" == "true" ]; then
+      synoshare --setuser public RO + ${DAEMON_USER}
+    elif [ "${pkgwizard_public_shome}"  == "true" ]; then
+      synoshare --setuser smarthome RO + ${DAEMON_USER}
+    fi
     chown -hR ${DAEMON_USER} ${OH_CONF}
     chown -hR ${DAEMON_USER} ${OH_ADDONS}
   fi
@@ -297,6 +308,7 @@ preupgrade ()
   # save home dir content if exists or save current content for the new location
   LINK_FOLDER="$(readlink ${SYNOPKG_PKGDEST}/conf)"
   if [[ "${pkgwizard_home_dir}" == "true" || ${LINK_FOLDER} != ${OH_CONF} ]]; then
+    echo "  Save symbolic link folders" >>$LOG
     LINK_FOLDER="$(dirname ${LINK_FOLDER})"
     mkdir -p ${BACKUP_FOLDER}/userdir
     mv ${LINK_FOLDER}/* ${BACKUP_FOLDER}/userdir

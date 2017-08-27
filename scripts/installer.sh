@@ -12,7 +12,7 @@ echo "" >>$LOG
 
 echo "Set instance variables..." >>$LOG
 DOWNLOAD_PATH="https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab/target"
-DOWNLOAD_FILE1="openhab-2.2.0-SNAPSHOT.tar.gz"
+DOWNLOAD_FILE1="openhab-2.2.0-SNAPSHOT.zip"
 
 # Add more files by separating them using spaces
 INSTALL_FILES="${DOWNLOAD_PATH}/${DOWNLOAD_FILE1}"
@@ -20,7 +20,7 @@ INSTALL_FILES="${DOWNLOAD_PATH}/${DOWNLOAD_FILE1}"
 EXTRACTED_FOLDER="openHAB-2.2.0-SNAPSHOT"
 
 DAEMON_USER="$(echo ${SYNOPKG_PKGNAME} | awk {'print tolower($_)'})"
-DAEMON_PASS="$(openssl rand 12 -base64 2>nul)"
+DAEMON_PASS="$(openssl rand 12 -base64 2>null)"
 DAEMON_ID="${SYNOPKG_PKGNAME} daemon user"
 DAEMON_ACL="user:${DAEMON_USER}:allow:rwxpdDaARWc--:fd--"
 ENGINE_SCRIPT="start.sh"
@@ -29,13 +29,16 @@ PIDFILE="/var/services/homes/${DAEMON_USER}/.daemon.pid"
 source /etc/profile
 
 TEMP_FOLDER="$(find / -maxdepth 2 -name '@tmp' | head -n 1)"
-PRIMARY_VOLUME="$(echo ${TEMP_FOLDER} | grep -oP '^/[^/]+')"
+
+echo "  public:    ${pkgwizard_public_std}" >>$LOG
+echo "  smarthome: ${pkgwizard_public_shome}" >>$LOG
+echo "  home:      ${pkgwizard_home_dir}" >>$LOG
 
 if [ "${pkgwizard_public_std}" == "true" ]; then
-  SHARE_FOLDER="$(synoshare --get public | grep -oP 'Path.+\[\K[^]]+')"
+  SHARE_FOLDER="$(synoshare --get public | grep Path | awk -F[ '{print $2}' | awk -F] '{print $1}')"
   OH_FOLDER="${SHARE_FOLDER}/${SYNOPKG_PKGNAME}"
 elif [ "${pkgwizard_public_shome}"  == "true" ]; then
-  SHARE_FOLDER="$(synoshare --get smarthome | grep -oP 'Path.+\[\K[^]]+')"
+  SHARE_FOLDER="$(synoshare --get smarthome | grep Path | awk -F[ '{print $2}' | awk -F] '{print $1}')"
   OH_FOLDER="${SHARE_FOLDER}/${SYNOPKG_PKGNAME}"
 else
   SHARE_FOLDER="/var/services/homes"
@@ -48,38 +51,60 @@ OH_ADDONS="${OH_FOLDER}/addons"
 TIMESTAMP="$(date +%Y%m)"
 BACKUP_FOLDER="${SYNOPKG_PKGDEST}-backup-$TIMESTAMP"
 
-echo "  primary: ${PRIMARY_VOLUME}" >>$LOG
-echo "  share:   ${SHARE_FOLDER}" >>$LOG
-echo "  oh:      ${OH_FOLDER}" >>$LOG
-echo "  backup:  ${BACKUP_FOLDER}" >>$LOG
+echo "  tmp:    ${TEMP_FOLDER}" >>$LOG
+echo "  share:  ${SHARE_FOLDER}" >>$LOG
+echo "  oh:     ${OH_FOLDER}" >>$LOG
+echo "  backup: ${BACKUP_FOLDER}" >>$LOG
 echo "done" >>$LOG
 
 preinst ()
 {
   echo "Start preinst..." >>$LOG
   # Is Java properly installed?
-  if [[ -z "${JAVA_HOME}" || ! -f "${JAVA_HOME}/bin/java" ]]; then
+  if type -p java; then
+    echo "  Found java executable in PATH" >>$LOG
+    _java=java
+  elif [[ -n "${JAVA_HOME}" ]] && [[ -x "${JAVA_HOME}/bin/java" ]]; then
+    echo "Found java executable in JAVA_HOME" >>$LOG 
+    _java="${JAVA_HOME}/bin/java"
+  else
     echo "  ERROR:" >>$LOG
-    echo "  Java is not installed or not properly configured." >>$LOG
+    echo "  Java is not installed, not properly configured or not executable." >>$LOG
     echo "  Download and install as described on http://wp.me/pVshC-z5" >>$LOG
     echo "  The Synology provided Java may not work with OpenHAB." >>$LOG
     exit 1
   fi
 
+  if [[ "$_java" ]]; then
+    version=$("$_java" -version 2>&1 | awk -F '"' '/version/ {print $2}')
+    echo "  Java version ${version}"  >>$LOG
+    if [[ "$version" > "1.8" ]]; then
+      echo "  Version is more than 1.8" >>$LOG
+    else         
+	  echo "  ERROR:" >>$LOG
+      echo "  Version is less than 1.8. Please download and install Java 1.8 or higher." >>$LOG
+	  echo "  On DSM 4 or 5 you have to rename the file to java 7 like:" >>$LOG
+	  echo "  jdk-8u144-linux-i586.tar.gz to jdk-7u81-linux-i586.tar.gz (81 as example for version 8.1)" >>$LOG
+	  exit 1
+    fi
+  fi
+  
   # Is the User Home service enabled?
   UH_SERVICE=$(synogetkeyvalue /etc/synoinfo.conf userHomeEnable)
-  if [ "${UH_SERVICE}" == "no" ]; then
+  if [ "${UH_SERVICE}" != yes ]; then
     echo "  ERROR:" >>$LOG
     echo "  The User Home service is not enabled. Please enable this feature in the User control panel in DSM." >>$LOG
     exit 1
   fi
+  echo "  The User Home service is enabled. UH_SERVICE=${UH_SERVICE}" >>$LOG
 
-  if [[ ! -d ${SHARE_FOLDER} ]]; then
+  if [[ -z "${SHARE_FOLDER}" || ! -d "${SHARE_FOLDER}" ]]; then
     echo "  ERROR:" >>$LOG
     echo "  A shared folder called '${SHARE_FOLDER}' could not be found - note this name is case-sensitive. " >>$LOG
     echo "  Please create this using the Shared Folder DSM Control Panel and try again." >>$LOG
     exit 1
   fi
+  echo "  The shared folder '${SHARE_FOLDER}' exists." >>$LOG
 
   echo "  Get new version" >>$LOG
   cd ${TEMP_FOLDER}
@@ -126,15 +151,27 @@ postinst ()
 
   #determine the daemon user homedir and save that variable in the user's profile
   #this is needed because new users seem to inherit a HOME value of /root which they have no permissions for
-  DAEMON_HOME="$(synouser --get ${DAEMON_USER} | grep -oP 'User Dir.+\[\K[^]]+')"
+  DAEMON_HOME="$(synouser --get ${DAEMON_USER} | grep "User Dir" | awk -F[ '{print $2}' | awk -F] '{print $1}')"
   su - ${DAEMON_USER} -s /bin/sh -c "echo export HOME=\'${DAEMON_HOME}\' >> .profile"
   su - ${DAEMON_USER} -s /bin/sh -c "echo export OPENHAB_PID=~/.daemon.pid >> .profile"
 
   #extract main archive
   echo "  Install new version" >>$LOG
   cd ${TEMP_FOLDER}
-  mkdir ${EXTRACTED_FOLDER}
-  tar -xf ${TEMP_FOLDER}/${DOWNLOAD_FILE1} -C ${EXTRACTED_FOLDER} && rm ${TEMP_FOLDER}/${DOWNLOAD_FILE1}
+  #mkdir ${EXTRACTED_FOLDER}
+  echo "    Extract ${DOWNLOAD_FILE1}" >>$LOG
+  7z x ${TEMP_FOLDER}/${DOWNLOAD_FILE1} -o${EXTRACTED_FOLDER}
+  if [ $? -ne 0 ]; then echo "    FAILED (7z)" >>$LOG; exit 1; fi
+  rm ${TEMP_FOLDER}/${DOWNLOAD_FILE1}
+  
+  #echo "    Manipulate ${ENGINE_SCRIPT}" >>$LOG
+  #sed -i 's/exec/sh/g' ${EXTRACTED_FOLDER}/${ENGINE_SCRIPT}
+  #if [ $? -ne 0 ]; then echo "    FAILED (sed)" >>$LOG; exit 1; fi
+  #echo "    Manipulate ${EXTRACTED_FOLDER}/runtime/bin/stop" >>$LOG
+  #sed -i 's/exec/sh/g' ${EXTRACTED_FOLDER}/runtime/bin/stop
+  #if [ $? -ne 0 ]; then echo "    FAILED (sed)" >>$LOG; exit 1; fi
+  
+  echo "    Move files to ${SYNOPKG_PKGDEST}" >>$LOG
   mv ${TEMP_FOLDER}/${EXTRACTED_FOLDER}/* ${SYNOPKG_PKGDEST}
   rmdir ${TEMP_FOLDER}/${EXTRACTED_FOLDER}
   chmod +x ${SYNOPKG_PKGDEST}/${ENGINE_SCRIPT}
@@ -145,10 +182,10 @@ postinst ()
     mkdir -p ${OH_CONF}
     mkdir -p ${OH_ADDONS}
   fi
-  echo "  Create conf/addon links" >>$LOG
+  
   #if configdir exists in public folder -> create a symbolic link
   if [ -d ${OH_CONF} ]; then
-    echo "    Move conf to ${OH_CONF}" >>$LOG
+    echo "    Move conf to ${OH_CONF} and create conf link" >>$LOG
     OH_FOLDERS_EXISTS=yes
     mv -u ${SYNOPKG_PKGDEST}/conf/* ${OH_CONF}
     rm -r ${SYNOPKG_PKGDEST}/conf
@@ -158,7 +195,7 @@ postinst ()
 
   #if public addons dir exists in public folder -> create a symbolic link
   if [ -d ${OH_ADDONS} ]; then
-    echo "    Move addons to ${OH_ADDONS}" >>$LOG
+    echo "    Move addons to ${OH_ADDONS} and create addons link" >>$LOG
     OH_FOLDERS_EXISTS=yes
     mv -u ${SYNOPKG_PKGDEST}/addons/* ${OH_ADDONS}
     rm -r ${SYNOPKG_PKGDEST}/addons
@@ -213,7 +250,7 @@ preuninst ()
 {
   echo "Start preuninst..." >>$LOG
   #make sure server is stopped
-  if su - ${DAEMON_USER} -s /bin/sh -c "cd ${SYNOPKG_PKGDEST}/runtime/karaf/bin && ./stop &"; then
+  if su - ${DAEMON_USER} -s /bin/sh -c "cd ${SYNOPKG_PKGDEST}/runtime/bin && ./stop &"; then
     rm -f $PIDFILE
   fi
   sleep 10
@@ -227,7 +264,7 @@ postuninst ()
 {
   echo "Start postuninst..." >>$LOG
   # Determine folder before deleting daemon
-  DAEMON_HOME="$(synouser --get ${DAEMON_USER} | grep -oP 'User Dir.+\[\K[^]]+')"
+  DAEMON_HOME="$(synouser --get ${DAEMON_USER} | grep "User Dir" | awk -F[ '{print $2}' | awk -F] '{print $1}')"
 
   # Remove daemon user
   synouser --del ${DAEMON_USER}
@@ -258,7 +295,7 @@ preupgrade ()
   
   #make sure server is stopped
   echo "  Stop server" >>$LOG
-  if su - ${DAEMON_USER} -s /bin/sh -c "cd ${SYNOPKG_PKGDEST}/runtime/karaf/bin && ./stop &"; then
+  if su - ${DAEMON_USER} -s /bin/sh -c "cd ${SYNOPKG_PKGDEST}/runtime/bin && ./stop &"; then
     rm -f $PIDFILE
   fi
   sleep 10

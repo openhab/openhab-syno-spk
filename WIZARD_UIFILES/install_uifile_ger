@@ -1,15 +1,15 @@
 [{
-    "step_title": "Configuration files",
+    "step_title": "Konfigurationsdateien",
     "items": [{
         "type": "singleselect",
-        "desc": "Choose your destination directory for configuration files:",
+        "desc": "W&auml;hle den Zielort f&uuml;r die Konfigurationsdateien:",
         "subitems": [{
             "key": "pkgwizard_public_std",
-            "desc": "/public/openHAB2/ <br>(must exist before installing and has to inculde the folders /conf and /addons)",
+            "desc": "/public/openHAB2/ <br>(muss vor der Installation existieren und die Ornder /conf and /addons enthalten)",
             "defaultVaule": true
         }, {
             "key": "pkgwizard_public_shome",
-            "desc": "/SmartHome/openHAB2/ <br>(must exist before installing and has to inculde the folders /conf and /addons)",
+            "desc": "/SmartHome/openHAB2/ <br>(muss vor der Installation existieren und die Ornder /conf and /addons enthalten)",
             "defaultVaule": false
         }, {
             "key": "pkgwizard_home_dir",
@@ -21,7 +21,7 @@
     "step_title": "Adminport",
     "items": [{
         "type": "textfield",
-        "desc": "Choose your port for openhab:",
+        "desc": "W&auml;hle den Port f&uuml;r Openhab aus:",
         "subitems": [{
             "key": "pkgwizard_txt_port",
             "desc": "Port",
@@ -33,7 +33,7 @@
                 "maxLength": 5,
                 "regex": {
                     "expr": "/[0-9]{4,5}/i",
-                    "errorText": "Error: Port must consist of 4 to 5 numbers."
+                    "errorText": "Error: Port muss aus 4 bis 5 Zahlen bestehen."
                 }
             }
         }]

@@ -15,8 +15,14 @@ find ${LOG} -mtime +1 -type f -delete
 daemon_status ()
 {
   OHDAEMON_RUNNING=0
-  if [ -f ${PIDFILE} ] && ps -p $(cat "$PIDFILE") > /dev/null; then
-    OHDAEMON_RUNNING=1
+  if [ -n "$SYNOPKG_DSM_VERSION_MAJOR" -a $SYNOPKG_DSM_VERSION_MAJOR -ge 6 ]; then
+    if [ -f ${PIDFILE} ] && ps -p $(cat "$PIDFILE") > /dev/null; then
+      OHDAEMON_RUNNING=1
+    fi
+  else
+    if [ -f ${PIDFILE} ] && ps | grep "^$(cat $PIDFILE)" > /dev/null; then
+      OHDAEMON_RUNNING=1
+    fi
   fi
   [ ${OHDAEMON_RUNNING} -eq 1 ] || return 1
 }
@@ -81,7 +87,11 @@ case $1 in
     if [ $? -ne 0 ]; then echo "  FAILED (su)" >>$LOG; exit 1; fi
     wait_for_status 0 5
     rm -f ${PIDFILE}
-    echo $(ps aux | grep "${DAEMON_USER}.*java" | awk '{print $2}') >>${PIDFILE}
+    if [ -n "$SYNOPKG_DSM_VERSION_MAJOR" -a $SYNOPKG_DSM_VERSION_MAJOR -ge 6 ]; then
+      echo $(ps aux | grep "^${DAEMON_USER}.*java" | awk '{print $2}') >>${PIDFILE}
+    else
+      echo $(ps | grep "^ *[0-9]* ${DAEMON_USER} .*java" | awk '{print $1}') >>${PIDFILE}
+    fi
     echo "  PID file created." >>$LOG
     
     echo "done." >>$LOG

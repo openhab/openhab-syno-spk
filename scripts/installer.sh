@@ -72,6 +72,7 @@ preinst ()
     echo "  Java is not installed, not properly configured or not executable." >>$LOG
     echo "  Download and install as described on http://wp.me/pVshC-z5" >>$LOG
     echo "  The Synology provided Java may not work with OpenHAB." >>$LOG
+    echo "Java is not installed or could not be found. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
     exit 1
   fi
 
@@ -81,11 +82,12 @@ preinst ()
     if [[ "$version" > "1.8" ]]; then
       echo "  Version is more than 1.8" >>$LOG
     else         
-	  echo "  ERROR:" >>$LOG
+      echo "  ERROR:" >>$LOG
       echo "  Version is less than 1.8. Please download and install Java 1.8 or higher." >>$LOG
-	  echo "  On DSM 4 or 5 you have to rename the file to java 7 like:" >>$LOG
-	  echo "  jdk-8u144-linux-i586.tar.gz to jdk-7u81-linux-i586.tar.gz (81 as example for version 8.1)" >>$LOG
-	  exit 1
+      echo "  On DSM 4 or 5 you have to rename the file to java 7 like:" >>$LOG
+      echo "  jdk-8u144-linux-i586.tar.gz to jdk-7u81-linux-i586.tar.gz (81 as example for version 8.1)" >>$LOG
+      echo "Wrong Java version. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
+      exit 1
     fi
   fi
   
@@ -94,6 +96,7 @@ preinst ()
   if [ "${UH_SERVICE}" != yes ]; then
     echo "  ERROR:" >>$LOG
     echo "  The User Home service is not enabled. Please enable this feature in the User control panel in DSM." >>$LOG
+    echo "User Home service not enabled. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
     exit 1
   fi
   echo "  The User Home service is enabled. UH_SERVICE=${UH_SERVICE}" >>$LOG
@@ -102,6 +105,7 @@ preinst ()
     echo "  ERROR:" >>$LOG
     echo "  A shared folder called '${SHARE_FOLDER}' could not be found - note this name is case-sensitive. " >>$LOG
     echo "  Please create this using the Shared Folder DSM Control Panel and try again." >>$LOG
+    echo "Shared folder not found. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
     exit 1
   fi
   echo "  The shared folder '${SHARE_FOLDER}' exists." >>$LOG
@@ -127,6 +131,7 @@ preinst ()
           if [ -z "${SHARE_FOLDER}" ]; then
             echo "  Note: You must create a '${SHARE_FOLDER}' shared folder first on your primary volume" >>$LOG
           fi
+          echo "Downloading source failed. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
           exit 1
       fi
     fi
@@ -158,18 +163,18 @@ postinst ()
   #extract main archive
   echo "  Install new version" >>$LOG
   cd ${TEMP_FOLDER}
-  #mkdir ${EXTRACTED_FOLDER}
   echo "    Extract ${DOWNLOAD_FILE1}" >>$LOG
-  7z x ${TEMP_FOLDER}/${DOWNLOAD_FILE1} -o${EXTRACTED_FOLDER}
-  if [ $? -ne 0 ]; then echo "    FAILED (7z)" >>$LOG; exit 1; fi
+  if [ -e /usr/bin/7z ]; then
+    7z x ${TEMP_FOLDER}/${DOWNLOAD_FILE1} -o${EXTRACTED_FOLDER}
+  else
+    unzip ${TEMP_FOLDER}/${DOWNLOAD_FILE1} -d ${EXTRACTED_FOLDER}
+  fi
+  if [ $? -ne 0 ]; then 
+    echo "    FAILED (extract)" >>$LOG;
+    echo "Installation failed. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
+    exit 1; 
+  fi
   rm ${TEMP_FOLDER}/${DOWNLOAD_FILE1}
-  
-  #echo "    Manipulate ${ENGINE_SCRIPT}" >>$LOG
-  #sed -i 's/exec/sh/g' ${EXTRACTED_FOLDER}/${ENGINE_SCRIPT}
-  #if [ $? -ne 0 ]; then echo "    FAILED (sed)" >>$LOG; exit 1; fi
-  #echo "    Manipulate ${EXTRACTED_FOLDER}/runtime/bin/stop" >>$LOG
-  #sed -i 's/exec/sh/g' ${EXTRACTED_FOLDER}/runtime/bin/stop
-  #if [ $? -ne 0 ]; then echo "    FAILED (sed)" >>$LOG; exit 1; fi
   
   echo "    Move files to ${SYNOPKG_PKGDEST}" >>$LOG
   mv ${TEMP_FOLDER}/${EXTRACTED_FOLDER}/* ${SYNOPKG_PKGDEST}
@@ -290,6 +295,7 @@ preupgrade ()
     echo "  ERROR:" >>$LOG
     echo "  A shared folder called '${SHARE_FOLDER}' could not be found - note this name is case-sensitive. " >>$LOG
     echo "  Please create this using the Shared Folder DSM Control Panel and try again." >>$LOG
+    echo "Shared folder not found. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
     exit 1
   fi
   

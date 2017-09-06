@@ -45,6 +45,16 @@ else
   OH_FOLDER="${SHARE_FOLDER}/${DAEMON_USER}"
 fi
 
+if [ ! -z "${pkgwizard_txt_port}" ]; then
+  echo "  port:    ${pkgwizard_txt_port}" >>$LOG
+  if netstat -tlpn | grep ${pkgwizard_txt_port}; then
+    echo "  Your selected port ${pkgwizard_txt_port} is already in use." >>$LOG
+    echo "  Please choose another one and try again." >>$LOG
+    echo " Port ${pkgwizard_txt_port} already in use. Please try again." >> $SYNOPKG_TEMP_LOGFILE
+    exit 1
+  fi
+fi
+
 OH_FOLDERS_EXISTS=no
 OH_CONF="${OH_FOLDER}/conf"
 OH_ADDONS="${OH_FOLDER}/addons"
@@ -72,7 +82,7 @@ preinst ()
     echo "  Java is not installed, not properly configured or not executable." >>$LOG
     echo "  Download and install as described on http://wp.me/pVshC-z5" >>$LOG
     echo "  The Synology provided Java may not work with OpenHAB." >>$LOG
-    echo "Java is not installed or could not be found. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
+    echo " Java is not installed or could not be found. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
     exit 1
   fi
 
@@ -86,7 +96,7 @@ preinst ()
       echo "  Version is less than 1.8. Please download and install Java 1.8 or higher." >>$LOG
       echo "  On DSM 4 or 5 you have to rename the file to java 7 like:" >>$LOG
       echo "  jdk-8u144-linux-i586.tar.gz to jdk-7u81-linux-i586.tar.gz (81 as example for version 8.1)" >>$LOG
-      echo "Wrong Java version. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
+      echo " Wrong Java version. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
       exit 1
     fi
   fi
@@ -96,7 +106,7 @@ preinst ()
   if [ "${UH_SERVICE}" != yes ]; then
     echo "  ERROR:" >>$LOG
     echo "  The User Home service is not enabled. Please enable this feature in the User control panel in DSM." >>$LOG
-    echo "User Home service not enabled. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
+    echo " User Home service not enabled. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
     exit 1
   fi
   echo "  The User Home service is enabled. UH_SERVICE=${UH_SERVICE}" >>$LOG
@@ -105,7 +115,7 @@ preinst ()
     echo "  ERROR:" >>$LOG
     echo "  A shared folder called '${SHARE_FOLDER}' could not be found - note this name is case-sensitive. " >>$LOG
     echo "  Please create this using the Shared Folder DSM Control Panel and try again." >>$LOG
-    echo "Shared folder not found. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
+    echo " Shared folder not found. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
     exit 1
   fi
   echo "  The shared folder '${SHARE_FOLDER}' exists." >>$LOG
@@ -131,7 +141,7 @@ preinst ()
           if [ -z "${SHARE_FOLDER}" ]; then
             echo "  Note: You must create a '${SHARE_FOLDER}' shared folder first on your primary volume" >>$LOG
           fi
-          echo "Downloading source failed. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
+          echo " Downloading source failed. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
           exit 1
       fi
     fi
@@ -171,7 +181,7 @@ postinst ()
   fi
   if [ $? -ne 0 ]; then 
     echo "    FAILED (extract)" >>$LOG;
-    echo "Installation failed. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
+    echo " Installation failed. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
     exit 1; 
   fi
   rm ${TEMP_FOLDER}/${DOWNLOAD_FILE1}
@@ -181,6 +191,24 @@ postinst ()
   rmdir ${TEMP_FOLDER}/${EXTRACTED_FOLDER}
   chmod +x ${SYNOPKG_PKGDEST}/${ENGINE_SCRIPT}
 
+  # configurate new port for package center
+  sed -i 's/^adminport=.*$/adminport="'${pkgwizard_txt_port}'"/g' /var/packages/${SYNOPKG_PKGNAME}/INFO
+  if [ $? -ne 0 ]; then
+    echo "    FAILED (sed)" >>$LOG;
+    echo "    Could not change /var/packages/${SYNOPKG_PKGNAME}/INFO file with new port." >>$LOG;
+    echo " Installation failed. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
+    exit 1; 
+  fi
+  
+  # configurate new port for openhab
+  sed -i "s/^.*HTTP_PORT=.*$/HTTP_PORT=${pkgwizard_txt_port}/g" ${SYNOPKG_PKGDEST}/runtime/bin/setenv
+  if [ $? -ne 0 ]; then
+    echo "    FAILED (sed)" >>$LOG;
+    echo "    Could not change ${SYNOPKG_PKGDEST}/runtime/bin/setenv file with new port." >>$LOG;
+    echo " Installation failed. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
+    exit 1; 
+  fi
+  
   # if selected create folders for home dir 
   if [ "${pkgwizard_home_dir}" == "true" ]; then
     echo "  Create conf/addon folders for home dir" >>$LOG
@@ -295,7 +323,7 @@ preupgrade ()
     echo "  ERROR:" >>$LOG
     echo "  A shared folder called '${SHARE_FOLDER}' could not be found - note this name is case-sensitive. " >>$LOG
     echo "  Please create this using the Shared Folder DSM Control Panel and try again." >>$LOG
-    echo "Shared folder not found. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
+    echo " Shared folder not found. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
     exit 1
   fi
   

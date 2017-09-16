@@ -3,22 +3,65 @@
 #--------OPENREMOTE start-stop-status script
 #--------package based on work from pcloadletter.co.uk
 
-DAEMON_USER="`echo ${SYNOPKG_PKGNAME} | awk {'print tolower($_)'}`"
+DNAME="openHAB"
+DAEMON_USER="$(echo ${SYNOPKG_PKGNAME} | awk {'print tolower($_)'})"
 DAEMON_ID="${SYNOPKG_PKGNAME} daemon user"
 ENGINE_SCRIPT="start.sh daemon"
-DAEMON_USER_SHORT=`echo ${DAEMON_USER} | cut -c 1-8`
 PIDFILE="/var/services/homes/${DAEMON_USER}/.daemon.pid"
+LOG="/var/log/${SYNOPKG_PKGNAME}-start_stop.log"
+# Delete Log if older than 1 day
+find ${LOG} -mtime +1 -type f -delete
 
 daemon_status ()
 {
-  ps | grep "^ *[0-9]* ${DAEMON_USER_SHORT} .*java" > /dev/null
+  OHDAEMON_RUNNING=0
+  if [ -n "$SYNOPKG_DSM_VERSION_MAJOR" -a $SYNOPKG_DSM_VERSION_MAJOR -ge 6 ]; then
+    if [ -f ${PIDFILE} ] && ps -p $(cat "$PIDFILE") > /dev/null; then
+      OHDAEMON_RUNNING=1
+    fi
+  else
+    if [ -f ${PIDFILE} ] && ps | grep "^$(cat $PIDFILE)" > /dev/null; then
+      OHDAEMON_RUNNING=1
+    fi
+  fi
+  [ ${OHDAEMON_RUNNING} -eq 1 ] || return 1
+}
+
+stop_daemon ()
+{
+  su - ${DAEMON_USER} -s /bin/sh -c "cd ${SYNOPKG_PKGDEST}/runtime/bin && ./stop &"
+  wait_for_status 1 20
+  if [ $? -eq 1 ]; then
+    echo "  stop_daemon: kill service" >>$LOG
+    kill -9 $(cat ${PIDFILE})
+  fi
+  rm -f ${PIDFILE}
+}
+
+wait_for_status ()
+{
+  counter=$2
+  while [ ${counter} -gt 0 ]; do
+    daemon_status
+    [ $? -eq $1 ] && return
+    echo "  wait_for_status: $1" >>$LOG
+    let counter=counter-1
+    sleep 1
+  done
+  return 1
 }
 
 case $1 in
   start)
+    echo "Start service" >>$LOG
+    if daemon_status; then
+      echo "  ${DNAME} is already running" >>$LOG
+      exit 0
+    fi
+    
     #Are the port already used?
     if netstat -tlpn | grep ${SYNOPKG_PKGPORT}; then
-      echo "Port ${SYNOPKG_PKGPORT} already in use."
+      echo "  Port ${SYNOPKG_PKGPORT} already in use." >>$LOG
       exit 1
     fi
 
@@ -39,33 +82,42 @@ case $1 in
      || echo export TZ=\'${SYNO_TZ}\' >> ${DAEMON_HOME}/.profile
     
     #start OpenHAB runtime in background mode
-    su - ${DAEMON_USER} -s /bin/sh -c "cd ${SYNOPKG_PKGDEST} && ./${ENGINE_SCRIPT} &"
-  
-    #set up symlinks for the DSM GUI
-#    if [ -d /usr/syno/synoman/webman/3rdparty ]; then
-#      ln -s ${SYNOPKG_PKGDEST}/DSM/OpenHAB /usr/syno/synoman/webman/3rdparty/OpenHAB
-#    fi
-  
+    echo "  call start.sh." >>$LOG
+    su - ${DAEMON_USER} -s /bin/sh -c "cd ${SYNOPKG_PKGDEST} && ./${ENGINE_SCRIPT} &"   
+    if [ $? -ne 0 ]; then echo "  FAILED (su)" >>$LOG; exit 1; fi
+    wait_for_status 0 5
+    rm -f ${PIDFILE}
+    if [ -n "$SYNOPKG_DSM_VERSION_MAJOR" -a $SYNOPKG_DSM_VERSION_MAJOR -ge 6 ]; then
+      echo $(ps aux | grep "^${DAEMON_USER}.*java" | awk '{print $2}') >>${PIDFILE}
+    else
+      echo $(ps | grep "^ *[0-9]* ${DAEMON_USER} .*java" | awk '{print $1}') >>${PIDFILE}
+    fi
+    echo "  PID file created." >>$LOG
+    
+    echo "done." >>$LOG
     exit 0
   ;;
 
   stop)
-    if su - ${DAEMON_USER} -s /bin/sh -c "cd ${SYNOPKG_PKGDEST}/runtime/bin && ./stop &"
-    then
-      rm -f $PIDFILE
+    echo "Stop service." >>$LOG
+  
+    if daemon_status; then
+      echo "  Stopping ${DNAME} ..."  >>$LOG
+      stop_daemon
+    else
+      echo "  ${DNAME} is not running" >>$LOG
     fi
     
-    #remove DSM icon symlinks
-#    rm /usr/syno/synoman/webman/3rdparty/OpenHAB*
-    
+    echo "done." >>$LOG
     exit 0
   ;;
 
   status)
-    [ ! -f "$PIDFILE" ] && return 1
-    if ps -p $(cat "$PIDFILE") > /dev/null; then
+    if daemon_status; then
+      echo "  ${DNAME} is running"
       exit 0
     else
+      echo "  ${DNAME} is not running"
       exit 1
     fi
   ;;

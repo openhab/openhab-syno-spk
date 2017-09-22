@@ -17,11 +17,11 @@
             "defaultVaule": false
         }]
     }]
-},,{
+},{
     "step_title": "Adminport",
     "items": [{
         "type": "textfield",
-        "desc": "Choose your port for openhab:",
+        "desc": "W&auml;hle einen Port f&uuml; openhab:",
         "subitems": [{
             "key": "pkgwizard_txt_port",
             "desc": "Port",
@@ -33,7 +33,7 @@
                 "maxLength": 5,
                 "regex": {
                     "expr": "/[0-9]{4,5}/i",
-                    "errorText": "Error: Port must consist of 4 to 5 numbers."
+                    "errorText": "Error: Der Port muss zwischen 4 und 5 Zahlen lang sein."
                 }
             }
         }]

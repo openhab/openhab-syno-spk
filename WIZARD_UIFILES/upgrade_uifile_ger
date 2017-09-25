@@ -5,11 +5,11 @@
         "desc": "W&auml;hle den Zielort f&uuml;r die Konfigurationsdateien:",
         "subitems": [{
             "key": "pkgwizard_public_std",
-            "desc": "/public/openHAB2/ <br>(muss vor der Installation existieren und die Ornder /conf and /addons enthalten)",
+            "desc": "/public/openHAB2/ <br>(muss vor der Installation existieren und die Ordner /conf and /addons enthalten)",
             "defaultVaule": true
         }, {
             "key": "pkgwizard_public_shome",
-            "desc": "/SmartHome/openHAB2/ <br>(muss vor der Installation existieren und die Ornder /conf and /addons enthalten)",
+            "desc": "/SmartHome/openHAB2/ <br>(muss vor der Installation existieren und die Ordner /conf and /addons enthalten)",
             "defaultVaule": false
         }, {
             "key": "pkgwizard_home_dir",

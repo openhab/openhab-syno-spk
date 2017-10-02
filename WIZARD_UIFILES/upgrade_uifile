@@ -6,15 +6,15 @@
         "subitems": [{
             "key": "pkgwizard_public_std",
             "desc": "/public/openHAB2/ <br>(must exist before installing and has to include the folders /conf and /addons)",
-            "defaultVaule": true
+            "defaultValue": true
         }, {
             "key": "pkgwizard_public_shome",
             "desc": "/SmartHome/openHAB2/ <br>(must exist before installing and has to include the folders /conf and /addons)",
-            "defaultVaule": false
+            "defaultValue": false
         }, {
             "key": "pkgwizard_home_dir",
             "desc": "/var/services/homes/openhab2/",
-            "defaultVaule": false
+            "defaultValue": false
         }]
     }]
 },{
@@ -25,7 +25,7 @@
         "subitems": [{
             "key": "pkgwizard_txt_port",
             "desc": "Port",
-            "defaultVaule": "8080",
+            "defaultValue": "8080",
             "emptyText": "8080",
             "validator": {
                 "allowBlank": false,

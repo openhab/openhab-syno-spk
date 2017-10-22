@@ -21,10 +21,10 @@
     "step_title": "Adminport",
     "items": [{
         "type": "textfield",
-        "desc": "W&auml;hle einen Port f&uuml; openhab:",
+        "desc": "W&auml;hle einen HTTP Port f&uuml; openhab:",
         "subitems": [{
             "key": "pkgwizard_txt_port",
-            "desc": "Port",
+            "desc": "HTTP Port",
             "defaultValue": "8080",
             "emptyText": "8080",
             "validator": {
@@ -33,7 +33,7 @@
                 "maxLength": 5,
                 "regex": {
                     "expr": "/[0-9]{4,5}/i",
-                    "errorText": "Error: Der Port muss zwischen 4 und 5 Zahlen lang sein."
+                    "errorText": "Error: Der HTTP Port muss zwischen 4 und 5 Zahlen lang sein."
                 }
             }
         }]

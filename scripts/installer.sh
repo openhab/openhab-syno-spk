@@ -58,6 +58,7 @@ fi
 OH_FOLDERS_EXISTS=no
 OH_CONF="${OH_FOLDER}/conf"
 OH_ADDONS="${OH_FOLDER}/addons"
+OH_USERDATA="${OH_FOLDER}/userdata"
 TIMESTAMP="$(date +%Y%m)"
 BACKUP_FOLDER="${SYNOPKG_PKGDEST}-backup-$TIMESTAMP"
 
@@ -211,9 +212,10 @@ postinst ()
   
   # if selected create folders for home dir 
   if [ "${pkgwizard_home_dir}" == "true" ]; then
-    echo "  Create conf/addon folders for home dir" >>$LOG
+    echo "  Create conf/addon/userdata folders for home dir" >>$LOG
     mkdir -p ${OH_CONF}
     mkdir -p ${OH_ADDONS}
+    mkdir -p ${OH_USERDATA}
   fi
   
   #if configdir exists in public folder -> create a symbolic link
@@ -236,9 +238,19 @@ postinst ()
     synoacltool -get ${OH_ADDONS} | grep -F ${DAEMON_ACL} > /dev/null || synoacltool -add ${OH_ADDONS} ${DAEMON_ACL}
   fi
 
+    #if public userdata dir exists in public folder -> create a symbolic link
+  if [ -d ${OH_USERDATA} ]; then
+    echo "    Move userdata to ${OH_USERDATA} and create userdata link" >>$LOG
+    OH_FOLDERS_EXISTS=yes
+    mv -u ${SYNOPKG_PKGDEST}/userdata/* ${OH_USERDATA}
+    rm -r ${SYNOPKG_PKGDEST}/userdata
+    ln -s ${OH_USERDATA} ${SYNOPKG_PKGDEST}
+    synoacltool -get ${OH_USERDATA} | grep -F ${DAEMON_ACL} > /dev/null || synoacltool -add ${OH_USERDATA} ${DAEMON_ACL}
+  fi
+
   #add log file
-  mkdir -p ${SYNOPKG_PKGDEST}/userdata/logs
-  touch ${SYNOPKG_PKGDEST}/userdata/logs/openhab.log
+  mkdir -p ${OH_USERDATA}/logs
+  touch ${OH_USERDATA}/logs/openhab.log
   
   # Restore UserData if exists
   if [ -d ${BACKUP_FOLDER} ]; then
@@ -260,9 +272,9 @@ postinst ()
     fi
     chown -hR ${DAEMON_USER} ${OH_CONF}
     chown -hR ${DAEMON_USER} ${OH_ADDONS}
+    chown -hR ${DAEMON_USER} ${OH_USERDATA}
   fi
   chown -hR ${DAEMON_USER} ${SYNOPKG_PKGDEST}
-  chmod -R u+w ${SYNOPKG_PKGDEST}/userdata
 
   #if Z-Wave dir exists -> change rights for binding
   if [ -d /dev/ttyACM0 ]; then
@@ -336,20 +348,20 @@ preupgrade ()
   
   echo "  Remove tmp, cache and runtime dirs" >>$LOG
   # Remove tmp, logs, cache and runtime dirs
-  if [ -d ${SYNOPKG_PKGDEST}/userdata/tmp ]; then
-  	rm -rf ${SYNOPKG_PKGDEST}/userdata/tmp
+  if [ -d ${OH_USERDATA}/tmp ]; then
+  	rm -rf ${OH_USERDATA}/tmp
   fi
 
-  if [ -d ${SYNOPKG_PKGDEST}/userdata/cache ]; then
-  	rm -rf ${SYNOPKG_PKGDEST}/userdata/cache
+  if [ -d ${OH_USERDATA}/cache ]; then
+  	rm -rf ${OH_USERDATA}/cache
   fi
 
-  if [ -d ${SYNOPKG_PKGDEST}/userdata/log ]; then
-  	rm -rf ${SYNOPKG_PKGDEST}/userdata/log
+  if [ -d ${OH_USERDATA}/log ]; then
+  	rm -rf ${OH_USERDATA}/log
   fi
 
-  if [ -d ${SYNOPKG_PKGDEST}/userdata/logs ]; then
-  	rm -rf ${SYNOPKG_PKGDEST}/userdata/logs
+  if [ -d ${OH_USERDATA}/logs ]; then
+  	rm -rf ${OH_USERDATA}/logs
   fi
   
   if [ -d ${SYNOPKG_PKGDEST}/runtime ]; then
@@ -358,23 +370,23 @@ preupgrade ()
   
   echo "  Remove openHAB system files" >>$LOG
   # Remove openHAB system files...
-  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/all.policy
-  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/branding.properties
-  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/branding-ssh.properties
-  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/config.properties
-  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/custom.properties
-  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/version.properties
-  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/distribution.info
-  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/jre.properties
-  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/profile.cfg
-  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/startup.properties
-  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/org.apache.karaf*
-  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/org.ops4j.pax.url.mvn.cfg
+  rm -f ${OH_USERDATA}/etc/all.policy
+  rm -f ${OH_USERDATA}/etc/branding.properties
+  rm -f ${OH_USERDATA}/etc/branding-ssh.properties
+  rm -f ${OH_USERDATA}/etc/config.properties
+  rm -f ${OH_USERDATA}/etc/custom.properties
+  rm -f ${OH_USERDATA}/etc/version.properties
+  rm -f ${OH_USERDATA}/etc/distribution.info
+  rm -f ${OH_USERDATA}/etc/jre.properties
+  rm -f ${OH_USERDATA}/etc/profile.cfg
+  rm -f ${OH_USERDATA}/etc/startup.properties
+  rm -f ${OH_USERDATA}/etc/org.apache.karaf*
+  rm -f ${OH_USERDATA}/etc/org.ops4j.pax.url.mvn.cfg
   
   echo "  Create backup" >>$LOG
   # Create backup
   mkdir -p ${BACKUP_FOLDER}/userdata
-  mv ${SYNOPKG_PKGDEST}/userdata/* ${BACKUP_FOLDER}/userdata
+  mv ${OH_USERDATA}/* ${BACKUP_FOLDER}/userdata
   
   # save home dir content if exists or save current content for the new location
   LINK_FOLDER="$(readlink ${SYNOPKG_PKGDEST}/conf)"

@@ -10,6 +10,9 @@ Download SPK package from [![Github Releases](https://img.shields.io/badge/downl
 
 ### Logging
 
+The openHAB2 logfiles found it here:
+`/volume1/@appstore/openHAB2/userdata/logs/`.
+
 From Version openHAB-2.2.0.006 the SPK generates two log files located at `/var/log/`.
 
 The first log file `openHAB2-install.log` will be generated during the installation. If you can't install the openHAB2 SPK, please have a look inside the file.

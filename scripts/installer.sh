@@ -212,7 +212,7 @@ postinst ()
   
   # if selected create folders for home dir 
   if [ "${pkgwizard_home_dir}" == "true" ]; then
-    echo "  Create conf/addon folders for home dir" >>$LOG
+    echo "  Create conf/addon/userdata folders for home dir" >>$LOG
     mkdir -p ${OH_CONF}
     mkdir -p ${OH_ADDONS}
     mkdir -p ${OH_USERDATA}
@@ -393,14 +393,14 @@ preupgrade ()
     echo "  Save symbolic link folders" >>$LOG
     LINK_FOLDER="$(dirname ${LINK_FOLDER})"
 	
-	if [[ -z "${LINK_FOLDER}" || ! -d "${LINK_FOLDER}" ]]; then
+    if [[ -z "${LINK_FOLDER}" || ! -d "${LINK_FOLDER}" ]]; then
       echo "  ERROR:" >>$LOG
       echo "  Update failed. Link folder '${LINK_FOLDER}' could not be found. " >>$LOG
       echo "  Please try again or contact the github contributors." >>$LOG
       echo " Link folder not found. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
       exit 1
     fi
-	
+
     mkdir -p ${BACKUP_FOLDER}/userdir
     mv ${LINK_FOLDER}/* ${BACKUP_FOLDER}/userdir
   fi

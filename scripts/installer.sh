@@ -212,7 +212,7 @@ postinst ()
   
   # if selected create folders for home dir 
   if [ "${pkgwizard_home_dir}" == "true" ]; then
-    echo "  Create conf/addon/userdata folders for home dir" >>$LOG
+    echo "  Create conf/addon folders for home dir" >>$LOG
     mkdir -p ${OH_CONF}
     mkdir -p ${OH_ADDONS}
     mkdir -p ${OH_USERDATA}
@@ -237,8 +237,8 @@ postinst ()
     ln -s ${OH_ADDONS} ${SYNOPKG_PKGDEST}
     synoacltool -get ${OH_ADDONS} | grep -F ${DAEMON_ACL} > /dev/null || synoacltool -add ${OH_ADDONS} ${DAEMON_ACL}
   fi
-
-    #if public userdata dir exists in public folder -> create a symbolic link
+  
+  #if public userdata dir exists in public folder -> create a symbolic link
   if [ -d ${OH_USERDATA} ]; then
     echo "    Move userdata to ${OH_USERDATA} and create userdata link" >>$LOG
     OH_FOLDERS_EXISTS=yes
@@ -249,8 +249,8 @@ postinst ()
   fi
 
   #add log file
-  mkdir -p ${OH_USERDATA}/logs
-  touch ${OH_USERDATA}/logs/openhab.log
+  mkdir -p ${SYNOPKG_PKGDEST}/userdata/logs
+  touch ${SYNOPKG_PKGDEST}/userdata/logs/openhab.log
   
   # Restore UserData if exists
   if [ -d ${BACKUP_FOLDER} ]; then
@@ -272,7 +272,6 @@ postinst ()
     fi
     chown -hR ${DAEMON_USER} ${OH_CONF}
     chown -hR ${DAEMON_USER} ${OH_ADDONS}
-    chown -hR ${DAEMON_USER} ${OH_USERDATA}
   fi
   chown -hR ${DAEMON_USER} ${SYNOPKG_PKGDEST}
 
@@ -348,20 +347,20 @@ preupgrade ()
   
   echo "  Remove tmp, cache and runtime dirs" >>$LOG
   # Remove tmp, logs, cache and runtime dirs
-  if [ -d ${OH_USERDATA}/tmp ]; then
-  	rm -rf ${OH_USERDATA}/tmp
+  if [ -d ${SYNOPKG_PKGDEST}/userdata/tmp ]; then
+  	rm -rf ${SYNOPKG_PKGDEST}/userdata/tmp
   fi
 
-  if [ -d ${OH_USERDATA}/cache ]; then
-  	rm -rf ${OH_USERDATA}/cache
+  if [ -d ${SYNOPKG_PKGDEST}/userdata/cache ]; then
+  	rm -rf ${SYNOPKG_PKGDEST}/userdata/cache
   fi
 
-  if [ -d ${OH_USERDATA}/log ]; then
-  	rm -rf ${OH_USERDATA}/log
+  if [ -d ${SYNOPKG_PKGDEST}/userdata/log ]; then
+  	rm -rf ${SYNOPKG_PKGDEST}/userdata/log
   fi
 
-  if [ -d ${OH_USERDATA}/logs ]; then
-  	rm -rf ${OH_USERDATA}/logs
+  if [ -d ${SYNOPKG_PKGDEST}/userdata/logs ]; then
+  	rm -rf ${SYNOPKG_PKGDEST}/userdata/logs
   fi
   
   if [ -d ${SYNOPKG_PKGDEST}/runtime ]; then
@@ -370,38 +369,38 @@ preupgrade ()
   
   echo "  Remove openHAB system files" >>$LOG
   # Remove openHAB system files...
-  rm -f ${OH_USERDATA}/etc/all.policy
-  rm -f ${OH_USERDATA}/etc/branding.properties
-  rm -f ${OH_USERDATA}/etc/branding-ssh.properties
-  rm -f ${OH_USERDATA}/etc/config.properties
-  rm -f ${OH_USERDATA}/etc/custom.properties
-  rm -f ${OH_USERDATA}/etc/version.properties
-  rm -f ${OH_USERDATA}/etc/distribution.info
-  rm -f ${OH_USERDATA}/etc/jre.properties
-  rm -f ${OH_USERDATA}/etc/profile.cfg
-  rm -f ${OH_USERDATA}/etc/startup.properties
-  rm -f ${OH_USERDATA}/etc/org.apache.karaf*
-  rm -f ${OH_USERDATA}/etc/org.ops4j.pax.url.mvn.cfg
+  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/all.policy
+  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/branding.properties
+  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/branding-ssh.properties
+  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/config.properties
+  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/custom.properties
+  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/version.properties
+  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/distribution.info
+  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/jre.properties
+  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/profile.cfg
+  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/startup.properties
+  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/org.apache.karaf*
+  rm -f ${SYNOPKG_PKGDEST}/userdata/etc/org.ops4j.pax.url.mvn.cfg
   
   echo "  Create backup" >>$LOG
   # Create backup
   mkdir -p ${BACKUP_FOLDER}/userdata
-  mv ${OH_USERDATA}/* ${BACKUP_FOLDER}/userdata
+  mv ${SYNOPKG_PKGDEST}/userdata/* ${BACKUP_FOLDER}/userdata
   
   # save home dir content if exists or save current content for the new location
   LINK_FOLDER="$(readlink ${SYNOPKG_PKGDEST}/conf)"
   if [[ "${pkgwizard_home_dir}" == "true" || ${LINK_FOLDER} != ${OH_CONF} ]]; then
     echo "  Save symbolic link folders" >>$LOG
     LINK_FOLDER="$(dirname ${LINK_FOLDER})"
-    
-    if [[ -z "${LINK_FOLDER}" || ! -d "${LINK_FOLDER}" ]]; then
+	
+	if [[ -z "${LINK_FOLDER}" || ! -d "${LINK_FOLDER}" ]]; then
       echo "  ERROR:" >>$LOG
       echo "  Update failed. Link folder '${LINK_FOLDER}' could not be found. " >>$LOG
       echo "  Please try again or contact the github contributors." >>$LOG
       echo " Link folder not found. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
       exit 1
     fi
-    
+	
     mkdir -p ${BACKUP_FOLDER}/userdir
     mv ${LINK_FOLDER}/* ${BACKUP_FOLDER}/userdir
   fi

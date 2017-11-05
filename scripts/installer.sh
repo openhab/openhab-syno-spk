@@ -272,6 +272,7 @@ postinst ()
     fi
     chown -hR ${DAEMON_USER} ${OH_CONF}
     chown -hR ${DAEMON_USER} ${OH_ADDONS}
+    chown -hR ${DAEMON_USER} ${OH_USERDATA}
   fi
   chown -hR ${DAEMON_USER} ${SYNOPKG_PKGDEST}
 
@@ -392,7 +393,7 @@ preupgrade ()
   if [[ "${pkgwizard_home_dir}" == "true" || ${LINK_FOLDER} != ${OH_CONF} ]]; then
     echo "  Save symbolic link folders" >>$LOG
     LINK_FOLDER="$(dirname ${LINK_FOLDER})"
-	
+
     if [[ -z "${LINK_FOLDER}" || ! -d "${LINK_FOLDER}" ]]; then
       echo "  ERROR:" >>$LOG
       echo "  Update failed. Link folder '${LINK_FOLDER}' could not be found. " >>$LOG

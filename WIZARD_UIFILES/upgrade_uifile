@@ -5,11 +5,11 @@
         "desc": "Choose your destination directory for configuration files:",
         "subitems": [{
             "key": "pkgwizard_public_std",
-            "desc": "/public/openHAB2/ <br>(must exist before installing and has to include the folders /conf and /addons)",
+            "desc": "/public/openHAB2/ <br>(must exist before installing and has to include the folders /conf und /addons und /userdata)",
             "defaultValue": true
         }, {
             "key": "pkgwizard_public_shome",
-            "desc": "/SmartHome/openHAB2/ <br>(must exist before installing and has to include the folders /conf and /addons)",
+            "desc": "/SmartHome/openHAB2/ <br>(must exist before installing and has to include the folders /conf und /addons und /userdata)",
             "defaultValue": false
         }, {
             "key": "pkgwizard_home_dir",

@@ -1,6 +1,6 @@
 #!/bin/sh
 
-#--------openHAB2 installer script
+#--------openHAB installer script
 #--------package based on work from pcloadletter.co.uk
 
 LOG="/var/log/${SYNOPKG_PKGNAME}-install.log"

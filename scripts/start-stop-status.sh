@@ -1,6 +1,6 @@
 #!/bin/sh
 
-#--------OPENREMOTE start-stop-status script
+#--------openHAB start-stop-status script
 #--------package based on work from pcloadletter.co.uk
 
 DNAME="openHAB"

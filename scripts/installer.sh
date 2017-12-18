@@ -12,12 +12,12 @@ echo "" >>$LOG
 
 echo "Set instance variables..." >>$LOG
 DOWNLOAD_PATH="https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab/target"
-DOWNLOAD_FILE1="openhab-2.2.0-SNAPSHOT.zip"
+DOWNLOAD_FILE1="openhab-2.3.0-SNAPSHOT.zip"
 
 # Add more files by separating them using spaces
 INSTALL_FILES="${DOWNLOAD_PATH}/${DOWNLOAD_FILE1}"
 
-EXTRACTED_FOLDER="openHAB-2.2.0-SNAPSHOT"
+EXTRACTED_FOLDER="openHAB-2.3.0-SNAPSHOT"
 
 DAEMON_USER="$(echo ${SYNOPKG_PKGNAME} | awk {'print tolower($_)'})"
 DAEMON_PASS="$(openssl rand 12 -base64 2>null)"

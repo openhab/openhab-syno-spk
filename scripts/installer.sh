@@ -271,14 +271,10 @@ postinst ()
       synoshare --setuser smarthome RO + ${DAEMON_USER}
     fi
     chown -hR ${DAEMON_USER}:users ${OH_CONF}
-    chmod -R 770 ${OH_CONF}
     chown -hR ${DAEMON_USER}:users ${OH_ADDONS}
-    chmod -R 770 ${OH_ADDONS}
     chown -hR ${DAEMON_USER}:users ${OH_USERDATA}
-    chmod -R 770 ${OH_USERDATA}
   fi
   chown -hR ${DAEMON_USER}:users ${SYNOPKG_PKGDEST}
-  chmod -R 770 ${SYNOPKG_PKGDEST}
 
   #if Z-Wave dir exists -> change rights for binding
   if [ -d /dev/ttyACM0 ]; then

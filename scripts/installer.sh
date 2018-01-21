@@ -270,11 +270,11 @@ postinst ()
     elif [ "${pkgwizard_public_shome}"  == "true" ]; then
       synoshare --setuser smarthome RO + ${DAEMON_USER}
     fi
-    chown -hR ${DAEMON_USER} ${OH_CONF}
-    chown -hR ${DAEMON_USER} ${OH_ADDONS}
-    chown -hR ${DAEMON_USER} ${OH_USERDATA}
+    chown -hR ${DAEMON_USER}:users ${OH_CONF}
+    chown -hR ${DAEMON_USER}:users ${OH_ADDONS}
+    chown -hR ${DAEMON_USER}:users ${OH_USERDATA}
   fi
-  chown -hR ${DAEMON_USER} ${SYNOPKG_PKGDEST}
+  chown -hR ${DAEMON_USER}:users ${SYNOPKG_PKGDEST}
 
   #if Z-Wave dir exists -> change rights for binding
   if [ -d /dev/ttyACM0 ]; then

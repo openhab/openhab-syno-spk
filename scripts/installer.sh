@@ -231,6 +231,31 @@ postinst ()
   echo ${pkgwizard_root_pwd} | sudo -k -S /usr/local/etc/rc.d/openHAB-tmpfs.sh start
   echo "Started TMPF"  >>$LOG;
   mkdir ${OH_FOLDER}/saved
+  
+  #Change logrotation to 3MB for TMPFS 
+  sed -i "s|^log4j2.appender.out.policies.size.size =.*$|log4j2.appender.out.policies.size.size = 3MB|g" "${OH_USERDATA}/etc/org.ops4j.pax.logging.cfg"
+   if [ $? -ne 0 ]; then
+    echo "    FAILED (sed)" >>$LOG;
+    echo "    Could not change openhab.log filesize ${OH_USERDATA}/etc/org.ops4j.pax.logging.cfg with new value." >>$LOG;
+    echo " Installation failed. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
+    exit 1; 
+  fi
+    
+  sed -i "s|log4j2.appender.event.policies.size.size =.*$|log4j2.appender.event.policies.size.size = 3MB|g" "${OH_USERDATA}/etc/org.ops4j.pax.logging.cfg"
+  if [ $? -ne 0 ]; then
+    echo "    FAILED (sed)" >>$LOG;
+    echo "    Could not change event.log filesize ${OH_USERDATA}/etc/org.ops4j.pax.logging.cfg with new value." >>$LOG;
+    echo " Installation failed. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
+    exit 1; 
+  fi
+
+    sed -i "s|log4j2.appender.audit.policies.size.size =.*$|log4j2.appender.audit.policies.size.size = 3MB|g" "${OH_USERDATA}/etc/org.ops4j.pax.logging.cfg"
+  if [ $? -ne 0 ]; then
+    echo "    FAILED (sed)" >>$LOG;
+    echo "    Could not change audit.log filesize ${OH_USERDATA}/etc/org.ops4j.pax.logging.cfg with new value." >>$LOG;
+    echo " Installation failed. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
+    exit 1; 
+  fi
     
   # if selected create folders for home dir 
   if [ "${pkgwizard_home_dir}" == "true" ]; then

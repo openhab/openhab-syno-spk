@@ -11,19 +11,19 @@ echo "$(date +%Y-%m-%d:%H:%M:%S)" >>$LOG
 echo "" >>$LOG
 
 echo "Set instance variables..." >>$LOG
-DOWNLOAD_PATH="https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab/target"
-DOWNLOAD_FILE1="openhab-2.3.0-SNAPSHOT.zip"
+DOWNLOAD_PATH="https://bintray.com/openhab/mvn/download_file?file_path=org/openhab/distro/openhab/2.3.0"
+DOWNLOAD_FILE1="openhab-2.3.0.zip"
 
 # Add more files by separating them using spaces
 INSTALL_FILES="${DOWNLOAD_PATH}/${DOWNLOAD_FILE1}"
 
-EXTRACTED_FOLDER="openHAB-2.3.0-SNAPSHOT"
+EXTRACTED_FOLDER="openHAB-2.3.0"
 
 DAEMON_USER="$(echo ${SYNOPKG_PKGNAME} | awk {'print tolower($_)'})"
 DAEMON_PASS="$(openssl rand 12 -base64 2>null)"
 DAEMON_ID="${SYNOPKG_PKGNAME} daemon user"
 DAEMON_ACL="user:${DAEMON_USER}:allow:rwxpdDaARWc--:fd--"
-ENGINE_SCRIPT="start.sh"
+ENGINE_SCRIPT="start.sh daemon"
 PIDFILE="/var/services/homes/${DAEMON_USER}/.daemon.pid"
 
 source /etc/profile
@@ -209,7 +209,29 @@ postinst ()
     echo " Installation failed. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
     exit 1; 
   fi
+
+  # configurate TMPFS
+  sed -i "s|^OPENHAB2_ROOT=.*$|OPENHAB2_ROOT=""${OH_FOLDER}""|g" "${SYNOPKG_PKGDEST}/openHAB-tmpfs.sh"
+  if [ $? -ne 0 ]; then
+    echo "    FAILED (sed)" >>$LOG;
+    echo "    Could not change ${SYNOPKG_PKGDEST}/openHAB-tmpfs.sh with new path." >>$LOG;
+    echo " Installation failed. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
+    exit 1; 
+  fi
+
+  echo ${pkgwizard_root_pwd} | sudo -k -S mv "${SYNOPKG_PKGDEST}/openHAB-tmpfs.sh" /usr/local/etc/rc.d/
+    if [ $? -ne 0 ]; then
+  echo "The given password is wrong! Please try again" >> $SYNOPKG_TEMP_LOGFILE
+  exit 2;
+  fi
   
+  echo ${pkgwizard_root_pwd} | sudo -k -S chown root:root /usr/local/etc/rc.d/openHAB-tmpfs.sh
+  echo ${pkgwizard_root_pwd} | sudo -k -S chmod 755 /usr/local/etc/rc.d/openHAB-tmpfs.sh
+  echo "Moved TMPFS script to Autostart at Boot"  >>$LOG;
+  echo ${pkgwizard_root_pwd} | sudo -k -S /usr/local/etc/rc.d/openHAB-tmpfs.sh start
+  echo "Started TMPF"  >>$LOG;
+  mkdir ${OH_FOLDER}/saved
+    
   # if selected create folders for home dir 
   if [ "${pkgwizard_home_dir}" == "true" ]; then
     echo "  Create conf/addon/userdata folders for home dir" >>$LOG
@@ -275,16 +297,14 @@ postinst ()
     chown -hR ${DAEMON_USER}:users ${OH_USERDATA}
   fi
   chown -hR ${DAEMON_USER}:users ${SYNOPKG_PKGDEST}
-
-  #if Z-Wave dir exists -> change rights for binding
-  if [ -d /dev/ttyACM0 ]; then
-    chmod 777 /dev/ttyACM0
-  fi
-  if [ -d /dev/ttyACM1 ]; then
-    chmod 777 /dev/ttyACM1
-  fi
-  
   echo "done" >>$LOG
+
+  #change rights for Z-Wave binding
+  echo "copy Startupscript for z-wave binding. Then start it" >>$LOG
+  echo ${pkgwizard_root_pwd} | sudo -k -S mv "${SYNOPKG_PKGDEST}/openHAB-zwave.sh" /usr/local/etc/rc.d/
+  echo ${pkgwizard_root_pwd} | sudo -k -S chown root:root /usr/local/etc/rc.d/openHAB-zwave.sh
+  echo ${pkgwizard_root_pwd} | sudo -k -S chmod 755 /usr/local/etc/rc.d/openHAB-zwave.sh
+
   echo "Installation done." > $SYNOPKG_TEMP_LOGFILE;
 
   exit 0
@@ -299,6 +319,14 @@ preuninst ()
     rm -f $PIDFILE
   fi
   sleep 10
+
+  #Stop TMPFS and delete Script
+  echo ${pkgwizard_root_pwd} | sudo -k -S /usr/local/etc/rc.d/openHAB-tmpfs.sh stop
+  if [ $? -ne 0 ]; then
+  echo "The given password is wrong! Please try again" >> $SYNOPKG_TEMP_LOGFILE
+  exit 2;
+  fi
+  echo ${pkgwizard_root_pwd} | sudo -k -S rm /usr/local/etc/rc.d/openHAB-tmpfs.sh
 
   echo "done" >>$LOG
   exit 0
@@ -367,6 +395,14 @@ preupgrade ()
   if [ -d ${SYNOPKG_PKGDEST}/runtime ]; then
     rm -rf ${SYNOPKG_PKGDEST}/runtime
   fi
+
+  #Stop TMPFS and delete Script
+  echo ${pkgwizard_root_pwd} | sudo -k -S /usr/local/etc/rc.d/openHAB-tmpfs.sh stop
+    if [ $? -ne 0 ]; then
+  echo "The given password is wrong! Please try again" >> $SYNOPKG_TEMP_LOGFILE
+  exit 2;
+  fi
+  echo ${pkgwizard_root_pwd} | sudo -k -S rm /usr/local/etc/rc.d/openHAB-tmpfs.sh
   
   echo "  Remove openHAB system files" >>$LOG
   # Remove openHAB system files...
@@ -406,6 +442,12 @@ preupgrade ()
     mv ${LINK_FOLDER}/* ${BACKUP_FOLDER}/userdir
   fi
 
+  #change rights for Z-Wave binding
+  echo "copy Startupscript for z-wave binding. Then start it" >>$LOG
+  echo ${pkgwizard_root_pwd} | sudo -k -S mv "${SYNOPKG_PKGDEST}/openHAB-zwave.sh" /usr/local/etc/rc.d/
+  echo ${pkgwizard_root_pwd} | sudo -k -S chown root:root /usr/local/etc/rc.d/openHAB-zwave.sh
+  echo ${pkgwizard_root_pwd} | sudo -k -S chmod 755 /usr/local/etc/rc.d/openHAB-zwave.sh
+  
   echo "done" >>$LOG
   exit 0
 }

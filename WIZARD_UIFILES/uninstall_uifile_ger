@@ -1,0 +1,15 @@
+[{
+    "step_title": "Admin Passwort",
+    "items": [{
+        "type": "password",
+        "desc": "Bitte das Admin Passwort eingeben um ein TMPFS zu installieren, dies erm&oumlglicht das die Festplatten schlafen gehen können. Und falls es nötig ist wird ein Script zum erm&oumlglichen von Z-Wave installiert",
+        "subitems": [{
+            "key": "pkgwizard_root_pwd",
+            "desc": "Password",
+            "validator": {
+                "allowBlank": false,
+                }
+            }
+        }]
+     }]
+}]

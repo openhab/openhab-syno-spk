@@ -77,6 +77,15 @@ to
 
 `chown root.uucp /run/lock || true`
 
+For Z-Wave and Devices that use `dev/ttyACM0 or dev/ttyACM1` will at install a script copy to `/usr/local/etc/rc.d` that will execute install or on Boot. 
+This exec on the Port´s `chmod 777`. And load some USB Kernelmodules. 
+To make these it´s necessary to enter on Installation the Admin Password from DSM. 
+
+Also is on Install a TMPFS created, that stores the Logs and Peristance. This allow the HDD´s to hibernate. 
+The TMPFS could found in the same Path you chose on Installation for the Configs. 
+The TMPFS will backup on shutdown to folder `saved` and restore on boot to TMPFS and make some Links. To make these able, is a script copy on Install to `/usr/local/etc/rc.d`, 
+for these action is the Admin Password from DSM requiered on install. 
+
 ## Forum
 
 Official community: [![Github Releases](https://img.shields.io/badge/openhab-forum-orange.svg)](https://community.openhab.org/t/synology-diskstation/1446)

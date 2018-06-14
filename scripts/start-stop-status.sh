@@ -85,7 +85,7 @@ case $1 in
     echo "  call start.sh." >>$LOG
     su - ${DAEMON_USER} -s /bin/sh -c "cd ${SYNOPKG_PKGDEST} && ./${ENGINE_SCRIPT} &"   
     if [ $? -ne 0 ]; then echo "  FAILED (su)" >>$LOG; exit 1; fi
-    wait_for_status 0 5
+    wait_for_status 0 30
     rm -f ${PIDFILE}
     if [ -n "$SYNOPKG_DSM_VERSION_MAJOR" -a $SYNOPKG_DSM_VERSION_MAJOR -ge 6 ]; then
       echo $(ps aux | grep "^${DAEMON_USER}.*java" | awk '{print $2}') >>${PIDFILE}

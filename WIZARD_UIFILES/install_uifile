@@ -39,18 +39,4 @@
             }
         }]
      }]
-},{
-    "step_title": "Admin password",
-    "items": [{
-        "type": "password",
-        "desc": "Please Enter Admin Password to install a TMPFS Filesystem. This will allow to pause the HDD. And it also install a script for Z-Wave when it´s necessary",
-        "subitems": [{
-            "key": "pkgwizard_root_pwd",
-            "desc": "Password",
-            "validator": {
-                "allowBlank": false,
-                }
-            }
-        }]
-     }]
 }]

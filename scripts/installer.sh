@@ -68,6 +68,10 @@ echo "  oh:     ${OH_FOLDER}" >>$LOG
 echo "  backup: ${BACKUP_FOLDER}" >>$LOG
 echo "done" >>$LOG
 
+#Print User that exec the Script
+echo "User that exec the Installation"   >>$LOG
+whoami >>$LOG
+
 preinst ()
 {
   echo "Start preinst..." >>$LOG
@@ -219,44 +223,23 @@ postinst ()
     exit 1; 
   fi
 
-  echo ${pkgwizard_root_pwd} | sudo -k -S mv "${SYNOPKG_PKGDEST}/openHAB-tmpfs.sh" /usr/local/etc/rc.d/
+  mv "${SYNOPKG_PKGDEST}/openHAB-tmpfs.sh" /usr/local/etc/rc.d/
     if [ $? -ne 0 ]; then
   echo "The given password is wrong! Please try again" >> $SYNOPKG_TEMP_LOGFILE
   exit 2;
   fi
   
-  echo ${pkgwizard_root_pwd} | sudo -k -S chown root:root /usr/local/etc/rc.d/openHAB-tmpfs.sh
-  echo ${pkgwizard_root_pwd} | sudo -k -S chmod 755 /usr/local/etc/rc.d/openHAB-tmpfs.sh
+  chown root:root /usr/local/etc/rc.d/openHAB-tmpfs.sh
+  chmod 755 /usr/local/etc/rc.d/openHAB-tmpfs.sh
   echo "Moved TMPFS script to Autostart at Boot"  >>$LOG;
-  echo ${pkgwizard_root_pwd} | sudo -k -S /usr/local/etc/rc.d/openHAB-tmpfs.sh start
+  /usr/local/etc/rc.d/openHAB-tmpfs.sh start
   echo "Started TMPF"  >>$LOG;
+  if [ -e ${OH_FOLDER}/saved ]; then
+  echo "saved dir for TMPFS allready exists"   >>$LOG;
+  else
   mkdir ${OH_FOLDER}/saved
-  
-  #Change logrotation to 3MB for TMPFS 
-  sed -i "s|^log4j2.appender.out.policies.size.size =.*$|log4j2.appender.out.policies.size.size = 3MB|g" "${OH_USERDATA}/etc/org.ops4j.pax.logging.cfg"
-   if [ $? -ne 0 ]; then
-    echo "    FAILED (sed)" >>$LOG;
-    echo "    Could not change openhab.log filesize ${OH_USERDATA}/etc/org.ops4j.pax.logging.cfg with new value." >>$LOG;
-    echo " Installation failed. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
-    exit 1; 
-  fi
-    
-  sed -i "s|log4j2.appender.event.policies.size.size =.*$|log4j2.appender.event.policies.size.size = 3MB|g" "${OH_USERDATA}/etc/org.ops4j.pax.logging.cfg"
-  if [ $? -ne 0 ]; then
-    echo "    FAILED (sed)" >>$LOG;
-    echo "    Could not change event.log filesize ${OH_USERDATA}/etc/org.ops4j.pax.logging.cfg with new value." >>$LOG;
-    echo " Installation failed. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
-    exit 1; 
   fi
 
-    sed -i "s|log4j2.appender.audit.policies.size.size =.*$|log4j2.appender.audit.policies.size.size = 3MB|g" "${OH_USERDATA}/etc/org.ops4j.pax.logging.cfg"
-  if [ $? -ne 0 ]; then
-    echo "    FAILED (sed)" >>$LOG;
-    echo "    Could not change audit.log filesize ${OH_USERDATA}/etc/org.ops4j.pax.logging.cfg with new value." >>$LOG;
-    echo " Installation failed. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
-    exit 1; 
-  fi
-    
   # if selected create folders for home dir 
   if [ "${pkgwizard_home_dir}" == "true" ]; then
     echo "  Create conf/addon/userdata folders for home dir" >>$LOG
@@ -308,7 +291,32 @@ postinst ()
       cp -arf ${BACKUP_FOLDER}/userdir/* ${OH_FOLDER}
     fi 
   fi
-  
+    
+    #Change logrotation to 3MB for TMPFS 
+  sed -i "s|^log4j2.appender.out.policies.size.size =.*$|log4j2.appender.out.policies.size.size = 3MB|g" "${OH_USERDATA}/etc/org.ops4j.pax.logging.cfg"
+   if [ $? -ne 0 ]; then
+    echo "    FAILED (sed)" >>$LOG;
+    echo "    Could not change openhab.log filesize ${OH_USERDATA}/etc/org.ops4j.pax.logging.cfg with new value." >>$LOG;
+    echo " Installation failed. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
+    exit 1; 
+  fi
+    
+  sed -i "s|log4j2.appender.event.policies.size.size =.*$|log4j2.appender.event.policies.size.size = 3MB|g" "${OH_USERDATA}/etc/org.ops4j.pax.logging.cfg"
+  if [ $? -ne 0 ]; then
+    echo "    FAILED (sed)" >>$LOG;
+    echo "    Could not change event.log filesize ${OH_USERDATA}/etc/org.ops4j.pax.logging.cfg with new value." >>$LOG;
+    echo " Installation failed. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
+    exit 1; 
+  fi
+
+    sed -i "s|log4j2.appender.audit.policies.size.size =.*$|log4j2.appender.audit.policies.size.size = 3MB|g" "${OH_USERDATA}/etc/org.ops4j.pax.logging.cfg"
+  if [ $? -ne 0 ]; then
+    echo "    FAILED (sed)" >>$LOG;
+    echo "    Could not change audit.log filesize ${OH_USERDATA}/etc/org.ops4j.pax.logging.cfg with new value." >>$LOG;
+    echo " Installation failed. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
+    exit 1; 
+  fi
+
   #change owner of folder tree
   echo "  Fix permissions" >>$LOG
   if [ $OH_FOLDERS_EXISTS == yes ]; then
@@ -326,9 +334,9 @@ postinst ()
 
   #change rights for Z-Wave binding
   echo "copy Startupscript for z-wave binding. Then start it" >>$LOG
-  echo ${pkgwizard_root_pwd} | sudo -k -S mv "${SYNOPKG_PKGDEST}/openHAB-zwave.sh" /usr/local/etc/rc.d/
-  echo ${pkgwizard_root_pwd} | sudo -k -S chown root:root /usr/local/etc/rc.d/openHAB-zwave.sh
-  echo ${pkgwizard_root_pwd} | sudo -k -S chmod 755 /usr/local/etc/rc.d/openHAB-zwave.sh
+  mv "${SYNOPKG_PKGDEST}/openHAB-zwave.sh" /usr/local/etc/rc.d/
+  chown root:root /usr/local/etc/rc.d/openHAB-zwave.sh
+  chmod 755 /usr/local/etc/rc.d/openHAB-zwave.sh
 
   echo "Installation done." > $SYNOPKG_TEMP_LOGFILE;
 
@@ -345,13 +353,12 @@ preuninst ()
   fi
   sleep 10
 
-  #Stop TMPFS and delete Script
-  echo ${pkgwizard_root_pwd} | sudo -k -S /usr/local/etc/rc.d/openHAB-tmpfs.sh stop
+  #Stop TMPFS and delete Scripts
+  /usr/local/etc/rc.d/openHAB-tmpfs.sh stop
   if [ $? -ne 0 ]; then
   echo "The given password is wrong! Please try again" >> $SYNOPKG_TEMP_LOGFILE
   exit 2;
   fi
-  echo ${pkgwizard_root_pwd} | sudo -k -S rm /usr/local/etc/rc.d/openHAB-tmpfs.sh
 
   echo "done" >>$LOG
   exit 0
@@ -374,6 +381,15 @@ postuninst ()
   else
     echo "  Daemon user folder '${DAEMON_HOME}' not found - nothing deleted" >>$LOG
   fi
+
+  if [ -e /usr/local/etc/rc.d/openHAB-tmpfs.sh ]; then 
+    rm /usr/local/etc/rc.d/openHAB-tmpfs.sh
+  fi
+    
+  if [ -e /usr/local/etc/rc.d/openHAB-zwave.sh ]; then 
+    rm /usr/local/etc/rc.d/openHAB-zwave.sh
+  fi
+
   
   echo "done" >>$LOG
   exit 0
@@ -422,12 +438,19 @@ preupgrade ()
   fi
 
   #Stop TMPFS and delete Script
-  echo ${pkgwizard_root_pwd} | sudo -k -S /usr/local/etc/rc.d/openHAB-tmpfs.sh stop
+  /usr/local/etc/rc.d/openHAB-tmpfs.sh stop
     if [ $? -ne 0 ]; then
   echo "The given password is wrong! Please try again" >> $SYNOPKG_TEMP_LOGFILE
   exit 2;
   fi
-  echo ${pkgwizard_root_pwd} | sudo -k -S rm /usr/local/etc/rc.d/openHAB-tmpfs.sh
+  if [ -e /usr/local/etc/rc.d/openHAB-tmpfs.sh ]; then 
+    rm /usr/local/etc/rc.d/openHAB-tmpfs.sh
+  fi
+    
+  if [ -e /usr/local/etc/rc.d/openHAB-zwave.sh ]; then 
+    rm /usr/local/etc/rc.d/openHAB-zwave.sh
+  fi
+
   
   echo "  Remove openHAB system files" >>$LOG
   # Remove openHAB system files...
@@ -466,13 +489,7 @@ preupgrade ()
     mkdir -p ${BACKUP_FOLDER}/userdir
     mv ${LINK_FOLDER}/* ${BACKUP_FOLDER}/userdir
   fi
-
-  #change rights for Z-Wave binding
-  echo "copy Startupscript for z-wave binding. Then start it" >>$LOG
-  echo ${pkgwizard_root_pwd} | sudo -k -S mv "${SYNOPKG_PKGDEST}/openHAB-zwave.sh" /usr/local/etc/rc.d/
-  echo ${pkgwizard_root_pwd} | sudo -k -S chown root:root /usr/local/etc/rc.d/openHAB-zwave.sh
-  echo ${pkgwizard_root_pwd} | sudo -k -S chmod 755 /usr/local/etc/rc.d/openHAB-zwave.sh
-  
+    
   echo "done" >>$LOG
   exit 0
 }

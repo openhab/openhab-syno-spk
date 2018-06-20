@@ -77,12 +77,21 @@ to
 
 `chown root.uucp /run/lock || true`
 
-For Z-Wave and Devices that use `dev/ttyACM0 or dev/ttyACM1` will at install a script copy to `/usr/local/etc/rc.d` that will execute on install and at booting the Synology. 
+If you want you can Install a Script for Z-Wave and Devices that use `dev/ttyACM0 or dev/ttyACM1` at install a script is copy to `/usr/local/etc/rc.d` that will execute on install and at booting the Synology. 
 This exec on the Port´s `chmod 777`. And load some USB Kernelmodules. 
 
-Also is on Install a TMPFS created, that stores the Logs and Peristance. This allow the HDD´s to hibernate. 
+Also if you want you can Install a TMPFS-Filesystem, that stores the Logs and Peristance. This allow the HDD´s to hibernate. 
 The TMPFS could found in the same Path you chose on Installation for the Configs. 
 The TMPFS will backup on shutdown to folder `saved` and restore on boot to TMPFS and make some Links. To make these able, is a script copy on Install to `/usr/local/etc/rc.d` this will run by setup and on shutdown or boot the synology.
+
+For these two options you have to check a Checkbox on Installation. If you let it empty is nothing changed. When you want it to change later you must run a update. 
+
+To Keep Peristance Running (it stops when TMPFS is full) you can install the EXEC-Binding and make a Thing with follow command 
+`find  "path to Config Dir you chosed on Install"/openHAB/userdata/logs/*.log1 -type f -delete` and run it periodly. This will delete old logs. 
+
+If you want to Backup the TMPFS periodly you can use the EXEC-Binding too. 
+Create one Thing with follow command `cp -a -r -f /volume1/public/openHAB/tmpfs/userdata /volume1/public/openHAB/saved/`. You can add it to a rule, that will run the command every Day. 
+
 ## Forum
 
 Official community: [![Github Releases](https://img.shields.io/badge/openhab-forum-orange.svg)](https://community.openhab.org/t/synology-diskstation/1446)

@@ -39,4 +39,20 @@
             }
         }]
      }]
+},{
+    "step_title": "TMPFS and Z-Wave",
+    "items": [{
+        "type": "multiselect",
+        "desc": "Chose if you want to Install a TMPFS-Filesystem, that allow to pause the HDDs. And install a bootup script for Z-Wave. You can select one item or both or leave it empty to do nothing.",
+        "subitems": [{
+            "key": "pkgwizard_tmpfs",
+            "desc": "Install TMPFS",
+            "defaultValue": false
+            }, {
+            "key": "pkgwizard_zwave",
+            "desc": "Install Z-Wave",
+            "defaultVaule": false
+            }]           
+        }]
+     }]     
 }]

@@ -38,5 +38,20 @@
             }
         }]
      }]
+},{
+    "step_title": "TMPFS and Z-Wave",
+    "items": [{
+        "type": "multiselect",
+        "desc": "Wähle ob du ein TMPFS-Filesystem installieren möchtest, dies ermöglicht die HDDs zu pausieren. Es kann auch ein Start Script für Z-Wave installiert werden. Du hast die Möglichkeit beides zu Wählen oder nur eines. Lass die Boxen leer wenn du nichts möchtest.",
+        "subitems": [{
+            "key": "pkgwizard_tmpfs",
+            "desc": "Installiere TMPFS",
+            "defaultValue": false
+            }, {
+            "key": "pkgwizard_zwave",
+            "desc": "Installiere Z-Wave",
+            "defaultVaule": false
+            }]           
+        }]
+     }]     
 }]
-

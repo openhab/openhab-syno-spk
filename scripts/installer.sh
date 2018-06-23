@@ -234,16 +234,16 @@ postinst ()
   
     chown root:root /usr/local/etc/rc.d/openHAB-tmpfs.sh
     chmod 755 /usr/local/etc/rc.d/openHAB-tmpfs.sh
-    echo "Moved TMPFS script to Autostart at Boot"  >>$LOG;
-    /usr/local/etc/rc.d/openHAB-tmpfs.sh start
     echo "Started TMPF"  >>$LOG;
     if [ -e ${OH_FOLDER}/saved ]; then
       echo "saved dir for TMPFS allready exists"   >>$LOG;
       else
       mkdir ${OH_FOLDER}/saved
     fi
+    echo "Moved TMPFS script to Autostart at Boot"  >>$LOG;
+    /usr/local/etc/rc.d/openHAB-tmpfs.sh start
   else
-  echo "No TMPF Install needed"   >>$LOG; 
+  echo "No TMPFS Install needed"   >>$LOG; 
   fi
 
   # if selected create folders for home dir 

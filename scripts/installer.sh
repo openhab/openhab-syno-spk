@@ -207,14 +207,23 @@ postinst ()
     exit 1; 
   fi
   
-  # configurate new port for openhab
+  # configurate new http port for openhab
   sed -i "s/^.*HTTP_PORT=.*$/HTTP_PORT=${pkgwizard_txt_port}/g" ${SYNOPKG_PKGDEST}/runtime/bin/setenv
   if [ $? -ne 0 ]; then
     echo "    FAILED (sed)" >>$LOG;
-    echo "    Could not change ${SYNOPKG_PKGDEST}/runtime/bin/setenv file with new port." >>$LOG;
+    echo "    Could not change ${SYNOPKG_PKGDEST}/runtime/bin/setenv file with new http port." >>$LOG;
     echo " Installation failed. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
     exit 1; 
   fi
+
+  # configurate new https port for openhab
+  sed -i "s/^.*HTTPS_PORT=.*$/HTTPS_PORT=${pkgwizard_txt_ports}/g" ${SYNOPKG_PKGDEST}/runtime/bin/setenv
+  if [ $? -ne 0 ]; then
+    echo "    FAILED (sed)" >>$LOG;
+    echo "    Could not change ${SYNOPKG_PKGDEST}/runtime/bin/setenv file with new https port." >>$LOG;
+    echo " Installation failed. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
+    exit 1; 
+  fi  
 
   # configurate TMPFS
   if [ "${pkgwizard_tmpfs}" == "true" ]; then 

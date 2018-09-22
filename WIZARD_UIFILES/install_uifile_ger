@@ -21,7 +21,7 @@
     "step_title": "Adminport",
     "items": [{
         "type": "textfield",
-        "desc": "W&auml;hle den HTTP Port f&uuml;r Openhab aus:",
+        "desc": "W&auml;hle den die Ports f&uuml;r Openhab aus:",
         "subitems": [{
             "key": "pkgwizard_txt_port",
             "desc": "HTTP Port",
@@ -34,6 +34,20 @@
                 "regex": {
                     "expr": "/[0-9]{4,5}/i",
                     "errorText": "Error: HTTP Port muss aus 4 bis 5 Zahlen bestehen."
+                }
+            }
+            },{
+            "key": "pkgwizard_txt_ports",
+            "desc": "HTTPS Port",
+            "defaultValue": "8443",
+            "emptyText": "8443",
+            "validator": {
+                "allowBlank": false,
+                "minLength": 4,
+                "maxLength": 5,
+                "regex": {
+                    "expr": "/[0-9]{4,5}/i",
+                    "errorText": "Error: HTTPS Port muss aus 4 bis 5 Zahlen bestehen."
                 }
             }
         }]

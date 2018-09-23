@@ -57,6 +57,16 @@ if [ ! -z "${pkgwizard_txt_port}" ]; then
   fi
 fi
 
+if [ ! -z "${pkgwizard_txt_ports}" ]; then
+  echo "  port:    ${pkgwizard_txt_ports}" >>$LOG
+  if netstat -tlpn | grep ${pkgwizard_txt_ports}; then
+    echo "  Your selected port ${pkgwizard_txt_ports} is already in use." >>$LOG
+    echo "  Please choose another one and try again." >>$LOG
+    echo " Port ${pkgwizard_txt_ports} already in use. Please try again." >> $SYNOPKG_TEMP_LOGFILE
+    exit 1
+  fi
+fi
+
 OH_FOLDERS_EXISTS=no
 OH_CONF="${OH_FOLDER}/conf"
 OH_ADDONS="${OH_FOLDER}/addons"

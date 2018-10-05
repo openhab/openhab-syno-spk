@@ -22,7 +22,7 @@
     "step_title": "Adminport",
     "items": [{
         "type": "textfield",
-        "desc": "Choose your HTTP port for openhab:",
+        "desc": "Choose your ports for openhab:",
         "subitems": [{
             "key": "pkgwizard_txt_port",
             "desc": "HTTP Port",

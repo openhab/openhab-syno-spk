@@ -21,7 +21,7 @@
     "step_title": "Adminport",
     "items": [{
         "type": "textfield",
-        "desc": "W&auml;hle den die Ports f&uuml;r Openhab aus:",
+        "desc": "W&auml;hle die Ports f&uuml;r Openhab aus:",
         "subitems": [{
             "key": "pkgwizard_txt_port",
             "desc": "HTTP Port",

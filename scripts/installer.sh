@@ -48,8 +48,8 @@ else
 fi
 
 if [ ! -z "${pkgwizard_txt_port}" ]; then
-  echo "  port:    :${pkgwizard_txt_port}" >>$LOG
-  if netstat -tlpn | grep ${pkgwizard_txt_port}; then
+  echo "  port:    ${pkgwizard_txt_port}" >>$LOG
+  if netstat -tlpn | grep :${pkgwizard_txt_port}; then
     echo "  Your selected port ${pkgwizard_txt_port} is already in use." >>$LOG
     echo "  Please choose another one and try again." >>$LOG
     echo " Port ${pkgwizard_txt_port} already in use. Please try again." >> $SYNOPKG_TEMP_LOGFILE
@@ -58,8 +58,8 @@ if [ ! -z "${pkgwizard_txt_port}" ]; then
 fi
 
 if [ ! -z "${pkgwizard_txt_ports}" ]; then
-  echo "  port:    :${pkgwizard_txt_ports}" >>$LOG
-  if netstat -tlpn | grep ${pkgwizard_txt_ports}; then
+  echo "  port:    ${pkgwizard_txt_ports}" >>$LOG
+  if netstat -tlpn | grep :${pkgwizard_txt_ports}; then
     echo "  Your selected port ${pkgwizard_txt_ports} is already in use." >>$LOG
     echo "  Please choose another one and try again." >>$LOG
     echo " Port ${pkgwizard_txt_ports} already in use. Please try again." >> $SYNOPKG_TEMP_LOGFILE

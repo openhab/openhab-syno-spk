@@ -60,7 +60,7 @@ case $1 in
     fi
     
     #Are the port already used?
-    if netstat -tlpn | grep ${SYNOPKG_PKGPORT}; then
+    if netstat -tlpn | grep :${SYNOPKG_PKGPORT}; then
       echo "  Port ${SYNOPKG_PKGPORT} already in use." >>$LOG
       exit 1
     fi

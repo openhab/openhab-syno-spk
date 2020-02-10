@@ -5,7 +5,8 @@ dist: trusty
 script:
   - export FILE_NAME=openHAB-$TRAVIS_BRANCH-syno-noarch-0.001.spk
   - echo $FILE_NAME
-  - tar cf $FILE_NAME * --exclude=*.md --exclude=.travis.*
+  - chmod a+x scripts/*
+  - tar cf $FILE_NAME * --exclude=*.md --exclude=.travis.*  --owner=0 --group=0 --numeric-owner
 
 deploy:
   skip_cleanup: true

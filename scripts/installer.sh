@@ -11,13 +11,13 @@ echo "$(date +%Y-%m-%d:%H:%M:%S)" >>$LOG
 echo "" >>$LOG
 
 echo "Set instance variables..." >>$LOG
-DOWNLOAD_PATH="https://bintray.com/openhab/mvn/download_file?file_path=org/openhab/distro/openhab/2.5.0"
-DOWNLOAD_FILE1="openhab-2.5.0.zip"
+DOWNLOAD_PATH="https://bintray.com/openhab/mvn/download_file?file_path=org/openhab/distro/openhab/2.5.1"
+DOWNLOAD_FILE1="openhab-2.5.1.zip"
 
 # Add more files by separating them using spaces
 INSTALL_FILES="${DOWNLOAD_PATH}/${DOWNLOAD_FILE1}"
 
-EXTRACTED_FOLDER="openHAB-2.5.0"
+EXTRACTED_FOLDER="openHAB-2.5.1"
 
 DAEMON_USER="$(echo ${SYNOPKG_PKGNAME} | awk {'print tolower($_)'})"
 DAEMON_PASS="$(openssl rand 12 -base64 2>null)"
@@ -92,7 +92,7 @@ preinst ()
     echo "  Found java executable in PATH" >>$LOG
     _java=java
   elif [[ -n "${JAVA_HOME}" ]] && [[ -x "${JAVA_HOME}/bin/java" ]]; then
-    echo "Found java executable in JAVA_HOME" >>$LOG 
+    echo "Found java executable in JAVA_HOME" >>$LOG
     _java="${JAVA_HOME}/bin/java"
   else
     echo "  ERROR:" >>$LOG
@@ -108,7 +108,7 @@ preinst ()
     echo "  Java version ${version}"  >>$LOG
     if [[ "$version" > "1.8" ]]; then
       echo "  Version is more than 1.8" >>$LOG
-    else         
+    else
       echo "  ERROR:" >>$LOG
       echo "  Version is less than 1.8. Please download and install Java 1.8 or higher." >>$LOG
       echo "  On DSM 4 or 5 you have to rename the file to java 7 like:" >>$LOG
@@ -117,7 +117,7 @@ preinst ()
       exit 1
     fi
   fi
-  
+
   # Is the User Home service enabled?
   UH_SERVICE=$(synogetkeyvalue /etc/synoinfo.conf userHomeEnable)
   if [ "${UH_SERVICE}" != yes ]; then
@@ -176,7 +176,7 @@ postinst ()
   echo "  Create '${DAEMON_USER}' daemon user" >>$LOG
   synouser --add ${DAEMON_USER} ${DAEMON_PASS} "${DAEMON_ID}" 0 "" ""
   sleep 3
-  
+
   #add openhab user & handle possible device groups
   synogroup --member dialout ${DAEMON_USER}
   synogroup --member uucp ${DAEMON_USER}
@@ -196,13 +196,13 @@ postinst ()
   else
     unzip ${TEMP_FOLDER}/${DOWNLOAD_FILE1} -d ${EXTRACTED_FOLDER}
   fi
-  if [ $? -ne 0 ]; then 
+  if [ $? -ne 0 ]; then
     echo "    FAILED (extract)" >>$LOG;
     echo " Installation failed. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
-    exit 1; 
+    exit 1;
   fi
   rm ${TEMP_FOLDER}/${DOWNLOAD_FILE1}
-  
+
   echo "    Move files to ${SYNOPKG_PKGDEST}" >>$LOG
   mv ${TEMP_FOLDER}/${EXTRACTED_FOLDER}/* ${SYNOPKG_PKGDEST}
   rmdir ${TEMP_FOLDER}/${EXTRACTED_FOLDER}
@@ -214,16 +214,16 @@ postinst ()
     echo "    FAILED (sed)" >>$LOG;
     echo "    Could not change /var/packages/${SYNOPKG_PKGNAME}/INFO file with new port." >>$LOG;
     echo " Installation failed. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
-    exit 1; 
+    exit 1;
   fi
-  
+
   # configurate new http port for openhab
   sed -i "s/^.*HTTP_PORT=.*$/HTTP_PORT=${pkgwizard_txt_port}/g" ${SYNOPKG_PKGDEST}/runtime/bin/setenv
   if [ $? -ne 0 ]; then
     echo "    FAILED (sed)" >>$LOG;
     echo "    Could not change ${SYNOPKG_PKGDEST}/runtime/bin/setenv file with new http port." >>$LOG;
     echo " Installation failed. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
-    exit 1; 
+    exit 1;
   fi
 
   # configurate new https port for openhab
@@ -232,25 +232,25 @@ postinst ()
     echo "    FAILED (sed)" >>$LOG;
     echo "    Could not change ${SYNOPKG_PKGDEST}/runtime/bin/setenv file with new https port." >>$LOG;
     echo " Installation failed. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
-    exit 1; 
-  fi  
+    exit 1;
+  fi
 
   # configurate TMPFS
-  if [ "${pkgwizard_tmpfs}" == "true" ]; then 
+  if [ "${pkgwizard_tmpfs}" == "true" ]; then
     sed -i "s|^OPENHAB2_ROOT=.*$|OPENHAB2_ROOT=""${OH_FOLDER}""|g" "${SYNOPKG_PKGDEST}/openHAB-tmpfs.sh"
     if [ $? -ne 0 ]; then
       echo "    FAILED (sed)" >>$LOG;
       echo "    Could not change ${SYNOPKG_PKGDEST}/openHAB-tmpfs.sh with new path." >>$LOG;
       echo " Installation failed. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
-      exit 1; 
+      exit 1;
     fi
-  
+
     mv "${SYNOPKG_PKGDEST}/openHAB-tmpfs.sh" /usr/local/etc/rc.d/
     if [ $? -ne 0 ]; then
       echo "Not able to move TMPFS-Script to /usr/local/etc/rc.d/" >> $SYNOPKG_TEMP_LOGFILE
       exit 2;
     fi
-  
+
     chown root:root /usr/local/etc/rc.d/openHAB-tmpfs.sh
     chmod 755 /usr/local/etc/rc.d/openHAB-tmpfs.sh
     echo "Started TMPF"  >>$LOG;
@@ -262,17 +262,17 @@ postinst ()
     echo "Moved TMPFS script to Autostart at Boot"  >>$LOG;
     /usr/local/etc/rc.d/openHAB-tmpfs.sh start
   else
-  echo "No TMPFS Install needed"   >>$LOG; 
+  echo "No TMPFS Install needed"   >>$LOG;
   fi
 
-  # if selected create folders for home dir 
+  # if selected create folders for home dir
   if [ "${pkgwizard_home_dir}" == "true" ]; then
     echo "  Create conf/addon/userdata folders for home dir" >>$LOG
     mkdir -p ${OH_CONF}
     mkdir -p ${OH_ADDONS}
     mkdir -p ${OH_USERDATA}
   fi
-  
+
   #if configdir exists in public folder -> create a symbolic link
   if [ -d ${OH_CONF} ]; then
     echo "    Move conf to ${OH_CONF} and create conf link" >>$LOG
@@ -292,7 +292,7 @@ postinst ()
     ln -s ${OH_ADDONS} ${SYNOPKG_PKGDEST}
     synoacltool -get ${OH_ADDONS} | grep -F ${DAEMON_ACL} > /dev/null || synoacltool -add ${OH_ADDONS} ${DAEMON_ACL}
   fi
-  
+
   #if public userdata dir exists in public folder -> create a symbolic link
   if [ -d ${OH_USERDATA} ]; then
     echo "    Move userdata to ${OH_USERDATA} and create userdata link" >>$LOG
@@ -306,7 +306,7 @@ postinst ()
   #add log file
   mkdir -p ${SYNOPKG_PKGDEST}/userdata/logs
   touch ${SYNOPKG_PKGDEST}/userdata/logs/openhab.log
-  
+
   # Restore UserData if exists
   if [ -d ${BACKUP_FOLDER} ]; then
     echo "  Restore userdata to ${SYNOPKG_PKGDEST}" >>$LOG
@@ -314,26 +314,26 @@ postinst ()
     if [ -d ${BACKUP_FOLDER}/userdir ]; then
       echo "  Restore configuration files to ${OH_FOLDER}" >>$LOG
       cp -arf ${BACKUP_FOLDER}/userdir/* ${OH_FOLDER}
-    fi 
+    fi
   fi
-    
-    #Change logrotation to 3MB for TMPFS 
-  if [ "${pkgwizard_tmpfs}" == "true" ]; then 
+
+    #Change logrotation to 3MB for TMPFS
+  if [ "${pkgwizard_tmpfs}" == "true" ]; then
     echo "Change Filesize for Logrotation to keep Peristance Running"  >>$LOG;
     sed -i "s|^log4j2.appender.out.policies.size.size =.*$|log4j2.appender.out.policies.size.size = 3MB|g" "${OH_USERDATA}/etc/org.ops4j.pax.logging.cfg"
       if [ $? -ne 0 ]; then
       echo "    FAILED (sed)" >>$LOG;
       echo "    Could not change openhab.log filesize ${OH_USERDATA}/etc/org.ops4j.pax.logging.cfg with new value." >>$LOG;
       echo " Installation failed. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
-      exit 1; 
+      exit 1;
     fi
-    
+
     sed -i "s|log4j2.appender.event.policies.size.size =.*$|log4j2.appender.event.policies.size.size = 3MB|g" "${OH_USERDATA}/etc/org.ops4j.pax.logging.cfg"
     if [ $? -ne 0 ]; then
       echo "    FAILED (sed)" >>$LOG;
       echo "    Could not change event.log filesize ${OH_USERDATA}/etc/org.ops4j.pax.logging.cfg with new value." >>$LOG;
       echo " Installation failed. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
-      exit 1; 
+      exit 1;
     fi
 
     sed -i "s|log4j2.appender.audit.policies.size.size =.*$|log4j2.appender.audit.policies.size.size = 3MB|g" "${OH_USERDATA}/etc/org.ops4j.pax.logging.cfg"
@@ -341,7 +341,7 @@ postinst ()
       echo "    FAILED (sed)" >>$LOG;
       echo "    Could not change audit.log filesize ${OH_USERDATA}/etc/org.ops4j.pax.logging.cfg with new value." >>$LOG;
       echo " Installation failed. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
-      exit 1; 
+      exit 1;
     fi
   fi
 
@@ -361,12 +361,12 @@ postinst ()
   echo "done" >>$LOG
 
   #change rights for Z-Wave binding
-  if [ "${pkgwizard_zwave}" == "true" ]; then 
+  if [ "${pkgwizard_zwave}" == "true" ]; then
   echo "copy Startupscript for z-wave binding. Then start it" >>$LOG
   mv "${SYNOPKG_PKGDEST}/openHAB-zwave.sh" /usr/local/etc/rc.d/
   chown root:root /usr/local/etc/rc.d/openHAB-zwave.sh
   chmod 755 /usr/local/etc/rc.d/openHAB-zwave.sh
-  else 
+  else
   echo "No Z-Wave Wanted"  >>$LOG;
   fi
   echo "Installation done." > $SYNOPKG_TEMP_LOGFILE;
@@ -394,7 +394,7 @@ postuninst ()
   echo "Start postuninst..." >>$LOG
   # Determine folder before deleting daemon
   DAEMON_HOME="$(synouser --get ${DAEMON_USER} | grep "User Dir" | awk -F[ '{print $2}' | awk -F] '{print $1}')"
-  
+
   #Stop TMPFS
   if [ -e /usr/local/etc/rc.d/openHAB-tmpfs.sh ]; then
     /usr/local/etc/rc.d/openHAB-tmpfs.sh stop
@@ -415,12 +415,12 @@ postuninst ()
     echo "  Daemon user folder '${DAEMON_HOME}' not found - nothing deleted" >>$LOG
   fi
 
-  #Remove Z-Wave Script when its here 
-  if [ -e /usr/local/etc/rc.d/openHAB-zwave.sh ]; then 
+  #Remove Z-Wave Script when its here
+  if [ -e /usr/local/etc/rc.d/openHAB-zwave.sh ]; then
     rm /usr/local/etc/rc.d/openHAB-zwave.sh
   fi
 
-  
+
   echo "done" >>$LOG
   exit 0
 }
@@ -429,7 +429,7 @@ postuninst ()
 preupgrade ()
 {
   echo "Start preupgrade..." >>$LOG
-  
+
   if [[ ! -d ${SHARE_FOLDER} ]]; then
     echo "  ERROR:" >>$LOG
     echo "  A shared folder called '${SHARE_FOLDER}' could not be found - note this name is case-sensitive. " >>$LOG
@@ -437,14 +437,14 @@ preupgrade ()
     echo " Shared folder not found. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
     exit 1
   fi
-  
+
   #make sure server is stopped
   echo "  Stop server" >>$LOG
   if su - ${DAEMON_USER} -s /bin/sh -c "cd ${SYNOPKG_PKGDEST}/runtime/bin && ./stop &"; then
     rm -f $PIDFILE
   fi
   sleep 10
-  
+
   echo "  Remove tmp, cache and runtime dirs" >>$LOG
   # Remove tmp, logs, cache and runtime dirs
   if [ -d ${SYNOPKG_PKGDEST}/userdata/tmp ]; then
@@ -462,13 +462,13 @@ preupgrade ()
   if [ -d ${SYNOPKG_PKGDEST}/userdata/logs ]; then
   	rm -rf ${SYNOPKG_PKGDEST}/userdata/logs
   fi
-  
+
   if [ -d ${SYNOPKG_PKGDEST}/runtime ]; then
     rm -rf ${SYNOPKG_PKGDEST}/runtime
   fi
 
   #Stop TMPFS and delete Scripts
-  if [ -e /usr/local/etc/rc.d/openHAB-tmpfs.sh ]; then 
+  if [ -e /usr/local/etc/rc.d/openHAB-tmpfs.sh ]; then
     /usr/local/etc/rc.d/openHAB-tmpfs.sh stop
     if [ $? -ne 0 ]; then
       echo "Stop TMPFS was Failed, check TMPFS log in '${OH_FOLDER}' " >> $SYNOPKG_TEMP_LOGFILE
@@ -478,11 +478,11 @@ preupgrade ()
     rm /usr/local/etc/rc.d/openHAB-tmpfs.sh
   fi
 
-  if [ -e /usr/local/etc/rc.d/openHAB-zwave.sh ]; then 
+  if [ -e /usr/local/etc/rc.d/openHAB-zwave.sh ]; then
     rm /usr/local/etc/rc.d/openHAB-zwave.sh
   fi
 
-  
+
   echo "  Remove openHAB system files" >>$LOG
   # Remove openHAB system files...
   rm -f ${SYNOPKG_PKGDEST}/userdata/etc/all.policy
@@ -497,12 +497,12 @@ preupgrade ()
   rm -f ${SYNOPKG_PKGDEST}/userdata/etc/startup.properties
   rm -f ${SYNOPKG_PKGDEST}/userdata/etc/org.apache.karaf*
   rm -f ${SYNOPKG_PKGDEST}/userdata/etc/org.ops4j.pax.url.mvn.cfg
-  
+
   echo "  Create backup" >>$LOG
   # Create backup
   mkdir -p ${BACKUP_FOLDER}/userdata
   mv ${SYNOPKG_PKGDEST}/userdata/* ${BACKUP_FOLDER}/userdata
-  
+
   # save home dir content if exists or save current content for the new location
   LINK_FOLDER="$(readlink ${SYNOPKG_PKGDEST}/conf)"
   if [[ "${pkgwizard_home_dir}" == "true" || ${LINK_FOLDER} != ${OH_CONF} ]]; then
@@ -520,7 +520,7 @@ preupgrade ()
     mkdir -p ${BACKUP_FOLDER}/userdir
     mv ${LINK_FOLDER}/* ${BACKUP_FOLDER}/userdir
   fi
-    
+
   echo "done" >>$LOG
   exit 0
 }
@@ -531,9 +531,9 @@ postupgrade ()
   echo "Start postupgrade..." >>$LOG
   # Remove all backups after installation
   rm -rf ${SYNOPKG_PKGDEST}-backup*
-  
+
   echo "done" >>$LOG
   echo "Update done." > $SYNOPKG_TEMP_LOGFILE
-  
+
   exit 0
 }

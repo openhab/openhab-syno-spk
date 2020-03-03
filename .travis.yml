@@ -1,5 +1,5 @@
 language: shell
-so: linux
+os: linux
 dist: trusty
 
 script:
@@ -12,7 +12,7 @@ deploy:
   cleanup: true
   provider: releases
   token:
-    secure: $GITHUB_TOKEN
+    secure: "$GITHUB_TOKEN"
   file:
     - $FILE_NAME
   on:

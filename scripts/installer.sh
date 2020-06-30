@@ -1,7 +1,5 @@
 #!/bin/sh
 
-#cd /mnt/c/Users/d057539/git/openhab-syno-spk/scripts
-
 #--------openHAB installer script
 #--------package based on work from pcloadletter.co.uk
 

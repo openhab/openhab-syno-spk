@@ -1,5 +1,7 @@
 #!/bin/sh
 
+#cd /mnt/c/Users/d057539/git/openhab-syno-spk/scripts
+
 #--------openHAB installer script
 #--------package based on work from pcloadletter.co.uk
 
@@ -11,13 +13,17 @@ echo "$(date +%Y-%m-%d:%H:%M:%S)" >>$LOG
 echo "" >>$LOG
 
 echo "Set instance variables..." >>$LOG
-DOWNLOAD_PATH="https://bintray.com/openhab/mvn/download_file?file_path=org/openhab/distro/openhab/2.5.2"
-DOWNLOAD_FILE1="openhab-2.5.2.zip"
+
+# let's figure out the latest available release version
+BASE_PATH='https://dl.bintray.com/openhab/mvn/org/openhab/distro/openhab'
+wget -nv --no-check-certificate --output-document='metadata.xml' "$BASE_PATH/maven-metadata.xml"
+OPENHAB_RELEASE=`grep -E '<release>(.*)</release>' metadata.xml | cut -d '>' -f 2 | cut -d '<' -f 1`
+DOWNLOAD_FILE1="openhab-$OPENHAB_RELEASE.zip"
 
 # Add more files by separating them using spaces
-INSTALL_FILES="${DOWNLOAD_PATH}/${DOWNLOAD_FILE1}"
+INSTALL_FILES="$BASE_PATH/$OPENHAB_RELEASE/$DOWNLOAD_FILE1"
 
-EXTRACTED_FOLDER="openHAB-2.5.2"
+EXTRACTED_FOLDER="openHAB-$OPENHAB_RELEASE"
 
 DAEMON_USER="$(echo ${SYNOPKG_PKGNAME} | awk {'print tolower($_)'})"
 DAEMON_PASS="$(openssl rand 12 -base64 2>null)"

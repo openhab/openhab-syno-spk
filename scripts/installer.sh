@@ -18,6 +18,7 @@ wget -nv --no-check-certificate --output-document='metadata.xml' "$BASE_PATH/mav
 OPENHAB_RELEASE="$(grep -E '<release>(.*)</release>' metadata.xml | cut -d '>' -f 2 | cut -d '<' -f 1)"
 DOWNLOAD_FILE1="openhab-$OPENHAB_RELEASE.zip"
 
+
 # Add more files by separating them using spaces
 INSTALL_FILES="$BASE_PATH/$OPENHAB_RELEASE/$DOWNLOAD_FILE1"
 
@@ -194,7 +195,10 @@ postinst ()
   #extract main archive
   echo "  Install new version" >>$LOG
   cd ${TEMP_FOLDER}
+  echo "    TempFolder= $(pwd)" >> $LOG
+  echo "    content= $(ls -lrt)" >>$LOG
   echo "    Extract ${DOWNLOAD_FILE1}" >>$LOG
+  
   if [ -e /usr/bin/7z ]; then
     7z x ${TEMP_FOLDER}/${DOWNLOAD_FILE1} -o${EXTRACTED_FOLDER}
   else
@@ -211,6 +215,9 @@ postinst ()
   mv ${TEMP_FOLDER}/${EXTRACTED_FOLDER}/* ${SYNOPKG_PKGDEST}
   rmdir ${TEMP_FOLDER}/${EXTRACTED_FOLDER}
   chmod +x ${SYNOPKG_PKGDEST}/${ENGINE_SCRIPT}
+  
+  echo "    copy specific restore file from packages" >>$LOG
+  cp /var/packages/${SYNOPKG_PKGNAME}/scripts/restore ${SYNOPKG_PKGDEST}/runtime/bin
 
   # configurate new port for package center
   sed -i 's/^adminport=.*$/adminport="'${pkgwizard_txt_port}'"/g' /var/packages/${SYNOPKG_PKGNAME}/INFO

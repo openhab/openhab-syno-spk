@@ -79,7 +79,7 @@ setup "$InputFile"
 ## Extract zip file
 echo "Extracting zip file to temporary folder."
 
-7z x "$InputFile" -o"TempDir" -y || {
+7z x "$InputFile" -o"$TempDir" -y || {
   echo "Unable to unzip $InputFile, Aborting..." >&2
   exit 1
 }

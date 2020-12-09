@@ -9,6 +9,7 @@ find ${LOG} -mtime +1 -type f -delete
 echo "#### S T A R T  -  o p e n H A B  S P K ####" >>$LOG
 echo "$(date +%Y-%m-%d:%H:%M:%S)" >>$LOG
 echo "" >>$LOG
+echo "SYNOPKG_PKGINST_TEMP_DIR=${SYNOPKG_PKGINST_TEMP_DIR}" >>$LOG
 
 echo "Set instance variables..." >>$LOG
 
@@ -17,7 +18,6 @@ BASE_PATH='https://dl.bintray.com/openhab/mvn/org/openhab/distro/openhab'
 wget -nv --no-check-certificate --output-document='metadata.xml' "$BASE_PATH/maven-metadata.xml"
 OPENHAB_RELEASE="$(grep -E '<release>(.*)</release>' metadata.xml | cut -d '>' -f 2 | cut -d '<' -f 1)"
 DOWNLOAD_FILE1="openhab-$OPENHAB_RELEASE.zip"
-
 
 # Add more files by separating them using spaces
 INSTALL_FILES="$BASE_PATH/$OPENHAB_RELEASE/$DOWNLOAD_FILE1"
@@ -43,14 +43,13 @@ echo "  Z-Wave:    ${pkgwizard_zwave}"  >>$LOG
 
 if [ "${pkgwizard_public_std}" == "true" ]; then
   SHARE_FOLDER="$(synoshare --get public | grep Path | awk -F[ '{print $2}' | awk -F] '{print $1}')"
-  OH_FOLDER="${SHARE_FOLDER}/${SYNOPKG_PKGNAME}"
 elif [ "${pkgwizard_public_shome}"  == "true" ]; then
   SHARE_FOLDER="$(synoshare --get smarthome | grep Path | awk -F[ '{print $2}' | awk -F] '{print $1}')"
-  OH_FOLDER="${SHARE_FOLDER}/${SYNOPKG_PKGNAME}"
 else
   SHARE_FOLDER="/var/services/homes"
-  OH_FOLDER="${SHARE_FOLDER}/${DAEMON_USER}"
 fi
+
+OH_FOLDER="${SYNOPKG_PKGDEST}/${SYNOPKG_PKGNAME}"
 
 if [ ! -z "${pkgwizard_txt_port}" ]; then
   echo "  port:    ${pkgwizard_txt_port}" >>$LOG
@@ -198,7 +197,6 @@ postinst ()
   echo "    TempFolder= $(pwd)" >> $LOG
   echo "    content= $(ls -lrt)" >>$LOG
   echo "    Extract ${DOWNLOAD_FILE1}" >>$LOG
-  
   if [ -e /usr/bin/7z ]; then
     7z x ${TEMP_FOLDER}/${DOWNLOAD_FILE1} -o${EXTRACTED_FOLDER}
   else

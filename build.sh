@@ -8,6 +8,7 @@ echo ${FILE_NAME}
 rm -f ${FILE_NAME}
 
 tar cf ${FILE_NAME} \
+    --exclude=build.sh \
     --exclude=.git* \
     --exclude=\*.md \
     --exclude=.travis.\* \

@@ -5,8 +5,6 @@
 FILE_NAME=openHAB-${OPENHAB_VERSION}-syno-noarch-0.001.spk
 echo ${FILE_NAME}
 
-chmod a+x scripts/*
-
 rm -f ${FILE_NAME}
 
 tar cf ${FILE_NAME} \

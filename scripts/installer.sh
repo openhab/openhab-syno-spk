@@ -12,6 +12,11 @@ echo "" >>$LOG
 
 echo "Set instance variables..." >>$LOG
 
+# OpenJDK
+OPENJDK_DOWNLOAD_URL = https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.9.1%2B1/OpenJDK11U-jdk_x64_linux_hotspot_11.0.9.1_1.tar.gz
+OPENJDK_DOWNLOAD_FILENAME = openjdk.tar.gz
+
+
 # let's figure out the latest available release version
 BASE_PATH='https://dl.bintray.com/openhab/mvn/org/openhab/distro/openhab'
 wget -nv --no-check-certificate --output-document='metadata.xml' "$BASE_PATH/maven-metadata.xml"
@@ -91,36 +96,8 @@ whoami >>$LOG
 preinst ()
 {
   echo "Start preinst..." >>$LOG
-  # Is Java properly installed?
-  if type -p java; then
-    echo "  Found java executable in PATH" >>$LOG
-    _java=java
-  elif [[ -n "${JAVA_HOME}" ]] && [[ -x "${JAVA_HOME}/bin/java" ]]; then
-    echo "Found java executable in JAVA_HOME" >>$LOG
-    _java="${JAVA_HOME}/bin/java"
-  else
-    echo "  ERROR:" >>$LOG
-    echo "  Java is not installed, not properly configured or not executable." >>$LOG
-    echo "  Download and install as described on http://wp.me/pVshC-z5" >>$LOG
-    echo "  The Synology provided Java may not work with OpenHAB." >>$LOG
-    echo " Java is not installed or could not be found. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
-    exit 1
-  fi
-
-  if [[ "$_java" ]]; then
-    version=$("$_java" -version 2>&1 | awk -F '"' '/version/ {print $2}')
-    echo "  Java version ${version}"  >>$LOG
-    if [[ "$version" > "1.8" ]]; then
-      echo "  Version is more than 1.8" >>$LOG
-    else
-      echo "  ERROR:" >>$LOG
-      echo "  Version is less than 1.8. Please download and install Java 1.8 or higher." >>$LOG
-      echo "  On DSM 4 or 5 you have to rename the file to java 7 like:" >>$LOG
-      echo "  jdk-8u144-linux-i586.tar.gz to jdk-7u81-linux-i586.tar.gz (81 as example for version 8.1)" >>$LOG
-      echo " Wrong Java version. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
-      exit 1
-    fi
-  fi
+  # Downloading our own Java
+  wget -nv --no-check-certificate --output-document=${TEMP_FOLDER}/${OPENJDK_DOWNLOAD_FILENAME} ${OPENJDK_DOWNLOAD_URL}
 
   # Is the User Home service enabled?
   UH_SERVICE=$(synogetkeyvalue /etc/synoinfo.conf userHomeEnable)
@@ -191,6 +168,18 @@ postinst ()
   su - ${DAEMON_USER} -s /bin/sh -c "echo export HOME=\'${DAEMON_HOME}\' >> .profile"
   su - ${DAEMON_USER} -s /bin/sh -c "echo export OPENHAB_PID=~/.daemon.pid >> .profile"
 
+  # Extract OpenJDK
+  echo "  Install OpenJDK" >>$LOG
+  echo "    Extract archive" >>$LOG
+  mkdir OpenJDK
+  tar xvzf  --strip-components 1 ${TEMP_FOLDER}/${OPENJDK_DOWNLOAD_FILENAME} -C ${TEMP_FOLDER}/OpenJDK
+  if [ $? -ne 0 ]; then
+    echo "    FAILED (extract-openjdk)" >>$LOG;
+    echo " Installation failed. See log file $LOG for more details." >> $SYNOPKG_TEMP_LOGFILE
+    exit 1;
+  fi
+  rm ${TEMP_FOLDER}/${OPENJDK_DOWNLOAD_FILENAME}
+
   #extract main archive
   echo "  Install new version" >>$LOG
   cd ${TEMP_FOLDER}
@@ -208,6 +197,7 @@ postinst ()
   rm ${TEMP_FOLDER}/${DOWNLOAD_FILE1}
 
   echo "    Move files to ${SYNOPKG_PKGDEST}" >>$LOG
+  mv ${TEMP_FOLDER}/OpenJDK ${SYNOPKG_PKGDEST}
   mv ${TEMP_FOLDER}/${EXTRACTED_FOLDER}/* ${SYNOPKG_PKGDEST}
   rmdir ${TEMP_FOLDER}/${EXTRACTED_FOLDER}
   chmod +x ${SYNOPKG_PKGDEST}/${ENGINE_SCRIPT}

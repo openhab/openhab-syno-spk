@@ -83,7 +83,7 @@ case $1 in
     
     #start OpenHAB runtime in background mode
     echo "  call start.sh." >>$LOG
-    su - ${DAEMON_USER} -s /bin/sh -c "cd ${SYNOPKG_PKGDEST} && ./${ENGINE_SCRIPT} &"   
+    su - ${DAEMON_USER} -s /bin/sh -c "cd ${SYNOPKG_PKGDEST} && PATH=${SYNOPKG_PKGDEST}/OpenJDK/bin:${PATH} && ./${ENGINE_SCRIPT} &"
     if [ $? -ne 0 ]; then echo "  FAILED (su)" >>$LOG; exit 1; fi
     wait_for_status 0 30
     rm -f ${PIDFILE}

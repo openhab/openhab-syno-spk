@@ -4,6 +4,10 @@ This project build a Synology DiskStation SPK install package for [openHAB](http
 
 Comments, suggestions and contributions are welcome!
 
+## Installation script behaviour
+
+The Current version of installer `3.0.0` checks most stable recent version of OpenHAB and installs it during the installation procedure.
+
 ## Download
 
 Download SPK package from [![Github Releases](https://img.shields.io/badge/download-releases-blue.svg)](https://github.com/openhab/openhab-syno-spk/releases) [![Github All Releases](https://img.shields.io/github/downloads/openhab/openhab-syno-spk/total.svg?maxAge=2592000)](http://www.somsubhra.com/github-release-stats/?username=openhab&repository=openhab-syno-spk)

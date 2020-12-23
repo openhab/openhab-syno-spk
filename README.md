@@ -8,6 +8,21 @@ Comments, suggestions and contributions are welcome!
 
 The Current version of installer `3.0.0` checks most stable recent version of OpenHAB and installs it during the installation procedure.
 
+You need Java 11 to be able to run openHAB >= 3.0.0, so please download AdoptOpenJDK for [arm32](https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.9.1%2B1/OpenJDK11U-jdk_aarch64_linux_hotspot_11.0.9.1_1.tar.gz) because Oracle is not offering 32bit compatible package.
+Prepare a directory for your package like: `/var/packages/Java11`
+Edit `/etc/profile` to update `JAVA_HOME properly`
+
+```
+#PATH=$PATH:/var/packages/Java8/target/j2sdk-image/bin # Synology Java runtime enviroment
+PATH=$PATH:/var/packages/Java11/bin # Synology Java runtime enviroment
+JAVA_HOME=/var/packages/Java11 # Synology Java runtime enviroment
+CLASSPATH=.:/var/packages/Java11/lib # Synology Java runtime enviroment
+```
+
+Reboot your device or invoke following command ` . /etc/profile` and restart OpenHAB 
+
+Enjoy your OpenHAB3
+
 ## Download
 
 Download SPK package from [![Github Releases](https://img.shields.io/badge/download-releases-blue.svg)](https://github.com/openhab/openhab-syno-spk/releases) [![Github All Releases](https://img.shields.io/github/downloads/openhab/openhab-syno-spk/total.svg?maxAge=2592000)](http://www.somsubhra.com/github-release-stats/?username=openhab&repository=openhab-syno-spk)

@@ -1,17 +1,23 @@
 package="openHAB"
-version="2.5.2.000"
+description="The open Home Automation Bus (openHAB) project aims at providing a universal integration platform for all things around home automation. During the installation you can choose a shared folder for configuration, addons and userdata."
+changelog=""
+version="2.5.10.000"
+arch="noarch"
+os_min_ver="7.0-40000"
+
 maintainer="openHAB.org"
 maintainer_url="http://openhab.org/"
 distributor="cniweb, tim, dieter, dominic, schoppax"
-description="The open Home Automation Bus (openHAB) project aims at providing a universal integration platform for all things around home automation. During the installation you can choose a shared folder for configuration, addons and userdata."
-arch="noarch"
-firmware="4.0-0001"
+
 dsmuidir="ui"
 dsmappname="SYNO.SDS.OH2.Instance"
+
 adminurl="/start/index"
 adminport="8080"
+
 helpurl="https://community.openhab.org/"
 package_icon="PACKAGE_ICON.PNG"
 package_icon_120="PACKAGE_ICON_120.PNG"
+
+precheckstartstop=yes
 startable="yes"
-changelog="2.5.2.000 01.03.2020: Update to openHAB Verson 2.5.2, 2.5.1.000 01.03.2020: Update to openHAB Verson 2.5.1, 2.5.0.000 16.12.2019: Update to new openHAB Verson 2.5.0, 2.4.0.002 08.04.2019: Fix Port check and add restore script, 2.4.0.001 30.01.2019: Fix Port check"

@@ -1,39 +1,19 @@
 [
     {
-        "step_title": "Configuration files",
-        "items": [
-            {
-                "type": "singleselect",
-                "desc": "Choose your destination directory for configuration files:",
-                "subitems": [
-                    {
-                        "key": "pkgwizard_public_std",
-                        "desc": "/public/openHAB/ <br>(must exist before installing and has to include the folders /conf and /addons and /userdata)",
-                        "defaultValue": true
-                    },
-                    {
-                        "key": "pkgwizard_public_shome",
-                        "desc": "/SmartHome/openHAB/ <br>(must exist before installing and has to include the folders /conf and /addons and /userdata)",
-                        "defaultValue": false
-                    },
-                    {
-                        "key": "pkgwizard_home_dir",
-                        "desc": "/var/services/homes/openhab/",
-                        "defaultValue": false
-                    }
-                ]
-            }
-        ]
-    },
-    {
-        "step_title": "Adminport",
+        "step_title": "Networksettings",
         "items": [
             {
                 "type": "textfield",
-                "desc": "Choose your ports for openhab:",
+                "desc": "openHAB - webinterface:",
                 "subitems": [
                     {
-                        "key": "pkgwizard_txt_port",
+                        "key": "OPENHAB_HTTP_ADDRESS",
+                        "desc": "Listen address",
+                        "defaultValue": "127.0.0.1",
+                        "emptyText": "127.0.0.1"
+                    },
+                    {
+                        "key": "OPENHAB_HTTP_PORT",
                         "desc": "HTTP Port",
                         "defaultValue": "8080",
                         "emptyText": "8080",
@@ -48,7 +28,7 @@
                         }
                     },
                     {
-                        "key": "pkgwizard_txt_ports",
+                        "key": "OPENHAB_HTTPS_PORT",
                         "desc": "HTTPS Port",
                         "defaultValue": "8443",
                         "emptyText": "8443",
@@ -67,26 +47,61 @@
         ]
     },
     {
-        "step_title": "TMPFS and Z-Wave",
+        "step_title": "(Expert) Karaf console",
         "items": [
             {
-                "type": "multiselect",
-                "desc": "Chose if you want to Install a TMPFS-Filesystem, that allow to pause the HDDs. And install a bootup script for Z-Wave. You can select one item or both or leave it empty to do nothing.",
+                "type": "textfield",
+                "desc": "Choose your ports for openhab:",
                 "subitems": [
                     {
-                        "key": "pkgwizard_tmpfs",
-                        "desc": "Install TMPFS",
-                        "defaultValue": false
+                        "key": "ORG_APACHE_KARAF_STARTREMOTESHELL",
+                        "desc": "Start remote shell",
+                        "defaultValue": "true",
+                        "emptyText": "true",
+                        "validator": {
+                            "allowBlank": false
+                        }
                     },
                     {
-                        "key": "pkgwizard_zwave",
-                        "desc": "Install Z-Wave",
-                        "defaultVaule": false
+                        "key": "ORG_APACHE_KARAF_SHELL_SSHHOST",
+                        "desc": "Listen address",
+                        "defaultValue": "127.0.0.1",
+                        "emptyText": "127.0.0.1"
+                    },
+                    {
+                        "key": "ORG_APACHE_KARAF_SHELL_SSHPORT",
+                        "desc": "HTTP Port",
+                        "defaultValue": "8080",
+                        "emptyText": "8080",
+                        "validator": {
+                            "allowBlank": false,
+                            "minLength": 4,
+                            "maxLength": 5,
+                            "regex": {
+                                "expr": "/[0-9]{4,5}/i",
+                                "errorText": "Error: HTTP Port must consist of 4 to 5 numbers."
+                            }
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "step_title": "(Expert) Java settings",
+        "items": [
+            {
+                "type": "textfield",
+                "desc": "Setup Java related parameters:",
+                "subitems": [
+                    {
+                        "key": "EXTRA_JAVA_OPTS",
+                        "desc": "EXTRA_JAVA_OPTS",
+                        "defaultValue": "",
+                        "emptyText": ""
                     }
                 ]
             }
         ]
     }
-]
-}
 ]

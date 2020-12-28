@@ -61,6 +61,14 @@ prog=${KARAF_SERVICE_NAME}
 do_prestart() {
     [[ ! -d "$JAVA_HOME" ]] && echo "JAVA_HOME does not exist at: $JAVA_HOME" && exit 1
 
+    # TODO: Adding our if-clause here whether to expose on share or not
+    # TODO: Remove this stuff once we can read them out via Syno app
+    [[ -f "${SHARE_OPENHAB}/uuid" ]] && rm ${SHARE_OPENHAB}/uuid
+    [[ -f "${PKGDEST_OPENHAB}/userdata/uuid" ]] && cp "${PKGDEST_OPENHAB}/userdata/uuid" ${SHARE_OPENHAB}
+
+    [[ -f "${SHARE_OPENHAB}/openhabcloud-secret" ]] && rm ${SHARE_OPENHAB}/openhabcloud-secret
+    [[ -f "${PKGDEST_OPENHAB}/userdata/openhabcloud/secret" ]] && cp "${PKGDEST_OPENHAB}/userdata/openhabcloud/secret" ${SHARE_OPENHAB}/openhabcloud-secret
+
     exit 0
 }
 
@@ -101,6 +109,15 @@ do_start() {
 
     RETVAL=$?
     return $RETVAL
+}
+
+do_prestop() {
+    # TODO: Remove this stuff once we can read them out via Syno app
+    [[ -f "${SHARE_OPENHAB}/uuid" ]] && rm ${SHARE_OPENHAB}/uuid
+
+    [[ -f "${SHARE_OPENHAB}/openhabcloud-secret" ]] && rm ${SHARE_OPENHAB}/openhabcloud-secret
+
+    exit 0
 }
 
 do_stop() {
@@ -156,7 +173,7 @@ case "$1" in
         do_start
         ;;
     prestop)
-        exit 0
+        do_prestop
         ;;
     stop)
         do_stop

@@ -1,4 +1,8 @@
 #!/bin/sh
+
+source `dirname $0`/common-vars.sh
+source "${SYNOPKG_PKGDEST_OPENHAB_ENV}"
+
 #    Licensed to the Apache Software Foundation (ASF) under one or more
 #    contributor license agreements.  See the NOTICE file distributed with
 #    this work for additional information regarding copyright ownership.
@@ -94,8 +98,25 @@ do_start() {
     chown $KARAF_SERVICE_USER:$KARAF_SERVICE_GROUP "$PID_PATH" || true
 
     if [ ! -z "$KARAF_SERVICE_USER" ]; then
-        KARAF_EXEC=exec 
+        KARAF_EXEC=exec
         export KARAF_EXEC
+
+        echo " * OPENHAB_HTTP_ADDRESS: $OPENHAB_HTTP_ADDRESS"
+        export OPENHAB_HTTP_ADDRESS
+        echo " * OPENHAB_HTTP_PORT: $OPENHAB_HTTP_PORT"
+        export OPENHAB_HTTP_PORT
+        echo " * OPENHAB_HTTPS_PORT: $OPENHAB_HTTPS_PORT"
+        export OPENHAB_HTTPS_PORT
+
+        echo " * ORG_APACHE_KARAF_STARTREMOTESHELL: $ORG_APACHE_KARAF_STARTREMOTESHELL"
+        export ORG_APACHE_KARAF_STARTREMOTESHELL
+        echo " * ORG_APACHE_KARAF_SHELL_SSHHOST: $ORG_APACHE_KARAF_SHELL_SSHHOST"
+        export ORG_APACHE_KARAF_SHELL_SSHHOST
+        echo " * ORG_APACHE_KARAF_SHELL_SSHPORT: $ORG_APACHE_KARAF_SHELL_SSHPORT"
+        export ORG_APACHE_KARAF_SHELL_SSHPORT
+
+        echo " * EXTRA_JAVA_OPTS $EXTRA_JAVA_OPTS"
+        export EXTRA_JAVA_OPTS
 
         "$KARAF_SERVICE_PATH/bin/$KARAF_SERVICE_EXECUTABLE" daemon >> "$KARAF_SERVICE_LOG" 2>&1 &
 

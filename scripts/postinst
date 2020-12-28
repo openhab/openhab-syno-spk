@@ -2,6 +2,20 @@
 
 source `dirname $0`/common-vars.sh
 
+########################################
+# Preserving results of the user setup #
+########################################
+
+echo "OPENHAB_HTTP_ADDRESS=\"$OPENHAB_HTTP_ADDRESS\"" > ${SYNOPKG_PKGDEST_OPENHAB_ENV}
+echo "OPENHAB_HTTP_PORT=\"$OPENHAB_HTTP_PORT\"" >> ${SYNOPKG_PKGDEST_OPENHAB_ENV}
+echo "OPENHAB_HTTPS_PORT=\"$OPENHAB_HTTPS_PORT\"" >> ${SYNOPKG_PKGDEST_OPENHAB_ENV}
+
+echo "ORG_APACHE_KARAF_STARTREMOTESHELL=\"$ORG_APACHE_KARAF_STARTREMOTESHELL\"" >> ${SYNOPKG_PKGDEST_OPENHAB_ENV}
+echo "ORG_APACHE_KARAF_SHELL_SSHHOST=\"$ORG_APACHE_KARAF_SHELL_SSHHOST\"" >> ${SYNOPKG_PKGDEST_OPENHAB_ENV}
+echo "ORG_APACHE_KARAF_SHELL_SSHPORT=\"$ORG_APACHE_KARAF_SHELL_SSHPORT\"" >> ${SYNOPKG_PKGDEST_OPENHAB_ENV}
+
+echo "EXTRA_JAVA_OPTS=\"$EXTRA_JAVA_OPTS\"" >> ${SYNOPKG_PKGDEST_OPENHAB_ENV}
+
 ################################
 # Removing old links in PKGVAR #
 ################################

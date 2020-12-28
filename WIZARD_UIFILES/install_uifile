@@ -1,16 +1,16 @@
 [
     {
-        "step_title": "Networksettings",
+        "step_title": "Basic settings",
         "items": [
             {
                 "type": "textfield",
-                "desc": "openHAB - webinterface:",
+                "desc": "webinterface:",
                 "subitems": [
                     {
                         "key": "OPENHAB_HTTP_ADDRESS",
                         "desc": "Listen address",
-                        "defaultValue": "127.0.0.1",
-                        "emptyText": "127.0.0.1"
+                        "defaultValue": "0.0.0.0",
+                        "emptyText": "0.0.0.0"
                     },
                     {
                         "key": "OPENHAB_HTTP_PORT",
@@ -47,7 +47,7 @@
         ]
     },
     {
-        "step_title": "(Expert) Karaf console",
+        "step_title": "Expert settings: Karaf framework",
         "items": [
             {
                 "type": "textfield",
@@ -65,14 +65,14 @@
                     {
                         "key": "ORG_APACHE_KARAF_SHELL_SSHHOST",
                         "desc": "Listen address",
-                        "defaultValue": "127.0.0.1",
-                        "emptyText": "127.0.0.1"
+                        "defaultValue": "0.0.0.0",
+                        "emptyText": "0.0.0.0"
                     },
                     {
                         "key": "ORG_APACHE_KARAF_SHELL_SSHPORT",
                         "desc": "HTTP Port",
-                        "defaultValue": "8080",
-                        "emptyText": "8080",
+                        "defaultValue": "8101",
+                        "emptyText": "8101",
                         "validator": {
                             "allowBlank": false,
                             "minLength": 4,
@@ -88,7 +88,7 @@
         ]
     },
     {
-        "step_title": "(Expert) Java settings",
+        "step_title": "Expert settings: Java runtime",
         "items": [
             {
                 "type": "textfield",

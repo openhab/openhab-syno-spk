@@ -25,6 +25,6 @@ rm -rf "${SYNOPKG_PKGVAR}/backup/userdata/tmp"
 # Extra backup
 FOOBKU=${SYNOPKG_PKGVAR}/foobku/$(date +"%Y%m%d_%H%M%S_%3N")
 [[ ! -z "${SYNOPKG_PKGVAR}" ]] && [[ ! -d "${FOOBKU}" ]] && mkdir -p "${FOOBKU}"
-cp -rf ${PKGDEST_OPENHAB} "${FOOBKU}"
+[[ ! -z "${PKGDEST_OPENHAB}" ]] && cp -rfL "${PKGDEST_OPENHAB}" "${FOOBKU}"
 
 exit 0

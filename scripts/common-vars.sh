@@ -2,6 +2,7 @@
 
 # shares
 SHARE_OPENHAB=/var/packages/${SYNOPKG_PKGNAME}/shares/${SYNOPKG_PKGNAME}
+SHARE_OPENHAB_BACKUP=${SHARE_OPENHAB}/backup
 
 # other shortcuts
 PKGDEST_OPENHAB=${SYNOPKG_PKGDEST}/openHAB

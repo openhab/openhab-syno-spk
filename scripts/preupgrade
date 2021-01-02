@@ -22,9 +22,13 @@ source `dirname $0`/common-vars.sh
 rm -rf "${SYNOPKG_PKGVAR}/backup/userdata/etc"
 rm -rf "${SYNOPKG_PKGVAR}/backup/userdata/tmp"
 
-# Extra backup
-FOOBKU=${SYNOPKG_PKGVAR}/foobku/$(date +"%Y%m%d_%H%M%S_%3N")
-[[ ! -z "${SYNOPKG_PKGVAR}" ]] && [[ ! -d "${FOOBKU}" ]] && mkdir -p "${FOOBKU}"
-[[ ! -z "${PKGDEST_OPENHAB}" ]] && cp -rfL "${PKGDEST_OPENHAB}" "${FOOBKU}"
+###########################
+# .: Making a full backup #
+###########################
+# TODO: Doing it only on request. E.g. if user checks a box in the package settings.
+
+SHARE_OPENHAB_BACKUP_WITH_TIMESTAMP=${SHARE_OPENHAB_BACKUP}/$(date +"%Y%m%d_%H%M%S_%3N")
+[[ ! -z "${SYNOPKG_PKGNAME}" ]] && [[ ! -d "${SHARE_OPENHAB_BACKUP_WITH_TIMESTAMP}" ]] && mkdir -p "${SHARE_OPENHAB_BACKUP_WITH_TIMESTAMP}"
+[[ ! -z "${PKGDEST_OPENHAB}" ]] && cp -rfL "${PKGDEST_OPENHAB}" "${SHARE_OPENHAB_BACKUP_WITH_TIMESTAMP}"
 
 exit 0

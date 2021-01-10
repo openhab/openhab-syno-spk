@@ -162,16 +162,10 @@ echo ${FILE_NAME}
 
 rm -f ${FILE_NAME}
 
-tar cf ${FILE_NAME} \
+tar --directory=${BUILD_DIR} \
+    --file=${FILE_NAME} \
     --owner=0 \
     --group=0 \
     --numeric-owner \
-    conf \
-    scripts \
-    package.tgz \
-    INFO \
-    LICENSE \
-    NOTICE \
-    PACKAGE_ICON_120.PNG \
-    PACKAGE_ICON.PNG \
-    WIZARD_UIFILES
+    -c \
+    $(ls -1 ${BUILD_DIR})

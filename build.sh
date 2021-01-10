@@ -137,7 +137,7 @@ cp -rf ./ui ${PACKAGE_DIR}
 cp -rf ./helper ${PACKAGE_DIR}
 
 tar --directory=${PACKAGE_DIR} \
-    --file=./package.tgz \
+    --file=${BUILD_DIR}/package.tgz \
     -czv \
     .
 

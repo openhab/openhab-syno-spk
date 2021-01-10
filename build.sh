@@ -131,7 +131,7 @@ ln -s ./OpenJDK_X64 ${PACKAGE_DIR}/OpenJDK_armv5tel
 download_and_extract_zip ${OPENHAB_DOWNLOAD_URL} "NONE" "openHAB"
 
 # Adding little UI
-cp -rf ./ui ${PACKAGE_DIR}
+# cp -rf ./ui ${PACKAGE_DIR}
 
 # Adding helper script(s)
 cp -rf ./helper ${PACKAGE_DIR}

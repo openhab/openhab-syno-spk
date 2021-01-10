@@ -9,8 +9,8 @@ maintainer="openHAB.org"
 maintainer_url="http://openhab.org/"
 distributor="cniweb, tim, dieter, dominic, schoppax"
 
-dsmuidir="ui"
-dsmappname="SYNO.SDS.OH2.Instance"
+#dsmuidir="ui"
+#dsmappname="SYNO.SDS.OH2.Instance"
 
 helpurl="https://community.openhab.org/"
 package_icon="PACKAGE_ICON.PNG"

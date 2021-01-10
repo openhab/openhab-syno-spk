@@ -9,14 +9,14 @@
                     {
                         "key": "OPENHAB_HTTP_ADDRESS",
                         "desc": "Listen address",
-                        "defaultValue": "0.0.0.0",
-                        "emptyText": "0.0.0.0"
+                        "defaultValue": "%OPENHAB_HTTP_ADDRESS%",
+                        "emptyText": "%OPENHAB_HTTP_ADDRESS_DEFAULT%"
                     },
                     {
                         "key": "OPENHAB_HTTP_PORT",
                         "desc": "HTTP Port",
-                        "defaultValue": "8080",
-                        "emptyText": "8080",
+                        "defaultValue": "%OPENHAB_HTTP_PORT%",
+                        "emptyText": "%OPENHAB_HTTP_PORT_DEFAULT%",
                         "validator": {
                             "allowBlank": false,
                             "minLength": 4,
@@ -30,8 +30,8 @@
                     {
                         "key": "OPENHAB_HTTPS_PORT",
                         "desc": "HTTPS Port",
-                        "defaultValue": "8443",
-                        "emptyText": "8443",
+                        "defaultValue": "%OPENHAB_HTTPS_PORT%",
+                        "emptyText": "%OPENHAB_HTTPS_PORT_DEFAULT%",
                         "validator": {
                             "allowBlank": false,
                             "minLength": 4,

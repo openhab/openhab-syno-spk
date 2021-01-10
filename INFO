@@ -14,7 +14,6 @@ distributor="cniweb, tim, dieter, dominic, schoppax"
 
 helpurl="https://community.openhab.org/"
 package_icon="PACKAGE_ICON.PNG"
-package_icon_120="PACKAGE_ICON_120.PNG"
 
 precheckstartstop=yes
 startable="yes"

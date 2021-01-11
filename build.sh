@@ -1,7 +1,7 @@
 #!/bin/bash -eux
 
 [[ -z "${OPENHAB_VERSION:-}" ]] && echo "OPENHAB_VERSION is not set!" && exit 1
-[[ -z "${SPK_VERSION:-}" ]] && echo "SPK_VERSION is not set!" && exit 1
+SPK_VERSION=$(cat ./PKGVERSION)
 
 # General
 BUILD_DIR=./build
@@ -131,7 +131,7 @@ ln -s ./OpenJDK_X64 ${PACKAGE_DIR}/OpenJDK_armv5tel
 download_and_extract_zip ${OPENHAB_DOWNLOAD_URL} "NONE" "openHAB"
 
 # Adding little UI
-cp -rf ./ui ${PACKAGE_DIR}
+# cp -rf ./ui ${PACKAGE_DIR}
 
 # Adding helper script(s)
 cp -rf ./helper ${PACKAGE_DIR}

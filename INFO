@@ -5,16 +5,17 @@ version="2.5.10.000"
 arch="noarch"
 os_min_ver="7.0-40000"
 
+# Maintainer and distributor(s)
 maintainer="openHAB.org"
 maintainer_url="http://openhab.org/"
-distributor="cniweb, tim, dieter, dominic, schoppax"
+distributor="cniweb, thopiekar, et al"
+distributor_url="https://github.com/openhab/openhab-syno-spk"
 
-dsmuidir="ui"
-dsmappname="SYNO.SDS.OH2.Instance"
+#dsmuidir="ui"
+#dsmappname="SYNO.SDS.OH2.Instance"
 
 helpurl="https://community.openhab.org/"
 package_icon="PACKAGE_ICON.PNG"
-package_icon_120="PACKAGE_ICON_120.PNG"
 
 precheckstartstop=yes
 startable="yes"

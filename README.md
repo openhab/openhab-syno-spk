@@ -15,8 +15,8 @@ Download the SPK package from the [releases section](https://github.com/openhab/
 
 ### Prerequirements
  * Download the SPK from our project package. You will find per OpenHAB release one download. The package comes with all required software.
- * (Backup and) uninstall the previous installation based on our old package. You can identify the old package by it's icon.
-   TODO: ADD OLD ICON HERE
+ * (Backup and) uninstall the previous installation based on our old package. You can identify the old package by it's icon. \
+   ![image](https://user-images.githubusercontent.com/1847437/105901208-54535e80-601d-11eb-9228-0cd2ac720e05.png)
 
 ### Installation
 1. Open your "Package Center" and click on the "Manual Install" button to start the install using the SPK file you have downloaded. \

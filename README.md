@@ -19,17 +19,24 @@ Download the SPK package from the [releases section](https://github.com/openhab/
    TODO: ADD OLD ICON HERE
 
 ### Installation
-1. Open your "Package Center" and click on the "Manual Install" button to start the install using the SPK file you have downloaded.
-2. Click on the "Browse" button and select the SPK file you wish to install.
+1. Open your "Package Center" and click on the "Manual Install" button to start the install using the SPK file you have downloaded. \
+   ![Screenshot_20210104_194226](https://user-images.githubusercontent.com/1847437/105900269-17d33300-601c-11eb-8370-9f855a727502.png)
+2. Click on the "Browse" button and select the SPK file you wish to install. \
+   ![Screenshot_20210104_194650](https://user-images.githubusercontent.com/1847437/105900313-2883a900-601c-11eb-896e-9846d9df86c7.png)
 3. Configure your installation by making adjustments on the following pages. Generally we recommend to keep the default settins. Especially on the expert pages.
 4. Confirm the installation
 
 5. Optional: Register the Z-Wave script to be executed on system start. It is required to give OpenHAB permissions to access your dongle.
-   1. Open your "Control Panel"
-   2. Choose "Task Scheduler"
-   3. Create a new "Triggered Task" based on a "User-defined script".
-   4. Call the rule "openHAB Enable serial", choose as user root and ensure the event "Boot-up" is selected.
-   5. Continue in the "Task Settings" tab and insert 'bash /var/packages/openHAB/target/helper/serial-enable.sh' as user-defined script.
+   1. Open your "Control Panel" \
+      ![Screenshot_20210126_204910](https://user-images.githubusercontent.com/1847437/105899967-b1e6ab80-601b-11eb-9d33-2974ff2a2ebe.png)
+   2. Choose "Task Scheduler" \
+      ![Screenshot_20210126_212029](https://user-images.githubusercontent.com/1847437/105900458-5bc63800-601c-11eb-8875-7011c45a38ce.png)
+   3. Create a new "Triggered Task" based on a "User-defined script". \
+      ![Screenshot_20210126_212128](https://user-images.githubusercontent.com/1847437/105900639-9d56e300-601c-11eb-91a9-d2c28bbf933e.png)
+   4. Call the rule "openHAB Enable serial", choose as user root and ensure the event "Boot-up" is selected. \
+      ![Screenshot_20210126_212319](https://user-images.githubusercontent.com/1847437/105900767-cd05eb00-601c-11eb-9c6e-2a9f9b634c26.png)
+   5. Continue in the "Task Settings" tab and insert 'bash /var/packages/openHAB/target/helper/serial-enable.sh' as user-defined script. \
+      ![Screenshot_20210126_212343](https://user-images.githubusercontent.com/1847437/105900813-da22da00-601c-11eb-84e9-cb602e99cc58.png)
    6. [You can find the content of the script for technical details here in the repo](helper/serial-enable.sh).
 
 

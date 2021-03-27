@@ -19,7 +19,7 @@ OPENJDK_DOWNLOAD_URL_ARM64="https://github.com/AdoptOpenJDK/openjdk11-binaries/r
 OPENJDK_DOWNLOAD_CHECKSUM_ARM64="5f9a894bd694f598f2befa4a605169685ac8bcb8ec68d25e587e8db4d2307b74"
 
 # openHAB
-OPENHAB_DOWNLOAD_URL="https://dl.bintray.com/openhab/mvn/org/openhab/distro/openhab/${OPENHAB_VERSION}/openhab-${OPENHAB_VERSION}.zip"
+OPENHAB_DOWNLOAD_URL="https://www.openhab.org/download/releases/org/openhab/distro/openhab/${OPENHAB_VERSION}/openhab-${OPENHAB_VERSION}.zip"
 OPENHAB_DOWNLOAD_CHECKSUM="NONE"
 
 function download_and_verify

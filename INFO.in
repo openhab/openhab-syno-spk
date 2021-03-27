@@ -1,9 +1,9 @@
 package="openHAB"
 description="The open Home Automation Bus (openHAB) project aims at providing a universal integration platform for all things around home automation. During the installation you can choose a shared folder for configuration, addons and userdata."
 changelog=""
-version="2.5.10.000"
+version="#PACKAGE_VERSION#"
 arch="noarch"
-os_min_ver="7.0-40000"
+os_min_ver="7.0-40356"
 
 # Maintainer and distributor(s)
 maintainer="openHAB.org"

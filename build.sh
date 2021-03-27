@@ -9,14 +9,14 @@ DL_DIR=./dl
 PACKAGE_DIR=./package
 
 # OpenJDK
-OPENJDK_DOWNLOAD_URL_X64="https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.9.1%2B1/OpenJDK11U-jre_x64_linux_hotspot_11.0.9.1_1.tar.gz"
-OPENJDK_DOWNLOAD_CHECKSUM_X64="73ce5ce03d2efb097b561ae894903cdab06b8d58fbc2697a5abe44ccd8ecc2e5"
+OPENJDK_DOWNLOAD_URL_X64="https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.10%2B9/OpenJDK11U-jre_x64_linux_hotspot_11.0.10_9.tar.gz"
+OPENJDK_DOWNLOAD_CHECKSUM_X64="25fdcf9427095ac27c8bdfc82096ad2e615693a3f6ea06c700fca7ffb271131a"
 
-OPENJDK_DOWNLOAD_URL_ARM32="https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.9.1%2B1/OpenJDK11U-jre_arm_linux_hotspot_11.0.9.1_1.tar.gz"
-OPENJDK_DOWNLOAD_CHECKSUM_ARM32="11628830c3c912edd10b91620ef0b9566640c5ea46439f1d028f3ebd98682dbb"
+OPENJDK_DOWNLOAD_URL_ARM32="https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.10%2B9/OpenJDK11U-jre_arm_linux_hotspot_11.0.10_9.tar.gz"
+OPENJDK_DOWNLOAD_CHECKSUM_ARM32="2f2da2149c089c84f00b0eda63c31b77c8b51a1c080e18a70ecb5a78ba40d8c6"
 
-OPENJDK_DOWNLOAD_URL_ARM32="https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.10%2B9/OpenJDK11U-jre_aarch64_linux_hotspot_11.0.10_9.tar.gz"
-OPENJDK_DOWNLOAD_CHECKSUM_ARM32="5f9a894bd694f598f2befa4a605169685ac8bcb8ec68d25e587e8db4d2307b74"
+OPENJDK_DOWNLOAD_URL_ARM64="https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.10%2B9/OpenJDK11U-jre_aarch64_linux_hotspot_11.0.10_9.tar.gz"
+OPENJDK_DOWNLOAD_CHECKSUM_ARM64="5f9a894bd694f598f2befa4a605169685ac8bcb8ec68d25e587e8db4d2307b74"
 
 # openHAB
 OPENHAB_DOWNLOAD_URL="https://dl.bintray.com/openhab/mvn/org/openhab/distro/openhab/${OPENHAB_VERSION}/openhab-${OPENHAB_VERSION}.zip"

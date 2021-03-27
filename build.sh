@@ -15,6 +15,9 @@ OPENJDK_DOWNLOAD_CHECKSUM_X64="73ce5ce03d2efb097b561ae894903cdab06b8d58fbc2697a5
 OPENJDK_DOWNLOAD_URL_ARM32="https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.9.1%2B1/OpenJDK11U-jre_arm_linux_hotspot_11.0.9.1_1.tar.gz"
 OPENJDK_DOWNLOAD_CHECKSUM_ARM32="11628830c3c912edd10b91620ef0b9566640c5ea46439f1d028f3ebd98682dbb"
 
+OPENJDK_DOWNLOAD_URL_ARM32="https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.10%2B9/OpenJDK11U-jre_aarch64_linux_hotspot_11.0.10_9.tar.gz"
+OPENJDK_DOWNLOAD_CHECKSUM_ARM32="5f9a894bd694f598f2befa4a605169685ac8bcb8ec68d25e587e8db4d2307b74"
+
 # openHAB
 OPENHAB_DOWNLOAD_URL="https://dl.bintray.com/openhab/mvn/org/openhab/distro/openhab/${OPENHAB_VERSION}/openhab-${OPENHAB_VERSION}.zip"
 OPENHAB_DOWNLOAD_CHECKSUM="NONE"
@@ -126,6 +129,10 @@ ln -s ./OpenJDK_X64 ${PACKAGE_DIR}/OpenJDK_x86_64
 # Java ARM32
 download_and_extract_tgz ${OPENJDK_DOWNLOAD_URL_ARM32} ${OPENJDK_DOWNLOAD_CHECKSUM_ARM32} "OpenJDK_ARM32"
 ln -s ./OpenJDK_ARM32 ${PACKAGE_DIR}/OpenJDK_armv5tel
+
+# Java ARM64
+download_and_extract_tgz ${OPENJDK_DOWNLOAD_URL_ARM64} ${OPENJDK_DOWNLOAD_CHECKSUM_ARM64} "OpenJDK_ARM64"
+ln -s ./OpenJDK_ARM64 ${PACKAGE_DIR}/OpenJDK_aarch64
 
 # Downloading openHAB
 download_and_extract_zip ${OPENHAB_DOWNLOAD_URL} "NONE" "openHAB"

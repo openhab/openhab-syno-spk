@@ -125,7 +125,7 @@ ln -s ./OpenJDK_X64 ${PACKAGE_DIR}/OpenJDK_x86_64
 
 # Java ARM32
 download_and_extract_tgz ${OPENJDK_DOWNLOAD_URL_ARM32} ${OPENJDK_DOWNLOAD_CHECKSUM_ARM32} "OpenJDK_ARM32"
-ln -s ./OpenJDK_X64 ${PACKAGE_DIR}/OpenJDK_armv5tel
+ln -s ./OpenJDK_ARM32 ${PACKAGE_DIR}/OpenJDK_armv5tel
 
 # Downloading openHAB
 download_and_extract_zip ${OPENHAB_DOWNLOAD_URL} "NONE" "openHAB"

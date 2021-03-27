@@ -166,7 +166,7 @@ cp -rfv \
 cp -rfv \
     INFO.in \
     ${BUILD_DIR}/INFO
-sed -i -e "s/#PACKAGE_VERSION#/${OPENHAB_VERSION}-${SPK_VERSION}/g" ${BUILD_DIR}/INFO
+sed -i -e "s/#PACKAGE_VERSION#/${OPENHAB_VERSION}.${SPK_VERSION}/g" ${BUILD_DIR}/INFO
 
 FILE_NAME=openHAB-${OPENHAB_VERSION}-syno-noarch-${SPK_VERSION}.spk
 echo ${FILE_NAME}

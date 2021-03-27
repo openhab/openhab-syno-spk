@@ -1,0 +1,21 @@
+package="openHAB"
+description="The open Home Automation Bus (openHAB) project aims at providing a universal integration platform for all things around home automation. During the installation you can choose a shared folder for configuration, addons and userdata."
+changelog=""
+version="#PACKAGE_VERSION#"
+arch="noarch"
+os_min_ver="7.0-40356"
+
+# Maintainer and distributor(s)
+maintainer="openHAB.org"
+maintainer_url="http://openhab.org/"
+distributor="cniweb, thopiekar, et al"
+distributor_url="https://github.com/openhab/openhab-syno-spk"
+
+#dsmuidir="ui"
+#dsmappname="SYNO.SDS.OH2.Instance"
+
+helpurl="https://community.openhab.org/"
+package_icon="PACKAGE_ICON.PNG"
+
+precheckstartstop=yes
+startable="yes"

@@ -1,0 +1,22 @@
+{
+    "oh2manager.js": {
+        "SYNO.SDS.OH2.Instance": {
+            "type": "app",
+            "title": "app:app_name",
+			"desc":"app:description",
+			"icon":"images/PACKAGE_ICON_{0}.PNG",
+			"version":"1.0",
+            "texts": "texts",
+            "allowMultiInstance": false,
+            "appWindow": "SYNO.SDS.OH2.MainWindow",
+            "depend": ["SYNO.SDS.OH2.MainWindow"]
+        },
+        "SYNO.SDS.OH2.MainWindow": {
+            "type": "lib",
+            "title": "app:app_name",
+            "icon":"images/PACKAGE_ICON_{0}.PNG",
+            "texts": "texts",
+            "depend": []
+        }
+    }
+}

@@ -1,1 +1,14 @@
-/.project
+# IDEs
+.project
+
+# Generated files
+package.tgz
+
+# SPK files
+openHAB-*.spk
+
+# build directory
+build
+
+# download directory
+dl

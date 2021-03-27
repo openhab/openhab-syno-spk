@@ -1,3 +1,56 @@
-#!/bin/sh
-. `dirname $0`/installer.sh
-`basename $0`
+#!/bin/bash -eux
+
+source `dirname $0`/common-vars.sh
+
+########################################
+# Preserving results of the user setup #
+########################################
+
+echo "OPENHAB_HTTP_ADDRESS=\"$OPENHAB_HTTP_ADDRESS\"" > ${SYNOPKG_PKGDEST_OPENHAB_ENV}
+echo "OPENHAB_HTTP_PORT=\"$OPENHAB_HTTP_PORT\"" >> ${SYNOPKG_PKGDEST_OPENHAB_ENV}
+echo "OPENHAB_HTTPS_PORT=\"$OPENHAB_HTTPS_PORT\"" >> ${SYNOPKG_PKGDEST_OPENHAB_ENV}
+
+echo "ORG_APACHE_KARAF_STARTREMOTESHELL=\"$ORG_APACHE_KARAF_STARTREMOTESHELL\"" >> ${SYNOPKG_PKGDEST_OPENHAB_ENV}
+echo "ORG_APACHE_KARAF_SHELL_SSHHOST=\"$ORG_APACHE_KARAF_SHELL_SSHHOST\"" >> ${SYNOPKG_PKGDEST_OPENHAB_ENV}
+echo "ORG_APACHE_KARAF_SHELL_SSHPORT=\"$ORG_APACHE_KARAF_SHELL_SSHPORT\"" >> ${SYNOPKG_PKGDEST_OPENHAB_ENV}
+
+echo "EXTRA_JAVA_OPTS=\"$EXTRA_JAVA_OPTS\"" >> ${SYNOPKG_PKGDEST_OPENHAB_ENV}
+
+################################
+# Removing old links in PKGVAR #
+################################
+
+[ -L "${SYNOPKG_PKGVAR}/addons" ] && rm "${SYNOPKG_PKGVAR}/addons"
+[ -L "${SYNOPKG_PKGVAR}/conf" ] && rm "${SYNOPKG_PKGVAR}/conf"
+
+##################################
+# Linking from PKGDEST to PKGVAR #
+##################################
+
+# ./addons
+[[ ! -z "${SYNOPKG_PKGVAR}" ]] && [[ ! -d "${SYNOPKG_PKGVAR}/addons" ]] && mv "${PKGDEST_OPENHAB}/addons" "${SYNOPKG_PKGVAR}"
+[[ -d "${PKGDEST_OPENHAB}/addons" ]] && rm -rf "${PKGDEST_OPENHAB}/addons"
+ln -s "${SYNOPKG_PKGVAR}/addons" "${PKGDEST_OPENHAB}/addons"
+
+# ./conf
+[[ ! -z "${SYNOPKG_PKGVAR}" ]] && [[ ! -d "${SYNOPKG_PKGVAR}/conf" ]] && mv "${PKGDEST_OPENHAB}/conf" "${SYNOPKG_PKGVAR}"
+[[ -d "${PKGDEST_OPENHAB}/conf" ]] && rm -rf "${PKGDEST_OPENHAB}/conf"
+ln -s "${SYNOPKG_PKGVAR}/conf" "${PKGDEST_OPENHAB}/conf"
+
+################################## 
+# Linking from PKGDEST to PKGVAR #
+##################################
+
+# TODO: Add if clause here whether to distribute on share
+
+# ./addons
+[[ -d "${SHARE_OPENHAB}" ]] && [[ ! -d "${SHARE_OPENHAB}/addons" ]] && mv "${SYNOPKG_PKGVAR}/addons" "${SHARE_OPENHAB}"
+[[ -d "${SYNOPKG_PKGVAR}/addons" ]] && rm -rf "${SYNOPKG_PKGVAR}/addons"
+ln -s "${SHARE_OPENHAB}/addons" "${SYNOPKG_PKGVAR}/addons"
+
+# ./conf
+[[ -d "${SHARE_OPENHAB}" ]] && [[ ! -d "${SHARE_OPENHAB}/conf" ]] && mv "${SYNOPKG_PKGVAR}/conf" "${SHARE_OPENHAB}"
+[[ -d "${SYNOPKG_PKGVAR}/conf" ]] && rm -rf "${SYNOPKG_PKGVAR}/conf"
+ln -s "${SHARE_OPENHAB}/conf" "${SYNOPKG_PKGVAR}/conf"
+
+exit 0

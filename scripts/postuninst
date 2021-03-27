@@ -1,3 +1,9 @@
-#!/bin/sh
-. `dirname $0`/installer.sh
-`basename $0`
+#!/bin/bash -eux
+
+###########################
+# Wipe all data in PKGVAR #
+###########################
+
+[[ ! -n "${SYNOPKG_PKGVAR}" ]] && [[ -d "${SYNOPKG_PKGVAR}" ]] && rm -rf ${SYNOPKG_PKGVAR}/*
+
+exit 0

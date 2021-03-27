@@ -1,3 +1,3 @@
-#!/bin/sh
-. `dirname $0`/installer.sh
-`basename $0` > $SYNOPKG_TEMP_LOGFILE
+#!/bin/bash -eux
+
+exit 0

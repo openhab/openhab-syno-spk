@@ -13,7 +13,7 @@ echo "" >>$LOG
 echo "Set instance variables..." >>$LOG
 
 # let's figure out the latest available release version
-BASE_PATH='https://dl.bintray.com/openhab/mvn/org/openhab/distro/openhab'
+BASE_PATH='https://openhab.jfrog.io/artifactory/libs-release/org/openhab/distro/openhab'
 wget -nv --no-check-certificate --output-document='metadata.xml' "$BASE_PATH/maven-metadata.xml"
 OPENHAB_RELEASE="$(grep -E '<release>(.*)</release>' metadata.xml | cut -d '>' -f 2 | cut -d '<' -f 1)"
 DOWNLOAD_FILE1="openhab-$OPENHAB_RELEASE.zip"

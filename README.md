@@ -4,11 +4,20 @@ This project build a Synology DiskStation SPK install package for [openHAB](http
 
 Comments, suggestions and contributions are welcome!
 
+## Create SPK
+
+Run as followed:
+```
+OPENHAB_VERSION=3.1.0 ./build.sh
+```
+Install .spk via Synology Package manager.
+
+
 ## Installation script behaviour
 
-The Current version of installer `3.0.0` checks most stable recent version of OpenHAB and installs it during the installation procedure.
+The Current version of installer `3.1.0` checks most stable recent version of OpenHAB and installs it during the installation procedure.
 
-You need Java 11 to be able to run openHAB >= 3.0.0, so please download AdoptOpenJDK for [arm32](https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.9.1%2B1/OpenJDK11U-jdk_aarch64_linux_hotspot_11.0.9.1_1.tar.gz) because Oracle is not offering 32bit compatible package.
+You need Java 11 to be able to run openHAB >= 3.1.0, so please download AdoptOpenJDK for [arm32](https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download/jdk-11.0.9.1%2B1/OpenJDK11U-jdk_aarch64_linux_hotspot_11.0.9.1_1.tar.gz) because Oracle is not offering 32bit compatible package.
 Prepare a directory for your package like: `/var/packages/Java11`
 Edit `/etc/profile` to update `JAVA_HOME properly`
 

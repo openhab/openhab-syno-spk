@@ -51,7 +51,7 @@
         "items": [
             {
                 "type": "textfield",
-                "desc": "Choose your ports for openHAB:",
+                "desc": "Choose your ports for openhab:",
                 "subitems": [
                     {
                         "key": "ORG_APACHE_KARAF_STARTREMOTESHELL",

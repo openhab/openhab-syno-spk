@@ -2,13 +2,13 @@ language: shell
 os: linux
 dist: trusty
 script:
-- OPENHAB_VERSION=$TRAVIS_BRANCH ./build.sh
+- ./build.sh
 deploy:
   skip_cleanup: true
   provider: releases
   api_key:
     secure: PJMqKnfITCeWIw6AneWqrGZD2P9vKuUZvndQYrNIJQqoZW8e+nJxUy4c0YUxnCnL3YNcJP+U8DVBI3UzmCZhN8PO4n7Pdq5MacNVJT0XLtOQ93D7HR8UJqsAWQd0I5PwGubCx6ZgkobrlE64Wo4qyiZ8BkCIEu/FE+NYFaHyhQMPLMtUScf1nADDyGu+kamxPcg6LLDDVhxLR8SUbj0f1IzeuR9kthq38LD6qOtr4Tr6LPNyttnoXHgyIuPjGkYARwXhr5qRG+d74hf7uhQNplIYe/obtKfYWdcknP9e1B4/ZgUfVWZ2pWfTBHkwnVoIqquJwI6JijxM4BUEwwKMOP2/LlSauqHqYOqu6D+On1cPrqoUtoTLEoBN7C3Mnkq980GxUEwXdzPU0OpLVGIHr20gKe2LwDLmZCydPO+I+PPOMxKwqVy05lDHb5lEytQFEeOL5cF+2BVX6Y612iqPWqvqdQIVEVvuLGQk5lDtAnvyWkFZ830CU0tyUkqVO/X7DIFo6BdCccWN7Qo5xaZZ69BaOxWHLftPCj2VBRyqWoiLHRZLBaGjEzgLa811aMprIA/rtxBn/DM1XurK6PB078/d0YDvbnraxxK0g2y9ZiL659OO8F81DhTD1Vc366IR1YQWjI0mW9M6+mzJKGlrRvXzDSqNd69FnyHxN4B6+2Q=
-  file: openHAB-$TRAVIS_BRANCH-syno-noarch-0.001.spk
+  file: openHAB-$OPENHAB_VERSION-syno-noarch-0.001.spk
   on:
     tags: true
     repo: openhab/openhab-syno-spk
@@ -23,4 +23,5 @@ notifications:
     on_start: never
 env:
   global:
-    secure: aoHb/LMCDQNUV+WUZmYrldu9NkT6MocYqfu+oLkNYGswQjraagAGkwH26U83WRk87wH4zJCfTqPwPBxXA/BWBCilf/UnK9vYDPuRU4Zz89cwnLTfS+KJ/yakOXTKS08Ak8+srqGBzh+T12iAJ8/Sm6CvxLvPr8YdeSQ7sF5UzkOT9few5re4iR+noBQCG8ShVX272asEJglUGQoU+hNzbbmETqOqBpbOJY+I+uJERbBUHgBZJdgMLeJCzrhfPfS/lJUuYe429rToL0k1jT8reDFFcUrLenRN+whyIniIl7NnBzOOOrKXy1QG2XY1Jt4rT7kXuZ/Zhs+QPnbxdsVebeeYCWuU5oR8zp3FNjZ7w3pjiG0Z8gAlVtDr32q5AxMxlf0ualfp71Q1T9T2cEMajNILZm6G8HmhdIGXos8JhQMEZclvOhJ8xeOxRMHEBV/5/QoCJ/LA4fKagQKJGzYLK+QGiIJ0PoDgGwHii7F5Cibq5dRHooJKU3dDgr6rNXrLrVpQdTbwBmarTOl4w4CMCm55/VDPnA/8Wbi52dd12sccTAJru7JIGDm59xgN+f79q1mTYKcC/v3kaY8tm+ntYi5jIoDgSoxWHznK/DdUHvMrsAuFb3bEfVYkrgHr2A12L3Mk+m9JsClo0lDc4QXynlExqOjdxgdkmEoevbPNeeA=
+    - OPENHAB_VERSION=3.2.0
+    - secure: aoHb/LMCDQNUV+WUZmYrldu9NkT6MocYqfu+oLkNYGswQjraagAGkwH26U83WRk87wH4zJCfTqPwPBxXA/BWBCilf/UnK9vYDPuRU4Zz89cwnLTfS+KJ/yakOXTKS08Ak8+srqGBzh+T12iAJ8/Sm6CvxLvPr8YdeSQ7sF5UzkOT9few5re4iR+noBQCG8ShVX272asEJglUGQoU+hNzbbmETqOqBpbOJY+I+uJERbBUHgBZJdgMLeJCzrhfPfS/lJUuYe429rToL0k1jT8reDFFcUrLenRN+whyIniIl7NnBzOOOrKXy1QG2XY1Jt4rT7kXuZ/Zhs+QPnbxdsVebeeYCWuU5oR8zp3FNjZ7w3pjiG0Z8gAlVtDr32q5AxMxlf0ualfp71Q1T9T2cEMajNILZm6G8HmhdIGXos8JhQMEZclvOhJ8xeOxRMHEBV/5/QoCJ/LA4fKagQKJGzYLK+QGiIJ0PoDgGwHii7F5Cibq5dRHooJKU3dDgr6rNXrLrVpQdTbwBmarTOl4w4CMCm55/VDPnA/8Wbi52dd12sccTAJru7JIGDm59xgN+f79q1mTYKcC/v3kaY8tm+ntYi5jIoDgSoxWHznK/DdUHvMrsAuFb3bEfVYkrgHr2A12L3Mk+m9JsClo0lDc4QXynlExqOjdxgdkmEoevbPNeeA=

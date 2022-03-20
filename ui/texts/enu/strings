@@ -1,0 +1,18 @@
+# Copyright (c) 2000-2015 Synology Inc. All rights reserved.
+
+[app]
+app_name	=	"openHAB"
+description	=	"Tool for openHAB integration"
+str_meta_desc	=	"The open Home Automation Bus (openHAB) is an open source, technology agnostic home automation platform which runs as the center of your smart home!"
+
+[common]
+description	=	"The open Home Automation Bus (openHAB) is an open source, technology agnostic home automation platform which runs as the center of your smart home!"
+
+[config]
+fieldset_test = "Coming soon"
+
+[errors]
+directsubmit = "Saving failed"
+
+[ui]
+test = "Coming soon"

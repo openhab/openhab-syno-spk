@@ -1,0 +1,12 @@
+{
+    "data-share": {
+        "shares": [
+            {
+                "name": "openHAB",
+                "permission": {
+                    "rw": ["openHAB"]
+                }
+            }
+        ]
+    }
+}

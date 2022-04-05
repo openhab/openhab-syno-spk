@@ -1,3 +1,34 @@
-#!/bin/sh
-. `dirname $0`/installer.sh
-`basename $0` > $SYNOPKG_TEMP_LOGFILE
+#!/bin/bash -eux
+
+source `dirname $0`/common-vars.sh
+
+#################################
+#                               #
+# Backup from PKGDEST to PKGVAR #
+#                               #
+#################################
+
+######################
+# ./userdata: Backup #
+######################
+
+[[ ! -z "${SYNOPKG_PKGVAR}" ]] && [[ ! -d "${SYNOPKG_PKGVAR}/backup" ]] && mkdir -p "${SYNOPKG_PKGVAR}/backup"
+[[ -d "${PKGDEST_OPENHAB}/userdata" ]] && cp -rf "${PKGDEST_OPENHAB}/userdata" "${SYNOPKG_PKGVAR}/backup"
+
+######################################
+# ./userdata: Remove pointless stuff #
+######################################
+
+rm -rf "${SYNOPKG_PKGVAR}/backup/userdata/etc"
+rm -rf "${SYNOPKG_PKGVAR}/backup/userdata/tmp"
+
+###########################
+# .: Making a full backup #
+###########################
+# TODO: Doing it only on request. E.g. if user checks a box in the package settings.
+
+SHARE_OPENHAB_BACKUP_WITH_TIMESTAMP=${SHARE_OPENHAB_BACKUP}/$(date +"%Y%m%d_%H%M%S_%3N")
+[[ ! -z "${SYNOPKG_PKGNAME}" ]] && [[ ! -d "${SHARE_OPENHAB_BACKUP_WITH_TIMESTAMP}" ]] && mkdir -p "${SHARE_OPENHAB_BACKUP_WITH_TIMESTAMP}"
+[[ ! -z "${PKGDEST_OPENHAB}" ]] && cp -rfL "${PKGDEST_OPENHAB}" "${SHARE_OPENHAB_BACKUP_WITH_TIMESTAMP}"
+
+exit 0
